@@ -1,0 +1,33 @@
+@use '../../../../../styles/mixins' as *;
+
+.game-list {
+  @include grid-auto(260px);
+
+  &__link {
+    display: block;
+    text-decoration: none;
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 4px;
+      border-radius: var(--radius-lg);
+    }
+  }
+
+  &__desc {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-top: var(--spacing-sm);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__empty {
+    grid-column: 1 / -1;
+    color: var(--color-text-muted);
+    text-align: center;
+    padding: var(--spacing-2xl);
+  }
+}

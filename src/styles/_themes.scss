@@ -1,0 +1,25 @@
+[data-theme='light'] {
+  --color-surface: #ffffff;
+  --color-surface-elevated: #f8fafc;
+  --color-border: #e2e8f0;
+  --color-text: #1e293b;
+  --color-text-muted: #64748b;
+}
+
+[data-theme='cyberpunk'] {
+  --color-primary: #f0ff00;
+  --color-surface: #0d0d1a;
+  --color-surface-elevated: #111125;
+  --color-border: rgba(240, 255, 0, 0.2);
+  --color-text: #e0e0ff;
+  --color-text-muted: #9090cc;
+}
+
+[data-theme='fantasy'] {
+  --color-primary: #c084fc;
+  --color-surface: #1a0a2e;
+  --color-surface-elevated: #200f3e;
+  --color-border: #3d1f6e;
+  --color-text: #f0e6ff;
+  --color-text-muted: #b09cc0;
+}

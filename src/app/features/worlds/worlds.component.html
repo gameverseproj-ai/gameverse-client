@@ -1,0 +1,21 @@
+<section class="worlds">
+  <header class="worlds__header">
+    <h1>Worlds</h1>
+  </header>
+
+  @if (loading()) {
+    <p class="worlds__loading">Loading worlds...</p>
+  }
+
+  @if (error()) {
+    <p class="worlds__error">{{ error() }}</p>
+  }
+
+  <div class="worlds__grid">
+    @for (world of worlds(); track world.id) {
+      <app-world-card [world]="world" />
+    } @empty {
+      <p class="worlds__empty">No worlds found.</p>
+    }
+  </div>
+</section>

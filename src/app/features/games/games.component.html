@@ -1,0 +1,19 @@
+<section class="games">
+  <header class="games__header">
+    <h1>Games</h1>
+    <input
+      class="games__search"
+      type="search"
+      placeholder="Search games..."
+      [value]="filter()"
+      (input)="filter.set($any($event.target).value)"
+      aria-label="Search games"
+    />
+  </header>
+
+  @if (loading()) {
+    <p class="games__loading">Loading games...</p>
+  } @else {
+    <app-game-list [games]="games()" [filter]="filter()" />
+  }
+</section>

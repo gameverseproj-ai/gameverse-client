@@ -1,0 +1,14 @@
+<section class="world-detail">
+  @if (world(); as w) {
+    <header class="world-detail__header">
+      <img [src]="w.coverImageUrl" [alt]="w.name" class="world-detail__cover" />
+      <div class="world-detail__meta">
+        <span class="world-detail__theme">{{ w.theme }}</span>
+        <h1>{{ w.name }}</h1>
+        <p>{{ w.description }}</p>
+      </div>
+    </header>
+  } @else {
+    <p class="world-detail__not-found">World not found.</p>
+  }
+</section>

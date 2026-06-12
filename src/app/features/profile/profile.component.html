@@ -1,0 +1,19 @@
+<section class="profile">
+  <header class="profile__header">
+    @if (gameState.currentUser(); as user) {
+      <img
+        class="profile__avatar"
+        [src]="user.avatarUrl"
+        [alt]="user.username"
+      />
+      <h1>{{ user.username }}</h1>
+    } @else {
+      <div class="profile__avatar profile__avatar--placeholder">?</div>
+      <h1>Guest</h1>
+    }
+  </header>
+
+  <app-stats
+    [highScore]="gameState.highScore()"
+  />
+</section>

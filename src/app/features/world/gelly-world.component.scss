@@ -1,0 +1,120 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.world-container {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #0d0d1a;
+  // Covers the full viewport including the nav bar
+}
+
+.world-canvas {
+  // Three.js controls width + height via renderer.setSize() — do NOT set them
+  // here or the CSS rule fights the inline style Three.js applies.
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+}
+
+// ─── Interaction prompt ──────────────────────────────────────────────────────
+
+.interaction-prompt {
+  position: absolute;
+  bottom: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(10, 10, 30, 0.85);
+  border: 1px solid rgba(124, 58, 237, 0.6);
+  border-radius: 2rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  letter-spacing: 0.03em;
+  animation: prompt-in 0.25s ease;
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+
+  kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    background: #7c3aed;
+    border-radius: 0.3rem;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #fff;
+  }
+}
+
+@keyframes prompt-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+// ─── Mobile joystick ────────────────────────────────────────────────────────
+
+.joystick-area {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 2.5rem;
+  width: 110px;
+  height: 110px;
+  display: none;
+  touch-action: none;
+
+  @media (pointer: coarse) {
+    display: block;
+  }
+}
+
+.joystick-ring {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(124, 58, 237, 0.12);
+  border: 2px solid rgba(124, 58, 237, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.joystick-knob {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(124, 58, 237, 0.7);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  will-change: transform;
+  transition: background 0.1s;
+}
+
+// ─── Controls hint ──────────────────────────────────────────────────────────
+
+.controls-hint {
+  position: absolute;
+  bottom: 1rem;
+  right: 1.5rem;
+  font-size: 0.7rem;
+  color: rgba(148, 163, 184, 0.5);
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: 0.04em;
+
+  @media (pointer: coarse) {
+    display: none;
+  }
+}

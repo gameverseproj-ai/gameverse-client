@@ -1,0 +1,6 @@
+@if (showNav()) {
+  <app-nav />
+}
+<main [class.main-content]="showNav()">
+  <router-outlet />
+</main>

@@ -1,0 +1,31 @@
+@use '../../../styles/mixins' as *;
+
+.worlds {
+  @include container;
+  padding-block: var(--spacing-2xl);
+
+  &__header {
+    margin-bottom: var(--spacing-xl);
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+  }
+
+  &__grid {
+    @include grid-auto(300px);
+  }
+
+  &__loading,
+  &__empty {
+    color: var(--color-text-muted);
+    text-align: center;
+    padding: var(--spacing-2xl);
+  }
+
+  &__error {
+    color: var(--color-error);
+    padding: var(--spacing-md);
+  }
+}

@@ -1,0 +1,32 @@
+<div class="world-container" #worldContainer>
+  <canvas #canvas class="world-canvas"></canvas>
+
+  <!-- Interaction prompt — shown when player is near a building -->
+  @if (nearbyPortal(); as portal) {
+    <div class="interaction-prompt">
+      <kbd>E</kbd>
+      <span>Enter {{ portal.name }}</span>
+    </div>
+  }
+
+  <!-- Mobile joystick (pointer: coarse devices only) -->
+  <div
+    class="joystick-area"
+    (touchstart)="onTouchStart($event)"
+    (touchmove)="onTouchMove($event)"
+    (touchend)="onTouchEnd($event)"
+    (touchcancel)="onTouchEnd($event)"
+  >
+    <div class="joystick-ring">
+      <div
+        class="joystick-knob"
+        [style.transform]="'translate(' + joystickX() + 'px,' + joystickY() + 'px)'"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Controls hint -->
+  <div class="controls-hint">
+    <span>WASD / ↑↓←→ move &nbsp;·&nbsp; E interact</span>
+  </div>
+</div>

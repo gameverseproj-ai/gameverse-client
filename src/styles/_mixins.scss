@@ -1,0 +1,31 @@
+@mixin container {
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--spacing-lg);
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin card-base {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+@mixin grid-auto($min: 280px) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax($min, 1fr));
+  gap: var(--spacing-lg);
+}
+
+@mixin responsive($bp) {
+  @if $bp == sm { @media (min-width: 640px) { @content; } }
+  @else if $bp == md { @media (min-width: 768px) { @content; } }
+  @else if $bp == lg { @media (min-width: 1024px) { @content; } }
+  @else if $bp == xl { @media (min-width: 1280px) { @content; } }
+}

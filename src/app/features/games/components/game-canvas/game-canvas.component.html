@@ -1,0 +1,13 @@
+<div class="game-canvas">
+  <div class="game-canvas__hud">
+    <span class="game-canvas__score">Score: {{ score() }}</span>
+    <button
+      class="btn btn--primary"
+      (click)="togglePlay()"
+      [attr.aria-label]="running() ? 'Pause game' : 'Play game'"
+    >
+      {{ running() ? 'Pause' : 'Play' }}
+    </button>
+  </div>
+  <canvas #canvas class="game-canvas__surface" width="480" height="480"></canvas>
+</div>

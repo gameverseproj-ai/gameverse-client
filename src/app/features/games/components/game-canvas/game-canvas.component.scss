@@ -1,0 +1,31 @@
+@use '../../../../../styles/mixins' as *;
+
+.game-canvas {
+  @include container;
+  @include flex-center;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding-block: var(--spacing-2xl);
+
+  &__hud {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 480px;
+    max-width: 100%;
+  }
+
+  &__score {
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--color-primary);
+  }
+
+  &__surface {
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    display: block;
+    max-width: 100%;
+  }
+}
