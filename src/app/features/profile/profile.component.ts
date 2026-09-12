@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { GameStateService } from '../../core/services/game-state.service';
+import { Component, afterNextRender, inject } from '@angular/core';
+import { PlayerFacade } from '../../core/facades/player.facade';
 import { StatsComponent } from './components/stats/stats.component';
 
 @Component({
@@ -10,5 +10,9 @@ import { StatsComponent } from './components/stats/stats.component';
   styleUrl: './profile.component.scss',
 })
 export class ProfileComponent {
-  readonly gameState = inject(GameStateService);
+  readonly playerFacade = inject(PlayerFacade);
+
+  constructor() {
+    afterNextRender(() => this.playerFacade.loadAll());
+  }
 }

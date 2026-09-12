@@ -1,13 +1,17 @@
 <section class="world-detail">
-  @if (world(); as w) {
+  @if (worldFacade.currentWorld(); as w) {
     <header class="world-detail__header">
-      <img [src]="w.coverImageUrl" [alt]="w.name" class="world-detail__cover" />
+      @if (w.coverImageUrl) {
+        <img [src]="w.coverImageUrl" [alt]="w.name" class="world-detail__cover" />
+      }
       <div class="world-detail__meta">
         <span class="world-detail__theme">{{ w.theme }}</span>
         <h1>{{ w.name }}</h1>
         <p>{{ w.description }}</p>
       </div>
     </header>
+  } @else if (worldFacade.loading()) {
+    <p class="world-detail__loading">Loading world...</p>
   } @else {
     <p class="world-detail__not-found">World not found.</p>
   }

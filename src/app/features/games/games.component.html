@@ -11,9 +11,9 @@
     />
   </header>
 
-  @if (loading()) {
+  @if (gameFacade.loading()) {
     <p class="games__loading">Loading games...</p>
   } @else {
-    <app-game-list [games]="games()" [filter]="filter()" />
+    <app-game-list [games]="gameFacade.games()" [filter]="filter()" />
   }
 </section>

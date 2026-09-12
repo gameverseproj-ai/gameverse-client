@@ -1,5 +1,5 @@
 export type GameId = string;
-export type GameEngineType = 'snake' | 'tetris' | 'platformer';
+export type GameEngineType = 'snake' | 'tetris' | 'platformer' | '2048';
 
 export interface Game {
   id: GameId;

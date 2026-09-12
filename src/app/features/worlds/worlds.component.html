@@ -3,19 +3,21 @@
     <h1>Worlds</h1>
   </header>
 
-  @if (loading()) {
+  @if (worldFacade.loading()) {
     <p class="worlds__loading">Loading worlds...</p>
   }
 
-  @if (error()) {
-    <p class="worlds__error">{{ error() }}</p>
+  @if (worldFacade.error(); as err) {
+    <p class="worlds__error">{{ err }}</p>
   }
 
   <div class="worlds__grid">
-    @for (world of worlds(); track world.id) {
+    @for (world of worldFacade.worlds(); track world.id) {
       <app-world-card [world]="world" />
     } @empty {
-      <p class="worlds__empty">No worlds found.</p>
+      @if (!worldFacade.loading()) {
+        <p class="worlds__empty">No worlds found.</p>
+      }
     }
   </div>
 </section>

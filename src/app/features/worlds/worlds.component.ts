@@ -1,6 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, afterNextRender, inject } from '@angular/core';
 import { WorldCardComponent } from './components/world-card/world-card.component';
-import { World } from '../../core/models/world.model';
+import { WorldFacade } from '../../core/facades/world.facade';
 
 @Component({
   selector: 'app-worlds',
@@ -10,7 +10,9 @@ import { World } from '../../core/models/world.model';
   styleUrl: './worlds.component.scss',
 })
 export class WorldsComponent {
-  readonly worlds = signal<World[]>([]);
-  readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly worldFacade = inject(WorldFacade);
+
+  constructor() {
+    afterNextRender(() => this.worldFacade.loadWorlds());
+  }
 }

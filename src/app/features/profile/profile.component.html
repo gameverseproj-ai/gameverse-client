@@ -1,19 +1,30 @@
 <section class="profile">
   <header class="profile__header">
-    @if (gameState.currentUser(); as user) {
-      <img
-        class="profile__avatar"
-        [src]="user.avatarUrl"
-        [alt]="user.username"
-      />
-      <h1>{{ user.username }}</h1>
+    @if (playerFacade.profile(); as profile) {
+      @if (profile.avatarUrl) {
+        <img
+          class="profile__avatar"
+          [src]="profile.avatarUrl"
+          [alt]="profile.username"
+        />
+      } @else {
+        <div class="profile__avatar profile__avatar--placeholder">
+          {{ profile.username.charAt(0).toUpperCase() }}
+        </div>
+      }
+      <h1>{{ profile.username }}</h1>
+      <p class="profile__level">
+        Level {{ profile.level }}&nbsp;&middot;&nbsp;{{ profile.xp }}&thinsp;/&thinsp;{{ profile.xpToNextLevel }}&thinsp;XP
+      </p>
     } @else {
       <div class="profile__avatar profile__avatar--placeholder">?</div>
-      <h1>Guest</h1>
+      <h1>{{ playerFacade.loading() ? 'Loading...' : 'Guest' }}</h1>
     }
   </header>
 
   <app-stats
-    [highScore]="gameState.highScore()"
+    [highScore]="playerFacade.progress()?.highScore ?? 0"
+    [gamesPlayed]="playerFacade.progress()?.totalGamesPlayed ?? 0"
+    [totalScore]="playerFacade.progress()?.totalScore ?? 0"
   />
 </section>

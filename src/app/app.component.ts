@@ -17,9 +17,9 @@ export class AppComponent {
   readonly showNav = toSignal(
     this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-      map((e) => !e.urlAfterRedirects.startsWith('/world')),
+      map((e) => !e.urlAfterRedirects.startsWith('/world') && !e.urlAfterRedirects.startsWith('/games/snake') && !e.urlAfterRedirects.startsWith('/games/2048') && !e.urlAfterRedirects.startsWith('/games/tetris')),
     ),
     // initialValue checks the URL already present before first navigation
-    { initialValue: !this.router.url.startsWith('/world') },
+    { initialValue: !this.router.url.startsWith('/world') && !this.router.url.startsWith('/games/snake') && !this.router.url.startsWith('/games/2048') && !this.router.url.startsWith('/games/tetris') },
   );
 }

@@ -1,6 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, afterNextRender, inject, signal } from '@angular/core';
 import { GameListComponent } from './components/game-list/game-list.component';
-import { Game } from '../../core/models/game.model';
+import { GameFacade } from '../../core/facades/game.facade';
 
 @Component({
   selector: 'app-games',
@@ -10,7 +10,11 @@ import { Game } from '../../core/models/game.model';
   styleUrl: './games.component.scss',
 })
 export class GamesComponent {
-  readonly games = signal<Game[]>([]);
-  readonly loading = signal(false);
-  readonly filter = signal('');
+  readonly gameFacade = inject(GameFacade);
+  readonly filter     = signal('');
+
+  constructor() {
+    // Load Gelly World games on init; worldId becomes a route param once multi-world navigation lands
+    afterNextRender(() => this.gameFacade.loadGames('gelly'));
+  }
 }

@@ -1,5 +1,5 @@
-import { Component, input, signal } from '@angular/core';
-import { World } from '../../../../core/models/world.model';
+import { Component, afterNextRender, inject, input } from '@angular/core';
+import { WorldFacade } from '../../../../core/facades/world.facade';
 
 @Component({
   selector: 'app-world-detail',
@@ -8,6 +8,13 @@ import { World } from '../../../../core/models/world.model';
   styleUrl: './world-detail.component.scss',
 })
 export class WorldDetailComponent {
-  readonly id = input<string>();
-  readonly world = signal<World | null>(null);
+  readonly id          = input<string>();
+  readonly worldFacade = inject(WorldFacade);
+
+  constructor() {
+    afterNextRender(() => {
+      const id = this.id();
+      if (id) this.worldFacade.loadWorldById(id);
+    });
+  }
 }

@@ -9,3 +9,10 @@ export interface World {
   coverImageUrl: string;
   gameIds: string[];
 }
+
+export interface WorldProgress {
+  worldId: string;
+  visitCount: number;
+  completedPortalIds: string[];
+  lastVisitedAt: string | null; // ISO 8601
+}

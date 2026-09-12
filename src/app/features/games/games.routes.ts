@@ -1,6 +1,12 @@
 import { Routes } from '@angular/router';
 
 export const GAMES_ROUTES: Routes = [
+  { path: 'tetris/play', redirectTo: 'tetris', pathMatch: 'full' },
+  { path: 'tetris', loadComponent: () => import('./tetris/tetris.component').then(m => m.TetrisComponent) },
+  { path: '2048/play', redirectTo: '2048', pathMatch: 'full' },
+  { path: '2048', loadComponent: () => import('./temple/temple.component').then(m => m.TempleComponent) },
+  { path: 'snake/play', redirectTo: 'snake', pathMatch: 'full' },
+  { path: 'snake', loadComponent: () => import('./snake/snake.component').then(m => m.SnakeComponent) },
   {
     path: '',
     loadComponent: () =>

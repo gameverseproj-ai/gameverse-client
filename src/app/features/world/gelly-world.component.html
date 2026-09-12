@@ -1,32 +1,70 @@
-<div class="world-container" #worldContainer>
-  <canvas #canvas class="world-canvas"></canvas>
+<div class="world-container" [class.mobile-controls]="mobileControls()" #worldContainer
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerEnd($event)"
+  (pointercancel)="onPointerEnd($event)"
+  (lostpointercapture)="onPointerEnd($event)"
+  (contextmenu)="$event.preventDefault()"
+>
+  <canvas #canvas class="world-canvas" aria-label="Gelly World, a 3D playground. Use W and S to move, A and D to turn, Space to jump and Q to wave."></canvas>
+  <header class="world-header">
+    <a routerLink="/home" class="world-brand"><span class="brand-mark">g.</span><span>GELLY WORLD<small>A LITTLE WORLD OF PLAY</small></span></a>
+    <a class="world-menu" routerLink="/games">Explore games <span>↗</span></a>
+  </header>
+  <section class="world-intro" aria-live="polite"><span class="eyebrow">YOUR NEXT ADVENTURE</span>
+    @if (enteringPortal(); as portal) {
+      <p>{{ entryError() ? 'Could not load your game.' : 'Preparing ' + portal.name + '…' }}</p>
+    } @else {
+      <p>{{ mobileControls() ? 'Left stick to move · Swipe to look.' : 'W/S to move · A/D to turn.' }}<br>Walk up to a door to enter its game.</p>
+    }
+  </section>
+  @if (enteringPortal()) {
+    <div class="entry-feedback" aria-live="polite">
+      @if (entryError()) {
+        <span>Your progress could not be loaded. Please try again.</span>
+        <button type="button" (click)="loadEntryData()">Try again</button>
+      }
+      <button type="button" (click)="cancelEntry()">Return to world</button>
+    </div>
+  }
+  <div class="hero-card"><span class="hero-avatar">●</span><span><strong>Gelly</strong><small>Level 01 · Born to bounce</small></span><span class="hero-status">{{ enteringPortal() ? 'OFF WE GO!' : 'READY TO PLAY' }}</span></div>
 
   <!-- Interaction prompt — shown when player is near a building -->
   @if (nearbyPortal(); as portal) {
-    <div class="interaction-prompt">
+    <button type="button" class="interaction-prompt" (click)="enterPortal()">
       <kbd>E</kbd>
       <span>Enter {{ portal.name }}</span>
-    </div>
+    </button>
   }
 
-  <!-- Mobile joystick (pointer: coarse devices only) -->
-  <div
-    class="joystick-area"
-    (touchstart)="onTouchStart($event)"
-    (touchmove)="onTouchMove($event)"
-    (touchend)="onTouchEnd($event)"
-    (touchcancel)="onTouchEnd($event)"
-  >
-    <div class="joystick-ring">
+  <!-- A fixed mobile stick; all other scene touches control the camera. -->
+  <div class="joystick-area" aria-hidden="true">
+    @if (mobileControls() && !enteringPortal()) {
       <div
-        class="joystick-knob"
-        [style.transform]="'translate(' + joystickX() + 'px,' + joystickY() + 'px)'"
-      ></div>
-    </div>
+        class="joystick-ring"
+        [style.left.px]="joystickOriginX()"
+        [style.top.px]="joystickOriginY()"
+      >
+        <div
+          class="joystick-knob"
+          [style.transform]="'translate(' + joystickX() + 'px,' + joystickY() + 'px)'"
+        ></div>
+      </div>
+    }
   </div>
 
-  <!-- Controls hint -->
-  <div class="controls-hint">
-    <span>WASD / ↑↓←→ move &nbsp;·&nbsp; E interact</span>
+  @if (!enteringPortal()) {
+  <div class="hero-actions" aria-label="Hero actions">
+    <div class="camera-modes" role="group" aria-label="Camera mode">
+      <button type="button" (click)="setCameraMode('first-person')" [attr.aria-pressed]="cameraMode() === 'first-person'">Eyes</button>
+      <button type="button" (click)="setCameraMode('third-person')" [attr.aria-pressed]="cameraMode() === 'third-person'">Behind</button>
+    </div>
+    <button type="button" (click)="playAction('wave')"><span>✦</span> Wave <kbd>Q</kbd></button>
+    <button type="button" (click)="playAction('jump')"><span>↑</span> Jump <kbd>SPACE</kbd></button>
   </div>
+  <!-- Controls hint — desktop only -->
+  <div class="controls-hint">
+    <span>W/S forward/back &nbsp;·&nbsp; A/D turn &nbsp;·&nbsp; E enter</span>
+  </div>
+  }
 </div>

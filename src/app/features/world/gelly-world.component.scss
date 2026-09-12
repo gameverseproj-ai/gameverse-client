@@ -9,7 +9,9 @@
   inset: 0;
   overflow: hidden;
   background: #0d0d1a;
-  // Covers the full viewport including the nav bar
+  touch-action: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .world-canvas {
@@ -63,43 +65,52 @@
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
-// ─── Mobile joystick ────────────────────────────────────────────────────────
+// ─── Floating joystick ───────────────────────────────────────────────────────
 
 .joystick-area {
   position: absolute;
-  bottom: 2.5rem;
-  left: 2.5rem;
-  width: 110px;
-  height: 110px;
-  display: none;
-  touch-action: none;
-
-  @media (pointer: coarse) {
-    display: block;
-  }
-}
-
-.joystick-ring {
-  position: relative;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
+  touch-action: none;
+  pointer-events: none;
+
+  z-index: 5;
+}
+
+// Ring appears at the touch origin, centered via negative margin
+.joystick-ring {
+  position: absolute;
+  width: 108px;
+  height: 108px;
+  margin-left: -54px;
+  margin-top: -54px;
   border-radius: 50%;
-  background: rgba(124, 58, 237, 0.12);
-  border: 2px solid rgba(124, 58, 237, 0.4);
+  background: rgba(124, 58, 237, 0.13);
+  border: 2px solid rgba(157, 92, 255, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: joystick-appear 0.1s ease;
+  pointer-events: none;
 }
 
 .joystick-knob {
   position: absolute;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(124, 58, 237, 0.7);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(124, 58, 237, 0.85);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 16px rgba(124, 58, 237, 0.6);
   will-change: transform;
-  transition: background 0.1s;
+  pointer-events: none;
+}
+
+@keyframes joystick-appear {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 // ─── Controls hint ──────────────────────────────────────────────────────────
@@ -118,3 +129,58 @@
     display: none;
   }
 }
+
+.world-header { position: absolute; inset: 26px 32px auto; display: flex; align-items: center; justify-content: space-between; z-index: 3; }
+.world-brand { color: #fff6f4; text-decoration: none; display: flex; gap: 12px; align-items: center; font-weight: 900; font-size: 19px; letter-spacing: .04em; text-shadow: 0 2px 12px #37255c; }
+.world-brand small { display: block; font-size: 8px; letter-spacing: .22em; margin-top: 5px; opacity: .7; }
+.brand-mark { display: grid; place-items: center; width: 43px; height: 43px; border-radius: 15px; background: linear-gradient(145deg,#ff9bd8,#d5389c); font-size: 29px; box-shadow: inset 0 2px 1px #ffd4f3,0 6px 20px #30164255; }
+.world-menu { padding: 12px 18px; border: 1px solid #ffffff33; border-radius: 24px; background: #29214599; backdrop-filter: blur(12px); color: white; font-size: 12px; text-decoration: none; }
+.world-menu span { margin-left: 15px; color: #ffbce6; }
+.world-intro { position: absolute; top: 119px; left: 34px; pointer-events: none; color: #fff7fc; text-shadow: 0 3px 16px #27164588; }
+.eyebrow { font-size: 9px; letter-spacing: .22em; color: #ffd0ed; font-weight: 700; }
+h1 { font-size: clamp(24px,3vw,42px); line-height: 1.08; letter-spacing: -.045em; margin: 12px 0; }
+.world-intro p { font-size: 12px; color: #e3d6f7; }
+.hero-card { position: absolute; bottom: 32px; left: 32px; display: flex; align-items: center; gap: 12px; background: #201936b8; border: 1px solid #ffb9ed33; padding: 12px 17px 12px 12px; border-radius: 20px; backdrop-filter: blur(16px); color: #fff; pointer-events: none; }
+.hero-avatar { width: 39px; height: 39px; border-radius: 14px; display: grid; place-items: center; background: #f651b233; color: #ff77c9; font-size: 39px; line-height: 1; }
+.hero-card strong { font-size: 13px; }.hero-card small { display: block; font-size: 9px; color: #bdaccf; margin-top: 5px; }
+.hero-status { font-size: 7px; letter-spacing: .1em; color: #aeefad; margin-left: 20px; }
+.hero-actions { position: absolute; bottom: 42px; right: 32px; display: flex; gap: 9px; z-index: 3; }
+.hero-actions button { cursor: pointer; border: 1px solid #ffc4eb55; background: #352246c9; color: #fff5fa; backdrop-filter: blur(12px); padding: 12px 16px; border-radius: 16px; font: inherit; font-size: 12px; display: flex; align-items: center; gap: 10px; }
+.hero-actions button:hover { background: #774573; transform: translateY(-2px); }
+.hero-actions span { color: #ffafe1; font-size: 19px; }.hero-actions kbd { font-size: 8px; color: #ceb5d3; }
+.controls-hint { bottom: 17px; right: 34px; color: #e8d6f8aa; font-size: 9px; }
+.interaction-prompt { z-index: 4; cursor: pointer; }
+a:focus-visible, button:focus-visible { outline: 3px solid #ffd1ef; outline-offset: 4px; }
+@media (max-width: 650px) { .world-header { inset: 20px 18px auto; }.world-brand { font-size: 15px; }.world-intro { top: 92px; left: 20px; }.world-intro h1 { font-size: 25px; }.world-intro p { max-width: 170px; line-height: 1.6; }.hero-card { bottom: 20px; left: 15px; padding: 9px; }.hero-status { display: none; }.hero-actions { bottom: 22px; right: 15px; }.hero-actions button { padding: 10px; }.hero-actions kbd { display: none; }.world-menu { font-size: 10px; padding: 10px; }.controls-hint { display: none; } }
+
+@media (max-width: 650px) { .view-button { position: absolute; bottom: 58px; right: 0; white-space: nowrap; } }
+
+.camera-modes { display: flex; gap: 4px; }
+.camera-modes button[aria-pressed="true"] { background: #9e467f; border-color: #ffc4eb; }
+@media (max-width: 650px) { .camera-modes { position: absolute; bottom: 58px; right: 0; } }
+
+.entry-feedback {
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  bottom: 110px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  width: min(90%, 420px);
+  color: #fff;
+  text-align: center;
+  span { flex-basis: 100%; }
+  button {
+    padding: 10px 18px;
+    border: 1px solid #ffffff60;
+    border-radius: 20px;
+    background: #30204de6;
+    color: inherit;
+    cursor: pointer;
+  }
+}
+
+.mobile-controls .controls-hint{display:none}.mobile-controls .hero-actions kbd{display:none}

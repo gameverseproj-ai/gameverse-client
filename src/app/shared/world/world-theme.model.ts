@@ -13,10 +13,18 @@ export interface WorldThemeAccentLight {
 export interface WorldThemeGround {
   readonly color: number;
   readonly roughness: number;
+  readonly emissive?: number;
+  readonly emissiveIntensity?: number;
   readonly size: number;
   readonly gridDivisions: number;
   readonly gridColor1: number;
   readonly gridColor2: number;
+}
+
+export interface WorldThemeHemisphereLight {
+  readonly skyColor: number;
+  readonly groundColor: number;
+  readonly intensity: number;
 }
 
 export interface WorldTheme {
@@ -26,6 +34,7 @@ export interface WorldTheme {
   readonly fogColor: number;
   readonly fogDensity: number;
   readonly ambientLight: WorldThemeLight;
+  readonly hemisphereLight?: WorldThemeHemisphereLight;
   readonly directionalLight: WorldThemeLight & { readonly position: [number, number, number] };
   readonly accentLights: readonly WorldThemeAccentLight[];
   readonly ground: WorldThemeGround;

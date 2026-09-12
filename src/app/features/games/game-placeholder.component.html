@@ -3,6 +3,11 @@
     <span class="placeholder__icon">{{ meta().icon }}</span>
     <h1 class="placeholder__title">{{ meta().label }}</h1>
     <p class="placeholder__status">Coming Soon</p>
+    @if (bootstrap(); as data) {
+      <p class="placeholder__desc">Your best score: {{ data.progress.bestScore }} · Games played: {{ data.progress.gamesPlayed }}</p>
+    } @else {
+      <p class="placeholder__desc">{{ loadError() ? 'Your progress could not be loaded.' : 'Loading your progress…' }}</p>
+    }
     <p class="placeholder__desc">
       This game is under construction. Check back soon for the full experience.
     </p>
