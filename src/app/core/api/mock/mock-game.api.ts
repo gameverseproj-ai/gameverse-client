@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Observable, of, timer, map } from 'rxjs';
 import { GameBootstrap } from '../../models/game-bootstrap.model';
 import { mockGameBootstrap } from './mock-game-bootstrap';
+import { MockPowerApi } from './mock-power.api';
 import { TETRIS_API } from '../tetris.api';
 import { TEMPLE_API } from '../temple.api';
 import { SNAKE_API } from '../snake.api';
@@ -12,6 +13,7 @@ import { Game } from '../../models/game.model';
 import { GameSession, GameResult, FinishedGameSession } from '../../models/session.model';
 
 const MOCK_GAMES: Game[] = [
+  { id: 'power', title: 'Power Kick', description: 'Train daily, take down cheeky punch bags and set your power record.', worldId: 'gelly', thumbnailUrl: '', engineType: 'power' },
   {
     id: 'snake',
     title: 'Snake Hall',
@@ -43,10 +45,12 @@ export class MockGameApi implements GameApi {
   private readonly tetris = inject(TETRIS_API);
   private readonly temple = inject(TEMPLE_API);
   private readonly snake = inject(SNAKE_API);
+  private readonly power = inject(MockPowerApi);
   getBootstrap(gameId: string): Observable<GameBootstrap> {
     if (gameId === 'tetris') return this.tetris.getBootstrap();
     if (gameId === '2048') return this.temple.getBootstrap();
     if (gameId === 'snake') return this.snake.getBootstrap();
+    if (gameId === 'power') return this.power.getBootstrap();
     return timer(this.ms).pipe(map(() => mockGameBootstrap(gameId)));
   }
   private readonly ms = isPlatformBrowser(inject(PLATFORM_ID)) ? 300 : 0;

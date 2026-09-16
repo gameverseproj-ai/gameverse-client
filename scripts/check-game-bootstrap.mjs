@@ -11,14 +11,15 @@ export { Subject, firstValueFrom, EMPTY } from 'rxjs';
 export { SNAKE_API } from './src/app/core/api/snake.api';
 export { MockSnakeApi } from './src/app/core/api/mock/mock-snake.api';
 export { GAME_API } from './src/app/core/api/game.api';
+export { MockPowerApi } from './src/app/core/api/mock/mock-power.api';
 export { MockGameApi } from './src/app/core/api/mock/mock-game.api';
 export { GameFacade } from './src/app/core/facades/game.facade';
 export { SnakeComponent } from './src/app/features/games/snake/snake.component';
 export { GellyWorldComponent } from './src/app/features/world/gelly-world.component';
 `, resolveDir:process.cwd()},bundle:true,platform:'node',format:'esm',write:false});
 const { createEnvironmentInjector, runInInjectionContext, PLATFORM_ID, signal, Subject, firstValueFrom, EMPTY,
- TETRIS_API, MockTetrisApi, TEMPLE_API, MockTempleApi, SNAKE_API, MockSnakeApi, GAME_API, MockGameApi, GameFacade, GellyWorldComponent, SnakeComponent } = await import(`data:text/javascript;base64,${Buffer.from(compiled.outputFiles[0].text).toString('base64')}`);
-const injector = createEnvironmentInjector([{provide: PLATFORM_ID, useValue:'server'}, {provide:SNAKE_API,useClass:MockSnakeApi}, {provide:TEMPLE_API,useClass:MockTempleApi}, {provide:TETRIS_API,useClass:MockTetrisApi}]);
+ MockPowerApi, TETRIS_API, MockTetrisApi, TEMPLE_API, MockTempleApi, SNAKE_API, MockSnakeApi, GAME_API, MockGameApi, GameFacade, GellyWorldComponent, SnakeComponent } = await import(`data:text/javascript;base64,${Buffer.from(compiled.outputFiles[0].text).toString('base64')}`);
+const injector = createEnvironmentInjector([MockPowerApi, {provide: PLATFORM_ID, useValue:'server'}, {provide:SNAKE_API,useClass:MockSnakeApi}, {provide:TEMPLE_API,useClass:MockTempleApi}, {provide:TETRIS_API,useClass:MockTetrisApi}]);
 const mock = runInInjectionContext(injector, () => new MockGameApi());
 const fixtures = {};
 for (const id of ['snake', 'tetris', '2048', 'power']) {
