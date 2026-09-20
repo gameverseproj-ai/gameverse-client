@@ -134,7 +134,7 @@ export function buildSnakeHall(): THREE.Group {
 
 export function buildTemple(): THREE.Group {
   const g = new THREE.Group();
-  const colors = [0xb77536, 0xe1a34c, 0xcd893b, 0xf0bd66, 0xbf8240];
+  const colors = [0xac5d22, 0xdf9133, 0xc77726, 0xefb34e, 0xb96b2c];
   walls(g, 11, 4.5, 8, .25, colors, true);
   walls(g, 8, 2.3, 5.8, 4.85, colors);
   walls(g, 5.1, 2, 3.9, 7.25, colors);
@@ -156,7 +156,7 @@ export function buildTemple(): THREE.Group {
 
 export function buildFactory(): THREE.Group {
   const g = new THREE.Group();
-  const colors = [0x734896, 0x945bbc, 0x8052aa, 0xa369c7, 0x684487];
+  const colors = [0x612e94, 0x8940bd, 0x7135aa, 0xa04ac7, 0x54267f];
   walls(g, 9.5, 6.3, 6.8, .3, colors, true);
   const candy = [0xee68be, 0x35bad7, 0x92cd45, 0xf6a83f];
   for (let i = 0; i < 2; i++) {

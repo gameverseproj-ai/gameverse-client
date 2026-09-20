@@ -25,6 +25,16 @@ Grab either foreground glove, drag down to wind up, move sideways to aim, and re
 
 Training gloves are attached to the forearm endpoint with a shared wrist transform. The training version omits the foreground glove's extra forearm, preventing floating or doubled arm segments.
 
+## Challenger HP authority and backend handoff
+
+`core/api/mock/power-mock-server.ts` owns challenger creation, adaptive HP, knockout progression and legacy save migration. `MockPowerApi` loads and persists this state. The shared request/response types live in `core/models/power.model.ts`.
+
+The client submits a `PowerAction` (strike mode, pull and aim, or exercise index). It does not submit HP, maximum HP, strength or a requested level. Bootstrap and action responses return the authoritative `PowerState`, including `hp` and `maxHp`; the health bar displays those values directly. Client strike calculations are only presentation feedback and do not update progress.
+
+On creation, maximum HP is `round(strength * 2.5 * (3.6 + 0.7 * log2(stage)))`. Each knockout creates the next challenger with at least one more maximum HP than the previous one. Maximum HP is fixed for the current challenger, so training does not heal or strengthen an active opponent. Old saves without `maxHp` preserve their remaining-health fraction during migration.
+
+For backend integration, replace the mock API transport while retaining the request/response contract. The backend must load the player's stored strength, validate actions and atomically persist damage, knockout and successor creation. Never trust client-calculated damage or HP. The current implementation still runs locally as a mock; no server endpoint has been deployed.
+
 ## Verification
 
 - `node scripts/check-power.mjs`: damage, progression, 60 IDs, assignments, 9999/10000 ms boundary, completed rewards, migration.

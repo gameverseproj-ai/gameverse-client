@@ -129,12 +129,14 @@ export class GellyWorldScene {
     const moon = new THREE.DirectionalLight(directionalLight.color, directionalLight.intensity);
     moon.position.set(...directionalLight.position);
     moon.castShadow = true;
-    moon.shadow.mapSize.setScalar(1024);
-    moon.shadow.camera.left   = -100;
-    moon.shadow.camera.right  =  100;
-    moon.shadow.camera.top    =  100;
-    moon.shadow.camera.bottom = -100;
+    moon.shadow.mapSize.setScalar(2048);
+    moon.shadow.camera.left   = -60;
+    moon.shadow.camera.right  =  60;
+    moon.shadow.camera.top    =  60;
+    moon.shadow.camera.bottom = -60;
     moon.shadow.camera.far    =  250;
+    moon.shadow.normalBias = .035;
+    moon.shadow.bias = -.0002;
     this.scene.add(moon);
 
     for (const al of accentLights) {
@@ -173,7 +175,7 @@ export class GellyWorldScene {
     grid.position.y = 0.02;
     const gridMat = grid.material as THREE.LineBasicMaterial;
     gridMat.transparent = true;
-    gridMat.opacity = 0.06;
+    gridMat.opacity = 0.015;
     this.endlessGround.add(grid);
 
     const ring = new THREE.Mesh(
@@ -201,6 +203,9 @@ export class GellyWorldScene {
 
       const div = document.createElement('div');
       div.className = 'world-label';
+      // Hall plaques carry the names; reveal the floating hint only on approach.
+      div.style.opacity = '0';
+      div.style.transition = 'opacity 180ms ease';
       div.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.85)`;
       div.style.boxShadow   = `0 0 14px rgba(${r}, ${g}, ${b}, 0.4)`;
 
@@ -252,14 +257,14 @@ export class GellyWorldScene {
       depthWrite: false,
       uniforms: {
         topColor:  { value: new THREE.Color(0x2D4DCC) },  // Deep blue zenith — Art Bible
-        midColor:  { value: new THREE.Color(0x7A5CFF) },  // Violet mid-sky
-        botColor:  { value: new THREE.Color(0xFF9FEF) },  // Warm pink horizon
-        hazeColor: { value: new THREE.Color(0xFFC6F7) },  // Soft lower haze
+        midColor:  { value: new THREE.Color(0x3935a0) },  // Violet mid-sky
+        botColor:  { value: new THREE.Color(0xe18bcb) },  // Warm pink horizon
+        hazeColor: { value: new THREE.Color(0xeeafd6) },  // Soft lower haze
       },
       vertexShader: `
-        varying float vY;
+        varying vec3 vDirection;
         void main() {
-          vY = normalize(position).y;
+          vDirection = normalize(position);
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
       `,
@@ -268,12 +273,19 @@ export class GellyWorldScene {
         uniform vec3 midColor;
         uniform vec3 botColor;
         uniform vec3 hazeColor;
-        varying float vY;
+        varying vec3 vDirection;
         void main() {
-          float t = clamp(vY * 0.5 + 0.5, 0.0, 1.0);
+          vec3 direction = normalize(vDirection);
+          float t = clamp(direction.y * 0.5 + 0.5, 0.0, 1.0);
           vec3 col = mix(hazeColor, botColor, smoothstep(0.0, 0.35, t));
           col = mix(col, midColor, smoothstep(0.28, 0.62, t));
           col = mix(col, topColor, smoothstep(0.55, 1.0, t));
+          // Layered cloud banks around the horizon, with softly scalloped edges.
+          float azimuth = atan(direction.z, direction.x);
+          float cloudLine = .085 + .045 * sin(azimuth * 9.) + .022 * sin(azimuth * 23.);
+          float clouds = exp(-pow((direction.y - cloudLine) / .045, 2.));
+          clouds *= .5 + .5 * sin(azimuth * 6. + .7);
+          col = mix(col, vec3(.64, .28, .65), clouds * .58);
           gl_FragColor = vec4(col, 1.0);
         }
       `,
@@ -411,6 +423,7 @@ export class GellyWorldScene {
       ui.labelEl.style.borderColor = `rgba(${r}, ${g_}, ${b}, 0.85)`;
       ui.labelEl.style.boxShadow   = `0 0 14px rgba(${r}, ${g_}, ${b}, 0.4)`;
       ui.labelEl.style.color       = '';
+      ui.labelEl.style.opacity     = '0';
 
       gsap.killTweensOf(ui.targetRing.scale);
       gsap.killTweensOf(ui.targetRing.material);
@@ -432,6 +445,7 @@ export class GellyWorldScene {
       ui.labelEl.style.borderColor = `rgba(${r}, ${g_}, ${b}, 1.0)`;
       ui.labelEl.style.boxShadow   = `0 0 28px rgba(${r}, ${g_}, ${b}, 0.9), 0 0 8px rgba(255,255,255,0.2)`;
       ui.labelEl.style.color       = '#ffffff';
+      ui.labelEl.style.opacity     = '1';
 
       ui.targetRing.scale.setScalar(0.3);
       gsap.killTweensOf(ui.targetRing.scale);

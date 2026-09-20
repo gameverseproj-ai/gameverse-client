@@ -1,3 +1,4 @@
+import { MusicControlsComponent } from '../../shared/components/music-controls/music-controls.component';
 import { Component, afterNextRender, inject } from '@angular/core';
 import { PlayerFacade } from '../../core/facades/player.facade';
 import { StatsComponent } from './components/stats/stats.component';
@@ -5,7 +6,7 @@ import { StatsComponent } from './components/stats/stats.component';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [StatsComponent],
+  imports: [StatsComponent, MusicControlsComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })

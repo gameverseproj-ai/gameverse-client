@@ -22,3 +22,26 @@ try{
  now+=86400000;assert.notDeepEqual((await firstValueFrom(api.getBootstrap())).progress.state.assigned,player.progress.state.assigned);
  console.log('PASS: API 3/60 catalogs, preview isolation/reset, exact 10s timeout, unauthorized exercise rejection, stable daily selection and next-day rotation.');
 }finally{Date.now=clock;injector.destroy();}
+
+// Browser persistence accepts adaptive HP above the old stage-only ceiling.
+const previousStorage = globalThis.localStorage;
+const storage = new Map();
+globalThis.localStorage = {getItem:key=>storage.get(key) ?? null,setItem:(key,value)=>storage.set(key,value)};
+const browserInjector = createEnvironmentInjector([{provide:PLATFORM_ID,useValue:'browser'}]);
+try {
+ const browserApi = runInInjectionContext(browserInjector,()=>new MockPowerApi());
+ const initial = (await firstValueFrom(browserApi.getBootstrap())).progress.state;
+ const old = {...initial,stage:2,strength:500,hp:229}; delete old.maxHp;
+ const key = 'gameverse.power.player-001.v1';
+ storage.set(key,JSON.stringify(old));
+ const migrated = (await firstValueFrom(browserApi.getBootstrap())).progress.state;
+ assert.equal(migrated.maxHp,5375); assert.equal(migrated.hp,Math.round(229 / Math.round(180 * 2 ** 1.35) * 5375));
+ const saved = (await firstValueFrom(browserApi.act({type:'hit',mode:'machine',pull:1,aim:0}))).progress.state;
+ assert.equal(saved.hp,migrated.hp); assert.equal(saved.maxHp,migrated.maxHp);
+ assert.deepEqual((await firstValueFrom(browserApi.getBootstrap())).progress.state,saved);
+ for (const patch of [{maxHp:null},{maxHp:-1},{maxHp:1.5},{maxHp:100,hp:101}]) {
+  storage.set(key,JSON.stringify({...saved,...patch}));
+  await assert.rejects(firstValueFrom(browserApi.getBootstrap()));
+ }
+ console.log('PASS: browser-save migration, adaptive HP persistence/reload, and corrupt health rejection.');
+} finally { globalThis.localStorage = previousStorage; browserInjector.destroy(); }

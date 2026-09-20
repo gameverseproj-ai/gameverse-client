@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { build } from 'esbuild';
-const result = await build({entryPoints:['src/app/features/games/power/power-engine.ts'],bundle:true,platform:'node',format:'esm',write:false});
+const result = await build({stdin:{contents:`export * from './src/app/core/api/mock/power-mock-server'; export * from './src/app/features/games/power/power-engine';`,resolveDir:process.cwd()},bundle:true,platform:'node',format:'esm',write:false});
 const {freshPower,applyPower,damage,health,EXERCISES,strikeDamage,normalizePower,punchZone} = await import(`data:text/javascript;base64,${Buffer.from(result.outputFiles[0].text).toString('base64')}`);
 let now = new Date(2026,8,13,12).getTime(), state = freshPower();
 const act = action => state = applyPower(state,action,now += 500,true);
@@ -44,3 +44,36 @@ assert.equal(punchZone(0,-.6),'head');assert.equal(punchZone(0,.6),'body');asser
 assert.ok(strikeDamage(20,1,0,-.6)>0);assert.ok(strikeDamage(20,1,0,.6)>0);assert.equal(strikeDamage(20,1,.9,-.6),0);
 assert.throws(()=>applyPower(state,{type:'hit',mode:'battle',pull:1,aim:0,aimY:NaN},now+500));
 console.log('PASS: head/body hit zones, vertical misses, invalid vertical aim rejection.');
+
+// Strong and untrained players face a similar number of well-aimed punches.
+for (const strength of [20, 50, 500, 5000]) {
+  for (const stage of [1, 2, 10, 20, 50, 100]) {
+    const hits = Math.ceil(health(stage, strength) / strikeDamage(strength, 1, 0));
+    assert.ok(hits >= 4 && hits <= 9, `Balanced fight at stage ${stage}, strength ${strength}`);
+    assert.ok(health(stage + 1, strength) >= health(stage, strength));
+  }
+}
+let evolving = freshPower();
+for (let stage = 1; stage <= 30; stage++) {
+  const previousMax = evolving.maxHp;
+  evolving = {...evolving, strength: 20 + stage * 30, hp: 1};
+  const next = applyPower(evolving, {type:'hit',mode:'battle',pull:1,aim:0}, now += 500);
+  assert.equal(next.stage, stage + 1);
+  assert.equal(next.hp, next.maxHp);
+  assert.equal(next.maxHp, health(next.stage, evolving.strength));
+  assert.ok(next.maxHp > previousMax);
+  assert.deepEqual(normalizePower(next, now + 1), next, 'Reload never recalculates active challenger HP');
+  evolving = next;
+}
+let trainee = {...normalizePower(freshPower(), now), hp: 90};
+for (let rep = 0; rep < EXERCISES[0].reps; rep++) trainee = applyPower(trainee, {type:'rep',exercise:0}, now += 500, true);
+assert.ok(trainee.strength > 20);
+assert.equal(trainee.hp, 90, 'Training does not heal the current opponent');
+assert.equal(trainee.maxHp, 180, 'Training does not move the current HP goal');
+const legacy = {...freshPower(), stage: 2, strength: 500, hp: 229};
+delete legacy.maxHp;
+const upgraded = normalizePower(legacy, now);
+assert.equal(upgraded.maxHp, health(2,500));
+assert.ok(Math.abs(upgraded.hp / upgraded.maxHp - .5) < .002, 'Legacy half-damaged opponent stays half damaged');
+assert.deepEqual(normalizePower(upgraded, now), upgraded, 'Migration is idempotent');
+console.log('PASS: strength-scaled difficulty, 30 consecutive levels, fixed mid-fight HP, and damage-preserving legacy migration.');

@@ -101,100 +101,36 @@ function buildRoadRibbon(
   return geo;
 }
 
-// ─── Tree helpers ─────────────────────────────────────────────────────────────
-//
-// Hue is derived from tree position so every placement gets a unique colour
-// while remaining deterministic.  The 200–360° arc covers cyan→violet→pink,
-// keeping the world palette coherent.
-
-function treeHue(seed: number): number {
-  return 265 + (seed * 71.5) % 95;
-}
-
-// Blob tree — jellyfish silhouette with three stacked spheres.
+// Rounded foliage in the four candy colors from the v2 asset sheet.
+// Shared geometry and instanced canopies keep the scenery inexpensive to draw.
 function buildJellyTree(scale: number, seed: number): THREE.Group {
   const group = new THREE.Group();
-  const hue   = treeHue(seed);
-
-  const trunk = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.18 * scale, 0.28 * scale, 2.0 * scale, 6),
-    new THREE.MeshPhongMaterial({
-      color: new THREE.Color().setHSL(hue / 360, 0.42, 0.18).getHex(),
-      shininess: 20,
-    }),
-  );
-  trunk.position.y = scale;
-  trunk.castShadow = true;
-  group.add(trunk);
-
-  const blobDefs: [number, number][] = [
-    [2.2 * scale, 1.1 * scale],
-    [3.1 * scale, 0.85 * scale],
-    [3.8 * scale, 0.58 * scale],
-  ];
-  for (let i = 0; i < blobDefs.length; i++) {
-    const [y, r] = blobDefs[i];
-    const bh     = ((hue + i * 18 - 8) % 360 + 360) % 360;
-    const col    = new THREE.Color().setHSL(bh / 360, 0.80, 0.60 + i * 0.04);
-    const blob   = new THREE.Mesh(
-      new THREE.SphereGeometry(r, 8, 6),
-      new THREE.MeshPhongMaterial({
-        color:    col,
-        emissive: col.clone().multiplyScalar(0.12),
-        transparent: true,
-        opacity:  0.90,
-        shininess: 60,
-      }),
-    );
-    blob.position.y = y;
-    blob.castShadow = true;
-    group.add(blob);
+  group.scale.setScalar(scale);
+  const colors = [0x70bc39, 0x8642cb, 0xe458b0, 0x21b5b9];
+  const color = colors[Math.floor(seed) % colors.length];
+  const trunkMat = new THREE.MeshStandardMaterial({color: 0x93603c, roughness: .55});
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.22, .4, 2.2, 12), trunkMat);
+  trunk.position.y = 1.1; trunk.castShadow = true; group.add(trunk);
+  const geometry = new THREE.SphereGeometry(1, 16, 12);
+  const leaves = new THREE.InstancedMesh(geometry, new THREE.MeshStandardMaterial({
+    color: 0xffffff, roughness: .34, metalness: .03,
+  }), 12);
+  const transform = new THREE.Object3D();
+  for (let i = 0; i < 12; i++) {
+    const tier = Math.floor(i / 5), angle = i * 2.39996;
+    const spread = tier === 2 ? .35 : 1.02 - tier * .24;
+    transform.position.set(Math.cos(angle) * spread, 2.35 + tier * .72, Math.sin(angle) * spread);
+    transform.scale.setScalar(.79 - tier * .1);
+    transform.updateMatrix(); leaves.setMatrixAt(i, transform.matrix);
+    leaves.setColorAt(i, new THREE.Color(color).multiplyScalar(.88 + (i % 4) * .08));
   }
-
-  return group;
-}
-
-// Spire tree — narrow trunk with three stacked cone tiers.
-function buildSpireTree(scale: number, seed: number): THREE.Group {
-  const group = new THREE.Group();
-  const hue   = treeHue(seed);
-
-  const trunk = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.12 * scale, 0.22 * scale, 4.2 * scale, 5),
-    new THREE.MeshPhongMaterial({
-      color: new THREE.Color().setHSL(hue / 360, 0.40, 0.16).getHex(),
-      shininess: 8,
-    }),
-  );
-  trunk.position.y = 2.1 * scale;
-  trunk.castShadow = true;
-  group.add(trunk);
-
-  // Three stacked cone tiers — each slightly smaller and lighter.
-  const tierDefs: [number, number][] = [
-    [2.0 * scale, 1.05 * scale],
-    [3.1 * scale, 0.72 * scale],
-    [3.9 * scale, 0.46 * scale],
-  ];
-  for (let i = 0; i < tierDefs.length; i++) {
-    const [y, r] = tierDefs[i];
-    const th     = ((hue + i * 22) % 360 + 360) % 360;
-    const col    = new THREE.Color().setHSL(th / 360, 0.82, 0.56 + i * 0.05);
-    const cone   = new THREE.Mesh(
-      new THREE.ConeGeometry(r, r * 1.55, 6),
-      new THREE.MeshPhongMaterial({
-        color:    col,
-        emissive: col.clone().multiplyScalar(0.14),
-        transparent: true,
-        opacity:  0.88,
-        shininess: 45,
-      }),
-    );
-    cone.position.y = y;
-    cone.castShadow = true;
-    group.add(cone);
+  leaves.castShadow = true; leaves.receiveShadow = true; group.add(leaves);
+  for (let i = 0; i < 4; i++) {
+    const angle = i * Math.PI / 2;
+    const root = new THREE.Mesh(geometry, trunkMat);
+    root.position.set(Math.cos(angle) * .3, .14, Math.sin(angle) * .3);
+    root.scale.set(.46, .18, .24); root.rotation.y = -angle; group.add(root);
   }
-
   return group;
 }
 
@@ -397,6 +333,7 @@ export class GellyEnvironment implements WorldEnvironment {
     this.buildTrees(scene);
     this.buildCrystals(scene);
     this.buildProps(scene);
+    this.buildGardens(scene);
     this.buildParticles(scene);
     this.buildGrassParticles(scene);
     this.buildDistantElements(scene);
@@ -423,7 +360,7 @@ export class GellyEnvironment implements WorldEnvironment {
 
     const borderRing = new THREE.Mesh(
       new THREE.TorusGeometry(PLAZA_RADIUS, 0.14, 8, 72),
-      new THREE.MeshBasicMaterial({ color: 0x7c3aed }),
+      new THREE.MeshStandardMaterial({ color: 0xff82e9, emissive: 0xf34ad7, emissiveIntensity: 1.35 }),
     );
     borderRing.rotation.x = -Math.PI / 2;
     borderRing.position.set(0, 0.12, 8);
@@ -431,7 +368,7 @@ export class GellyEnvironment implements WorldEnvironment {
 
     const innerRing = new THREE.Mesh(
       new THREE.TorusGeometry(PLAZA_RADIUS * 0.55, 0.09, 8, 64),
-      new THREE.MeshBasicMaterial({ color: 0xc084fc }),
+      new THREE.MeshStandardMaterial({ color: 0xffa3f2, emissive: 0xfa63e7, emissiveIntensity: 1.25 }),
     );
     innerRing.rotation.x = -Math.PI / 2;
     innerRing.position.set(0, 0.12, 8);
@@ -545,6 +482,22 @@ export class GellyEnvironment implements WorldEnvironment {
         emissiveIntensity: 0.05,
         roughness: 0.92,
       });
+      // Staggered paving joints stay aligned with the curved ribbon's UVs.
+      // Shading the existing slab adds detail without hundreds of extra meshes.
+      baseMat.onBeforeCompile = shader => {
+        shader.vertexShader = 'varying vec2 vRoadUv;\n' + shader.vertexShader;
+        shader.vertexShader = shader.vertexShader.replace('#include <uv_vertex>', '#include <uv_vertex>\nvRoadUv = uv;');
+        shader.fragmentShader = 'varying vec2 vRoadUv;\n' + shader.fragmentShader;
+        shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', `
+          #include <color_fragment>
+          float row = floor(vRoadUv.y * 26.);
+          vec2 tile = fract(vec2(vRoadUv.x * 3. + mod(row, 2.) * .5, vRoadUv.y * 26.));
+          float joint = smoothstep(0., .045, min(tile.x, 1. - tile.x))
+            * smoothstep(0., .045, min(tile.y, 1. - tile.y));
+          diffuseColor.rgb *= mix(.43, 1., joint);
+        `);
+      };
+      baseMat.customProgramCacheKey = () => 'gelly-road-paving-v2';
       const baseMesh = new THREE.Mesh(buildRoadRibbon(curve, 3.0, 0, 0.02, ROAD_SEGMENTS), baseMat);
       baseMesh.receiveShadow = true;
       scene.add(baseMesh);
@@ -644,8 +597,7 @@ export class GellyEnvironment implements WorldEnvironment {
 
   // ─── Trees ────────────────────────────────────────────────────────────────────
   //
-  // type 0 = blob (jellyfish), type 1 = spire (stacked cones).
-  // Color seed is derived from world position so every placement is unique.
+  // Color seed is derived from world position for repeatable candy variants.
 
   private buildTrees(scene: THREE.Scene): void {
     // [scale, x, z, rotY, type]
@@ -695,7 +647,7 @@ export class GellyEnvironment implements WorldEnvironment {
       [0.90,   4,  19,  4.20, 1],
     ];
 
-    for (const [scale, x, z, rotY, type] of defs) {
+    for (const [scale, x, z, rotY] of defs) {
       const seed = Math.abs(x * 7.314 + z * 3.717);
       const tree = new THREE.Group();
       const fallback = buildJellyTree(scale, seed);
@@ -703,9 +655,7 @@ export class GellyEnvironment implements WorldEnvironment {
       tree.position.set(x, 0, z);
       tree.rotation.y = rotY;
       scene.add(tree);
-      const obstacle = this.addObstacle(tree);
-      // Refresh once the real model replaces the placeholder, not on every wind-sway frame.
-      mountGellyModel(tree, 'tree', scale * 4.5, fallback, () => this.updateObstacle(tree, obstacle));
+      this.addObstacle(tree);
       const phase = (x * 0.31 + z * 0.17) % (Math.PI * 2);
       const speed = 0.28 + (Math.abs(x + z) * 0.013) % 0.22;
       this.treeGroups.push({ g: tree, phase, speed });
@@ -770,7 +720,7 @@ export class GellyEnvironment implements WorldEnvironment {
       this.addObstacle(m);
     }
 
-    const rockMat = new THREE.MeshPhongMaterial({ color: 0x180428, shininess: 12 });
+    const rockMat = new THREE.MeshPhongMaterial({ color: 0x625281, shininess: 24 });
     const rocks: [number, number, number, number, number][] = [
       [ -9, -2.5, 0.50, 0.35, 0.40],
       [-10, -1.0, 0.35, 0.24, 0.30],
@@ -786,6 +736,39 @@ export class GellyEnvironment implements WorldEnvironment {
       scene.add(rock);
       this.addObstacle(rock);
     }
+  }
+
+  /** Low garden beds frame roads without adding invisible movement barriers. */
+  private buildGardens(scene: THREE.Scene): void {
+    const garden = new THREE.Group();
+    const sphere = new THREE.SphereGeometry(1, 12, 8);
+    const transforms: { position: number[]; scale: number[]; color: number }[] = [];
+    const beds = [[-12, 1, 2.5], [12, 1, 2.4], [-17, 8, 3], [18, 9, 3],
+      [-27, -14, 3.5], [-12, -21, 2.2], [2, -24, 2.5], [19, -24, 2.8],
+      [-31, -5, 3], [32, -6, 3], [-12, 18, 2.5], [12, 20, 2.8]];
+    for (const [x, z, radius] of beds) {
+      transforms.push({position: [x, .025, z], scale: [radius, .16, radius * .7], color: 0x326c68});
+      for (let i = 0; i < 20; i++) {
+        const a = i * 2.39996, r = radius * Math.sqrt((i + .5) / 20);
+        const px = x + Math.cos(a) * r, pz = z + Math.sin(a) * r * .65;
+        const flower = i % 4 === 0;
+        transforms.push({position: [px, flower ? .3 : .18, pz],
+          scale: flower ? [.12, .14, .12] : [.22, .12 + (i % 3) * .09, .17],
+          color: flower ? [0xffb94f, 0xf87fce, 0xa37af4][i % 3] : [0x5bbf77, 0x92bc49, 0x31958d][i % 3]});
+      }
+      for (let i = 0; i < 9; i++) {
+        const a = i / 9 * Math.PI * 2;
+        transforms.push({position: [x + Math.cos(a) * radius, .14, z + Math.sin(a) * radius * .7],
+          scale: [.28, .18, .23], color: i % 2 ? 0x797095 : 0x5c537e});
+      }
+    }
+    const plants = new THREE.InstancedMesh(sphere, new THREE.MeshStandardMaterial({roughness: .65}), transforms.length);
+    const dummy = new THREE.Object3D();
+    transforms.forEach((part, i) => {
+      dummy.position.fromArray(part.position); dummy.scale.fromArray(part.scale); dummy.updateMatrix();
+      plants.setMatrixAt(i, dummy.matrix); plants.setColorAt(i, new THREE.Color(part.color));
+    });
+    plants.receiveShadow = true; plants.castShadow = true; garden.add(plants); scene.add(garden);
   }
 
   // ─── Ambient particles ───────────────────────────────────────────────────────
@@ -818,9 +801,9 @@ export class GellyEnvironment implements WorldEnvironment {
       geo,
       new THREE.PointsMaterial({
         color: 0xe8d0ff,
-        size: 0.12,
+        size: 0.055,
         transparent: true,
-        opacity: 0.65,
+        opacity: 0.45,
         sizeAttenuation: true,
         fog: false,
       }),
@@ -892,7 +875,7 @@ export class GellyEnvironment implements WorldEnvironment {
       opacity: 0.80,
       fog: false,
     });
-    const moon = new THREE.Mesh(new THREE.SphereGeometry(22, 24, 18), moonMat);
+    const moon = new THREE.Mesh(new THREE.SphereGeometry(8, 24, 18), moonMat);
     moon.position.set(55, 78, -180);
     scene.add(moon);
 
@@ -903,7 +886,7 @@ export class GellyEnvironment implements WorldEnvironment {
       opacity: 0.10,
       fog: false,
     });
-    const halo = new THREE.Mesh(new THREE.SphereGeometry(28, 16, 12), haloMat);
+    const halo = new THREE.Mesh(new THREE.SphereGeometry(9, 16, 12), haloMat);
     halo.position.copy(moon.position);
     scene.add(halo);
 
@@ -915,8 +898,8 @@ export class GellyEnvironment implements WorldEnvironment {
     // ── Floating islands ──
     // [x, baseY, z, radius]
     const islandDefs: [number, number, number, number][] = [
-      [-45, 15, -80, 8.5],
-      [ 50, 18, -90, 7.0],
+      [-43, 15, -66, 7],
+      [ 46, 19, -74, 6.0],
       [-25, 20, -110, 9.0],
       [ 30, 23, -115, 7.5],
       [-60, 32, -85, 8.0],
@@ -935,7 +918,7 @@ export class GellyEnvironment implements WorldEnvironment {
     // ── Background hills ──
     // Rolling hills along the far world edge; squashed spheres give a soft silhouette
     const hillMat = new THREE.MeshStandardMaterial({
-      color: 0x3a3778, roughness: 0.95, emissive: 0x2a2860, emissiveIntensity: 0.08,
+      color: 0x444477, roughness: 0.95, emissive: 0x262846, emissiveIntensity: 0.08,
     });
     // [x, z, scaleX, scaleY]
     const hillDefs: [number, number, number, number][] = [

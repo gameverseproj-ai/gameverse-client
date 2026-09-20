@@ -1,6 +1,8 @@
 <nav class="nav">
   <a class="nav__brand" routerLink="/home">GameVerse</a>
 
+  <app-music-controls class="in-nav" [compact]="true" />
+
   <button class="nav__toggle" (click)="toggleMenu()" aria-label="Toggle menu">
     &#9776;
   </button>

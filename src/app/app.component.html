@@ -4,3 +4,5 @@
 <main [class.main-content]="showNav()">
   <router-outlet />
 </main>
+
+@if (!showNav()) { <app-music-controls [compact]="true" /> }

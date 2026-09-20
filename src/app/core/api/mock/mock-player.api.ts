@@ -1,6 +1,7 @@
+import { DEFAULT_MUSIC, MusicPreferences, validMusic } from '../../models/music.model';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Observable, of } from 'rxjs';
+import { Observable, defer, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { PlayerApi } from '../player.api';
 import { PlayerProfile, PlayerProgress, PlayerInventory } from '../../models/player.model';
@@ -36,7 +37,29 @@ const MOCK_SELECTED_HEROES: Record<string, string> = {
 
 @Injectable()
 export class MockPlayerApi implements PlayerApi {
-  private readonly ms = isPlatformBrowser(inject(PLATFORM_ID)) ? 400 : 0;
+  private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly ms = this.browser ? 400 : 0;
+  private music = { ...DEFAULT_MUSIC };
+  private readonly musicKey = `gameverse.player.${MOCK_PROFILE.id}.music.v1`;
+
+  getMusicPreferences(): Observable<MusicPreferences> {
+    return defer(() => {
+      const raw = this.browser ? localStorage.getItem(this.musicKey) : null;
+      const saved: unknown = raw ? JSON.parse(raw) : this.music;
+      if (!validMusic(saved)) throw new Error('Could not load music preferences.');
+      return of({ ...saved });
+    });
+  }
+
+  saveMusicPreferences(preferences: MusicPreferences): Observable<MusicPreferences> {
+    return defer(() => {
+      if (!validMusic(preferences)) throw new Error('Invalid music preferences.');
+      const saved = { ...preferences };
+      if (this.browser) localStorage.setItem(this.musicKey, JSON.stringify(saved));
+      this.music = saved;
+      return of({ ...saved });
+    });
+  }
 
   getProfile(): Observable<PlayerProfile> {
     return of(MOCK_PROFILE).pipe(delay(this.ms));

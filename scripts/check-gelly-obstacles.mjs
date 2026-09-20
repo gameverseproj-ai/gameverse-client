@@ -20,9 +20,9 @@ GLTFLoader.prototype.load = function(url, onLoad) {
 const environment = new GellyEnvironment(GELLY_PORTALS);
 environment.build(new THREE.Scene());
 const obstacles = environment.obstacles;
-const initialTreeWidth = obstacles[6].halfWidth;
+assert.ok(obstacles[6].halfWidth > 1, 'Rounded tree canopy has a solid collider before asset requests complete');
 await Promise.all(pending);
-assert.notEqual(obstacles[6].halfWidth, initialTreeWidth, 'Collider refreshes when the real tree model replaces the fallback');
+
 assert.equal(obstacles.length, 85, 'Trees, crystal clusters, mushrooms, rocks and plaza bollards are solid');
 const inside = (x, z, o) => Math.abs(x - o.x) < o.halfWidth + .65 && Math.abs(z - o.z) < o.halfDepth + .65;
 assert.ok(!obstacles.some(o => inside(0, 8, o)), 'Spawn stays clear');

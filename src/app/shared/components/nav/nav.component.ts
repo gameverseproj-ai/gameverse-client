@@ -1,3 +1,4 @@
+import { MusicControlsComponent } from '../music-controls/music-controls.component';
 import { Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -9,7 +10,7 @@ interface NavLink {
 @Component({
   selector: 'app-nav',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, MusicControlsComponent],
   templateUrl: './nav.component.html',
   styleUrl: './nav.component.scss',
 })

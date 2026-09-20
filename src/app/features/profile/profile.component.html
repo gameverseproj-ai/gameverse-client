@@ -22,6 +22,8 @@
     }
   </header>
 
+  <app-music-controls />
+
   <app-stats
     [highScore]="playerFacade.progress()?.highScore ?? 0"
     [gamesPlayed]="playerFacade.progress()?.totalGamesPlayed ?? 0"

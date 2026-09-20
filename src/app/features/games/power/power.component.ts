@@ -2,7 +2,8 @@ import { Component, HostListener, OnDestroy, afterNextRender, inject, signal, vi
 import { RouterLink } from '@angular/router';
 import { MockPowerApi } from '../../../core/api/mock/mock-power.api';
 import { GameFacade } from '../../../core/facades/game.facade';
-import { PowerAction, PowerState, strikeDamage, health, REP_TIMEOUT, localDay } from './power-engine';
+import { PowerAction, PowerState } from '../../../core/models/power.model';
+import { strikeDamage, REP_TIMEOUT, localDay } from './power-engine';
 import { PowerSceneComponent, PunchGesture } from './power-scene.component';
 import { PowerExercise } from './power-exercises';
 import { PowerTrainingComponent } from './power-training.component';
@@ -44,7 +45,7 @@ export class PowerComponent implements OnDestroy {
   private readonly faces = CHALLENGERS;
   constructor() { afterNextRender(() => { this.load(); this.clock = setInterval(() => this.tick(), 250); }); }
   get face() { return this.faces[((this.state()?.stage ?? 1) - 1) % this.faces.length]; }
-  get maxHp() { return health(this.state()?.stage ?? 1); }
+  get maxHp() { return this.state()?.maxHp ?? 0; }
   get level() { return 1 + Math.floor(((this.state()?.strength ?? 20) - 20) / 10); }
   load(): void { this.error.set(''); this.api.getBootstrap().subscribe({ next: data => { this.exercises.set(data.settings.rules.exercises); if (!this.selectedExercise) this.exercise.set(this.exercises()[0]?.index ?? 0); this.state.set(data.progress.state); this.games.bootstrap.set(data); }, error: () => this.error.set('Could not load saved progress. Check browser storage and retry.') }); }
   switchMode(mode: 'battle' | 'machine' | 'gym'): void { this.cancel(); this.mode.set(mode); this.audio.unlock(); if (mode === 'gym') this.audio.gym(); this.feedback.set(mode === 'gym' ? 'Complete each set to permanently increase your strength.' : 'Pull down to wind up, steer your fist, then release to punch.'); if (this.state()) this.load(); }
