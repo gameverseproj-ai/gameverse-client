@@ -1,5 +1,8 @@
+import { LanguageService } from '../../core/i18n/language.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import {
   Component,
+  effect,
   ElementRef,
   OnDestroy,
   NgZone,
@@ -25,11 +28,12 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-gelly-world',
   standalone: true,
-  imports: [RouterLink],
+  imports: [TranslatePipe, RouterLink],
   templateUrl: './gelly-world.component.html',
   styleUrl: './gelly-world.component.scss',
 })
 export class GellyWorldComponent implements OnDestroy {
+  private readonly locale = inject(LanguageService);
   private readonly router = inject(Router);
   private readonly zone = inject(NgZone);
   private readonly games = inject(GameFacade);
@@ -76,12 +80,17 @@ export class GellyWorldComponent implements OnDestroy {
   );
 
   constructor() {
+    effect(() => { this.locale.language(); this.localizeScene(); });
     afterNextRender(() => {
       this.inputQuery = window.matchMedia('(pointer: coarse)');
       this.inputModeChanged();
       this.inputQuery.addEventListener('change', this.inputModeChanged);
       this.zone.runOutsideAngular(() => requestAnimationFrame(() => this.initScene()));
     });
+  }
+
+  private localizeScene(): void {
+    this.scene?.setLanguage(value => this.locale.t(value), ['he', 'ar'].includes(this.locale.language()));
   }
 
   private initScene(): void {
@@ -109,6 +118,7 @@ export class GellyWorldComponent implements OnDestroy {
       }),
     );
 
+    this.localizeScene();
     this.resizeObserver = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
       this.resetJoystick();

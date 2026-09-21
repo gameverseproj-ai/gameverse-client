@@ -1,18 +1,18 @@
 <section class="games">
   <header class="games__header">
-    <h1>Games</h1>
+    <h1>{{ 'Games' | t }}</h1>
     <input
       class="games__search"
       type="search"
-      placeholder="Search games..."
+      [attr.placeholder]="'Search games...' | t"
       [value]="filter()"
       (input)="filter.set($any($event.target).value)"
-      aria-label="Search games"
+      [attr.aria-label]="'Search games' | t"
     />
   </header>
 
   @if (gameFacade.loading()) {
-    <p class="games__loading">Loading games...</p>
+    <p class="games__loading">{{ 'Loading games...' | t }}</p>
   } @else {
     <app-game-list [games]="gameFacade.games()" [filter]="filter()" />
   }

@@ -1,14 +1,14 @@
 <div class="stats">
   <div class="stats__item">
-    <span class="stats__value">{{ highScore() }}</span>
-    <span class="stats__label">High Score</span>
+    <span class="stats__value">{{ (highScore()) | t }}</span>
+    <span class="stats__label">{{ 'High Score' | t }}</span>
   </div>
   <div class="stats__item">
-    <span class="stats__value">{{ gamesPlayed() }}</span>
-    <span class="stats__label">Games Played</span>
+    <span class="stats__value">{{ (gamesPlayed()) | t }}</span>
+    <span class="stats__label">{{ 'Games Played' | t }}</span>
   </div>
   <div class="stats__item">
-    <span class="stats__value">{{ totalScore() }}</span>
-    <span class="stats__label">Total Score</span>
+    <span class="stats__value">{{ (totalScore()) | t }}</span>
+    <span class="stats__label">{{ 'Total Score' | t }}</span>
   </div>
 </div>

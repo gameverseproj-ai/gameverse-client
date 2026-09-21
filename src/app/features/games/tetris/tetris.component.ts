@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Component,ElementRef,HostListener,NgZone,OnDestroy,afterNextRender,inject,signal,viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Subscription,take,timeout } from 'rxjs';
@@ -9,7 +10,7 @@ import { COLORS,SHAPES,TetrisEngine } from './tetris-engine';
 import { TetrisRenderer } from './tetris-renderer';
 type Action='left'|'right'|'down'|'rotate'|'counter'|'drop'|'hold';
 type Screen='loading'|'ready'|'starting'|'playing'|'paused'|'saving'|'over';
-@Component({selector:'app-tetris',standalone:true,imports:[RouterLink],templateUrl:'./tetris.component.html',styleUrl:'./tetris.component.scss'})
+@Component({selector:'app-tetris',standalone:true,imports: [TranslatePipe, RouterLink],templateUrl:'./tetris.component.html',styleUrl:'./tetris.component.scss'})
 export class TetrisComponent implements OnDestroy {
  private readonly api=inject(TETRIS_API);private readonly games=inject(GameFacade);private readonly zone=inject(NgZone);private readonly monetization=inject(MonetizationService);
  private readonly canvas=viewChild.required<ElementRef<HTMLCanvasElement>>('board');

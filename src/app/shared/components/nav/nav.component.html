@@ -1,11 +1,11 @@
 <nav class="nav">
-  <a class="nav__brand" routerLink="/home">GameVerse</a>
+  <a class="nav__brand" routerLink="/home">{{ 'GameVerse' | t }}</a>
 
   <app-language-controls />
 
   <app-music-controls class="in-nav" [compact]="true" />
 
-  <button class="nav__toggle" (click)="toggleMenu()" aria-label="Toggle menu">
+  <button class="nav__toggle" (click)="toggleMenu()" [attr.aria-label]="'Toggle menu' | t">
     &#9776;
   </button>
 
@@ -13,8 +13,7 @@
     @for (link of links(); track link.path) {
       <li>
         <a [routerLink]="link.path" routerLinkActive="nav__link--active">
-          {{ link.label }}
-        </a>
+          {{ (link.label) | t }}</a>
       </li>
     }
   </ul>

@@ -77,3 +77,11 @@
   0%, 100% { margin-top: 0; }
   50%       { margin-top: -5px; }
 }
+
+// Text follows the account language; spatial controls keep their physical axes.
+canvas, .dpad, .directions, .touch-controls, .temple-page .board, kbd { direction: ltr; }
+html[dir='rtl'] {
+  .eyebrow, .world-label, .world-label__name { letter-spacing: normal; }
+  .music-panel, .choices button { text-align: start; }
+  .board-overlay, .temple-page .overlay { direction: rtl; }
+}

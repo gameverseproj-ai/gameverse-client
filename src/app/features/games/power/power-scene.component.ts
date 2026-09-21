@@ -1,14 +1,17 @@
+import { LanguageService } from '../../../core/i18n/language.service';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { punchZone } from './power-engine';
 import { drawChallenger, ChallengerKind } from './power-challengers';
 import { PowerArt } from './power-art';
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, afterNextRender, viewChild } from '@angular/core';
+import { Component, inject, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, afterNextRender, viewChild } from '@angular/core';
 export type PunchGesture = { pull: number; aim: number; aimY: number; hand: 'left' | 'right' };
 @Component({
-  selector: 'app-power-scene', standalone: true,
-  template: `<canvas #canvas tabindex="0" [attr.aria-label]="'First-person boxing. Grab either glove. A selects left, D selects right. Drag down to pull back, steer up, down, left or right, and release to punch. Keyboard: hold Space, aim with arrows, release Space.'" (pointerdown)="down($event)" (pointermove)="move($event)" (pointerup)="up($event)" (pointercancel)="cancel()" (lostpointercapture)="cancel()" (keydown)="keyDown($event)" (keyup)="keyUp($event)" (blur)="cancel()"></canvas>`,
+  selector: 'app-power-scene', standalone: true, imports: [TranslatePipe],
+  template: `<canvas #canvas tabindex="0" [attr.aria-label]="('First-person boxing. Grab either glove. A selects left, D selects right. Drag down to pull back, steer up, down, left or right, and release to punch. Keyboard: hold Space, aim with arrows, release Space.') | t" (pointerdown)="down($event)" (pointermove)="move($event)" (pointerup)="up($event)" (pointercancel)="cancel()" (lostpointercapture)="cancel()" (keydown)="keyDown($event)" (keyup)="keyUp($event)" (blur)="cancel()"></canvas>`,
   styles: [`:host{display:block}canvas{display:block;width:100%;height:430px;border-radius:18px;touch-action:none;outline:none;cursor:grab}canvas:active{cursor:grabbing}canvas:focus-visible{outline:3px solid #e4ff83;outline-offset:3px}@media(max-width:760px){canvas{height:390px}}`],
 })
 export class PowerSceneComponent implements OnChanges, OnDestroy {
+  private readonly locale = inject(LanguageService);
   @Input() mode: 'battle' | 'machine' = 'battle';
   @Input() color = '#ff9855';
   @Input() eyes = '⌐ ⌐';
@@ -87,7 +90,7 @@ export class PowerSceneComponent implements OnChanges, OnDestroy {
   }
   private line(points: number[][], color: string, width: number): void { const c = this.ctx!; c.beginPath(); points.forEach(([x,y],i) => i ? c.lineTo(x,y) : c.moveTo(x,y)); c.strokeStyle = color; c.lineWidth = width; c.lineCap = 'round'; c.lineJoin = 'round'; c.stroke(); }
   private ellipse(x: number,y: number,rx: number,ry: number,color: string | CanvasGradient): void { const c=this.ctx!;c.beginPath();c.ellipse(x,y,rx,ry,0,0,Math.PI*2);c.fillStyle=color;c.fill(); }
-  private text(value: string,x: number,y: number,size: number,color='#e9f3dc'): void { const c=this.ctx!;c.fillStyle=color;c.font=`700 ${size}px system-ui`;c.textAlign='center';c.fillText(value,x,y); }
+  private text(value: string,x: number,y: number,size: number,color='#e9f3dc'): void { const c=this.ctx!;c.fillStyle=color;c.font=`700 ${size}px system-ui`;c.textAlign='center';c.direction=this.locale.language()==='he'||this.locale.language()==='ar'?'rtl':'ltr';c.fillText(this.locale.t(value),x,y,this.width-20); }
   private draw(now: number): void {
     if (!this.ctx) return; const c=this.ctx,w=this.width,h=this.height;
     c.clearRect(0,0,w,h); const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#14252a');bg.addColorStop(1,'#3f5048');c.fillStyle=bg;c.fillRect(0,0,w,h);

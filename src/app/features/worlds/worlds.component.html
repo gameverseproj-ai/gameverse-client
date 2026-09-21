@@ -1,14 +1,14 @@
 <section class="worlds">
   <header class="worlds__header">
-    <h1>Worlds</h1>
+    <h1>{{ 'Worlds' | t }}</h1>
   </header>
 
   @if (worldFacade.loading()) {
-    <p class="worlds__loading">Loading worlds...</p>
+    <p class="worlds__loading">{{ 'Loading worlds...' | t }}</p>
   }
 
   @if (worldFacade.error(); as err) {
-    <p class="worlds__error">{{ err }}</p>
+    <p class="worlds__error">{{ (err) | t }}</p>
   }
 
   <div class="worlds__grid">
@@ -16,7 +16,7 @@
       <app-world-card [world]="world" />
     } @empty {
       @if (!worldFacade.loading()) {
-        <p class="worlds__empty">No worlds found.</p>
+        <p class="worlds__empty">{{ 'No worlds found.' | t }}</p>
       }
     }
   </div>

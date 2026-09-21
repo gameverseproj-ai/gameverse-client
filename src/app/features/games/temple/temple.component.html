@@ -1,44 +1,44 @@
 <div class="temple-page" [class.active-game]="active()">
-  <header><a routerLink="/world" class="brand"><b>g.</b> GELLY WORLD</a><a routerLink="/world">↖ Back to world</a></header>
+  <header><a routerLink="/world" class="brand"><b>{{ 'g.' | t }}</b>  {{ 'GELLY WORLD' | t }}</a><a routerLink="/world">{{ '↖ Back to world' | t }}</a></header>
   <main>
     <section class="story">
-      <span class="eyebrow">2048 TEMPLE · A LITTLE MOMENT OF ZEN</span>
-      <h1>Small numbers.<br><em>Golden wonders.</em></h1>
-      <p>Bring matching tiles together.<br>Build something a little extraordinary.</p>
-      <div class="wallet"><span>✦</span><div><small>YOUR TEMPLE POINTS</small><strong>{{ data()?.progress?.state?.templePoints ?? 0 }}</strong></div></div>
-      <div class="journey"><span class="eyebrow">YOUR TEMPLE JOURNEY</span>
+      <span class="eyebrow">{{ '2048 TEMPLE · A LITTLE MOMENT OF ZEN' | t }}</span>
+      <h1>{{ 'Small numbers.' | t }}<br><em>{{ 'Golden wonders.' | t }}</em></h1>
+      <p>{{ 'Bring matching tiles together.' | t }}<br>{{ 'Build something a little extraordinary.' | t }}</p>
+      <div class="wallet"><span>✦</span><div><small>{{ 'YOUR TEMPLE POINTS' | t }}</small><strong>{{ (data()?.progress?.state?.templePoints ?? 0) | t }}</strong></div></div>
+      <div class="journey"><span class="eyebrow">{{ 'YOUR TEMPLE JOURNEY' | t }}</span>
         @for (stage of data()?.settings?.rules?.levels ?? []; track stage.id) {
-          <div class="stage" [class.current]="stage.id === data()?.progress?.state?.currentLevel"><span>{{ stage.id < (data()?.progress?.state?.currentLevel ?? 1) ? '✓' : stage.id }}</span><div><b>{{ stage.name }}</b><small>Reach {{ stage.targetTile }} · +{{ stage.winPoints }} TP</small></div><i>{{ stage.id > (data()?.progress?.state?.currentLevel ?? 1) ? '◇' : '✦' }}</i></div>
+          <div class="stage" [class.current]="stage.id === data()?.progress?.state?.currentLevel"><span>{{ (stage.id < (data()?.progress?.state?.currentLevel ?? 1) ? '✓' : stage.id) | t }}</span><div><b>{{ (stage.name) | t }}</b><small>{{ 'Reach {0} · +{1} TP' | t: [stage.targetTile, stage.winPoints] }}</small></div><i>{{ (stage.id > (data()?.progress?.state?.currentLevel ?? 1) ? '◇' : '✦') | t }}</i></div>
         }
       </div>
     </section>
-    <section class="play" aria-label="2048 Temple game">
-      <div class="board-heading"><div><span class="eyebrow">{{ level?.name ?? 'THE GOLDEN GARDEN' }}</span><h2>Level {{ level?.id ?? 1 }}</h2></div><div class="score"><small>SCORE</small><b>{{ run?.score ?? 0 }}</b></div><button (click)="sound.set(!sound())" [attr.aria-pressed]="sound()" aria-label="Sound effects">{{ sound() ? '♫' : '♪' }}</button><button (click)="pause()" [disabled]="!active()" aria-label="Pause game">Ⅱ</button></div>
-      <div #board class="board" tabindex="0" role="group" aria-label="2048 board. Arrow keys or WASD to move. Swipe on touch screens." [style.--size]="level?.gridSize ?? 4"
+    <section class="play" [attr.aria-label]="'2048 Temple game' | t">
+      <div class="board-heading"><div><span class="eyebrow">{{ (level?.name ?? 'THE GOLDEN GARDEN') | t }}</span><h2>{{ 'Level {0}' | t: [level?.id ?? 1] }}</h2></div><div class="score"><small>{{ 'SCORE' | t }}</small><b>{{ (run?.score ?? 0) | t }}</b></div><button (click)="sound.set(!sound())" [attr.aria-pressed]="sound()" [attr.aria-label]="'Sound effects' | t">{{ (sound() ? '♫' : '♪') | t }}</button><button (click)="pause()" [disabled]="!active()" [attr.aria-label]="'Pause game' | t">Ⅱ</button></div>
+      <div #board class="board" tabindex="0" role="group" [attr.aria-label]="'2048 board. Arrow keys or WASD to move. Swipe on touch screens.' | t" [style.--size]="level?.gridSize ?? 4"
         (pointerdown)="pointerDown($event)" (pointerup)="pointerEnd($event)" (pointercancel)="pointerEnd($event)" (lostpointercapture)="pointerEnd($event)">
         @for (value of tiles; track $index; let cellIndex = $index) {
-          <div class="cell" [attr.aria-label]="value || 'Empty'">
+          <div class="cell" [attr.aria-label]="(value || 'Empty') | t">
             @if(value){
               @for(revision of [run?.revision ?? 0]; track revision){
-                <div class="tile filled" [attr.data-value]="value" [class.merge-pop]="merged().includes(cellIndex)" [class.spawn-pop]="spawned().includes(cellIndex)" [class.legend]="value >= 1024">{{ value }}@if(value >= 128){<small>✦</small>}</div>
+                <div class="tile filled" [attr.data-value]="value" [class.merge-pop]="merged().includes(cellIndex)" [class.spawn-pop]="spawned().includes(cellIndex)" [class.legend]="value >= 1024">{{ (value) | t }}@if(value >= 128){<small>✦</small>}</div>
               }
             }
           </div>
         }
         @if (!active() || error()) {
           <div class="overlay" aria-live="polite"><div>
-            @if(error()) {<span class="symbol">☁</span><h2>A little pause.</h2><p>{{ error() }}</p><button class="primary" (click)="retry()" [disabled]="busy()">Retry ↗</button><button (click)="load()" [disabled]="busy()">Reload saved game</button>}
-            @else if(!data()) {<span class="symbol">✦</span><h2>Opening the temple…</h2>}
-            @else if(run?.status === 'won') {<span class="symbol victory">✦</span><h2>A golden moment!</h2><p>You reached {{ run?.level?.targetTile }}.</p><div class="reward">+{{ run?.earned }} <small>Temple Points</small></div><p>Your reward and progress are saved.</p><button class="primary" (click)="start()" [disabled]="busy()">{{ run?.level?.id === 8 ? 'Play again' : 'Next temple' }} ↗</button>}
-            @else if(run?.status === 'lost') {<span class="symbol">♡</span><h2>A fresh perspective.</h2><p>No moves left. Your balance is safe.<br>Try a new arrangement.</p><button class="primary" (click)="start()" [disabled]="busy()">Try again ↗</button>}
-            @else {<span class="symbol">✦</span><h2>{{ run ? 'Your temple awaits.' : 'A little closer to gold.' }}</h2><p>Merge matching tiles to reach {{ level?.targetTile }}.<br>Win +{{ level?.winPoints }} Temple Points.</p><button class="primary" (click)="start()" [disabled]="busy()">{{ run ? 'Continue' : 'Let’s play' }} ↗</button>}
+            @if(error()) {<span class="symbol">☁</span><h2>{{ 'A little pause.' | t }}</h2><p>{{ (error()) | t }}</p><button class="primary" (click)="retry()" [disabled]="busy()">{{ 'Retry ↗' | t }}</button><button (click)="load()" [disabled]="busy()">{{ 'Reload saved game' | t }}</button>}
+            @else if(!data()) {<span class="symbol">✦</span><h2>{{ 'Opening the temple…' | t }}</h2>}
+            @else if(run?.status === 'won') {<span class="symbol victory">✦</span><h2>{{ 'A golden moment!' | t }}</h2><p>{{ 'You reached {0}.' | t: [run?.level?.targetTile] }}</p><div class="reward">{{ '+{0}' | t: [run?.earned] }}<small>{{ 'Temple Points' | t }}</small></div><p>{{ 'Your reward and progress are saved.' | t }}</p><button class="primary" (click)="start()" [disabled]="busy()">{{ '{0} ↗' | t: [run?.level?.id === 8 ? 'Play again' : 'Next temple'] }}</button>}
+            @else if(run?.status === 'lost') {<span class="symbol">♡</span><h2>{{ 'A fresh perspective.' | t }}</h2><p>{{ 'No moves left. Your balance is safe.' | t }}<br>{{ 'Try a new arrangement.' | t }}</p><button class="primary" (click)="start()" [disabled]="busy()">{{ 'Try again ↗' | t }}</button>}
+            @else {<span class="symbol">✦</span><h2>{{ (run ? 'Your temple awaits.' : 'A little closer to gold.') | t }}</h2><p>{{ 'Merge matching tiles to reach {0}.' | t: [level?.targetTile] }}<br>{{ 'Win +{0} Temple Points.' | t: [level?.winPoints] }}</p><button class="primary" (click)="start()" [disabled]="busy()">{{ '{0} ↗' | t: [run ? 'Continue' : 'Let’s play'] }}</button>}
           </div></div>
         }
       </div>
-      <div class="target"><small>NEXT WONDER <b>{{ level?.targetTile ?? 128 }}</b></small><div><i [style.width.%]="progress"></i></div></div>
-      <div class="under"><span>{{ busy() ? 'Saving…' : 'Every move saved' }}</span><span>Best score {{ data()?.progress?.bestScore ?? 0 }}</span></div>
-      <div class="directions" aria-label="Direction controls"><button aria-label="Move left" (click)="move('left')" [disabled]="!active()">←</button><button aria-label="Move up" (click)="move('up')" [disabled]="!active()">↑</button><button aria-label="Move down" (click)="move('down')" [disabled]="!active()">↓</button><button aria-label="Move right" (click)="move('right')" [disabled]="!active()">→</button></div>
-      <p class="hint">Arrow keys / WASD · Swipe to merge · Esc to pause</p>
+      <div class="target"><small>{{ 'NEXT WONDER' | t }} <b>{{ (level?.targetTile ?? 128) | t }}</b></small><div><i [style.width.%]="progress"></i></div></div>
+      <div class="under"><span>{{ (busy() ? 'Saving…' : 'Every move saved') | t }}</span><span>{{ 'Best score {0}' | t: [data()?.progress?.bestScore ?? 0] }}</span></div>
+      <div class="directions" [attr.aria-label]="'Direction controls' | t"><button [attr.aria-label]="'Move left' | t" (click)="move('left')" [disabled]="!active()">←</button><button [attr.aria-label]="'Move up' | t" (click)="move('up')" [disabled]="!active()">↑</button><button [attr.aria-label]="'Move down' | t" (click)="move('down')" [disabled]="!active()">↓</button><button [attr.aria-label]="'Move right' | t" (click)="move('right')" [disabled]="!active()">→</button></div>
+      <p class="hint">{{ 'Arrow keys / WASD · Swipe to merge · Esc to pause' | t }}</p>
     </section>
   </main>
 </div>

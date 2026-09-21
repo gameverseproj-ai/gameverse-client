@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { GameFacade } from '../../core/facades/game.facade';
 import { RouterLink } from '@angular/router';
@@ -12,7 +13,7 @@ const GAME_META: Record<string, { label: string; icon: string; color: string }> 
 @Component({
   selector: 'app-game-placeholder',
   standalone: true,
-  imports: [RouterLink],
+  imports: [TranslatePipe, RouterLink],
   templateUrl: './game-placeholder.component.html',
   styleUrl: './game-placeholder.component.scss',
 })

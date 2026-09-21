@@ -1,16 +1,17 @@
 <div class="placeholder">
   <div class="placeholder__card" [style.--accent]="meta().color">
-    <span class="placeholder__icon">{{ meta().icon }}</span>
-    <h1 class="placeholder__title">{{ meta().label }}</h1>
-    <p class="placeholder__status">Coming Soon</p>
+    <span class="placeholder__icon">{{ (meta().icon) | t }}</span>
+    <h1 class="placeholder__title">{{ (meta().label) | t }}</h1>
+    <p class="placeholder__status">{{ 'Coming Soon' | t }}</p>
     @if (bootstrap(); as data) {
-      <p class="placeholder__desc">Your best score: {{ data.progress.bestScore }} · Games played: {{ data.progress.gamesPlayed }}</p>
+      <p class="placeholder__desc">{{ 'Your best score: {0} · Games played: {1}' | t: [data.progress.bestScore, data.progress.gamesPlayed] }}</p>
     } @else {
-      <p class="placeholder__desc">{{ loadError() ? 'Your progress could not be loaded.' : 'Loading your progress…' }}</p>
+      <p class="placeholder__desc">{{ (loadError() ? 'Your progress could not be loaded.' : 'Loading your progress…') | t }}</p>
     }
     <p class="placeholder__desc">
-      This game is under construction. Check back soon for the full experience.
+
+      {{ 'This game is under construction. Check back soon for the full experience.' | t }}
     </p>
-    <a routerLink="/world" class="btn btn--primary">Return to World</a>
+    <a routerLink="/world" class="btn btn--primary">{{ 'Return to World' | t }}</a>
   </div>
 </div>

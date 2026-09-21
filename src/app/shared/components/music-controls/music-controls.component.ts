@@ -1,8 +1,9 @@
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Component, Input, inject } from '@angular/core';
 import { MusicService } from '../../../core/audio/music.service';
 import { MusicGenre } from '../../../core/models/music.model';
 @Component({
-  selector: 'app-music-controls', standalone: true,
+  selector: 'app-music-controls', standalone: true, imports: [TranslatePipe],
   templateUrl: './music-controls.component.html', styleUrl: './music-controls.component.scss',
 })
 export class MusicControlsComponent {

@@ -1,48 +1,48 @@
 <div class="power-page">
-  <header><a routerLink="/world" class="back">← Back to world</a><a routerLink="/games" class="brand"><span>ϟ</span> POWER KICK</a><button class="sound-toggle" (click)="toggleSound()" [attr.aria-pressed]="sound()">{{ sound() ? 'Sound on ♫' : 'Sound off' }}</button></header>
+  <header><a routerLink="/world" class="back">{{ '← Back to world' | t }}</a><a routerLink="/games" class="brand"><span>ϟ</span>  {{ 'POWER KICK' | t }}</a><button class="sound-toggle" (click)="toggleSound()" [attr.aria-pressed]="sound()">{{ (sound() ? 'Sound on ♫' : 'Sound off') | t }}</button></header>
   <main>
-    <div class="intro"><div><p class="eyebrow">SMALL REPS. BIG ENERGY.</p><h1>Bring the <em>boom.</em></h1><p>Train a little. Hit a lot harder.</p></div><div class="player"><span class="player-icon">ϟ</span><div><small>YOUR FIGHTER · LVL {{ level }}</small><strong>{{ state()?.strength ?? '—' }} <span>strength</span></strong></div></div></div>
-    <nav aria-label="Game mode"> <button [class.selected]="mode() === 'battle'" (click)="switchMode('battle')">01 <b>Punch bag</b></button><button [class.selected]="mode() === 'machine'" (click)="switchMode('machine')">02 <b>Power meter</b></button><button [class.selected]="mode() === 'gym'" (click)="switchMode('gym')">03 <b>Daily gym</b><span class="dot"></span></button></nav>
-    @if (error()) { <div class="error" role="alert">{{ error() }} <button (click)="load()">Reload progress</button></div> }
+    <div class="intro"><div><p class="eyebrow">{{ 'SMALL REPS. BIG ENERGY.' | t }}</p><h1>{{ 'Bring the' | t }} <em>{{ 'boom.' | t }}</em></h1><p>{{ 'Train a little. Hit a lot harder.' | t }}</p></div><div class="player"><span class="player-icon">ϟ</span><div><small>{{ 'YOUR FIGHTER · LVL {0}' | t: [level] }}</small><strong>{{ (state()?.strength ?? '—') | t }}<span>{{ 'strength' | t }}</span></strong></div></div></div>
+    <nav [attr.aria-label]="'Game mode' | t"> <button [class.selected]="mode() === 'battle'" (click)="switchMode('battle')">01 <b>{{ 'Punch bag' | t }}</b></button><button [class.selected]="mode() === 'machine'" (click)="switchMode('machine')">02 <b>{{ 'Power meter' | t }}</b></button><button [class.selected]="mode() === 'gym'" (click)="switchMode('gym')">03 <b>{{ 'Daily gym' | t }}</b><span class="dot"></span></button></nav>
+    @if (error()) { <div class="error" role="alert">{{ (error()) | t }}<button (click)="load()">{{ 'Reload progress' | t }}</button></div> }
     @if (state(); as s) {
       <div class="layout">
         <section class="arena" [class.machine-mode]="mode() === 'machine'" [class.gym-mode]="mode() === 'gym'">
-          <div class="arena-top"><span class="pill">{{ mode() === 'battle' ? 'THE CHALLENGER' : mode() === 'machine' ? 'BEAT YOUR BEST' : 'DAILY TRAINING' }}</span><span>{{ mode() === 'battle' ? 'LEVEL ' + s.stage : mode() === 'machine' ? 'FREE PLAY' : exercises().length + ' EXERCISES' }}</span></div>
+          <div class="arena-top"><span class="pill">{{ (mode() === 'battle' ? 'THE CHALLENGER' : mode() === 'machine' ? 'BEAT YOUR BEST' : 'DAILY TRAINING') | t }}</span><span>{{ (mode() === 'battle' ? 'LEVEL ' + s.stage : mode() === 'machine' ? 'FREE PLAY' : exercises().length + ' EXERCISES') | t }}</span></div>
           @if (mode() === 'gym') {
-            <div class="gym-title"><h2>Your daily three</h2><p>Do every rep without a 10-second break. Completed rewards stay yours.</p></div>
+            <div class="gym-title"><h2>{{ 'Your daily three' | t }}</h2><p>{{ 'Do every rep without a 10-second break. Completed rewards stay yours.' | t }}</p></div>
             @if (selectedExercise; as selected) {
-              <h3>{{ selected.name }}</h3><p>{{ selected.detail }}</p>
+              <h3>{{ (selected.name) | t }}</h3><p>{{ (selected.detail) | t }}</p>
               <app-power-training [exercise]="selected.animation" [pulse]="repPulse()" [repetition]="animationRep()" />
               <div class="training-controls">
-                <strong>{{ s.reps[selected.index] }} / {{ selected.reps }} reps</strong>
-                <span role="status">{{ s.reps[selected.index] >= selected.reps ? '✓ Set complete — reward saved' : s.reps[selected.index] > 0 ? remaining(selected.index) + 's until set resets' : 'Ready · maximum pause 10s' }}</span>
-                <button [disabled]="locked() || !!error() || s.reps[selected.index] >= selected.reps" (click)="rep(selected.index)">{{ locked() ? 'Finish the movement…' : s.reps[selected.index] >= selected.reps ? '✓ Completed' : 'Do rep' }}</button>
+                <strong>{{ '{0} / {1} reps' | t: [s.reps[selected.index], selected.reps] }}</strong>
+                <span role="status">{{ (s.reps[selected.index] >= selected.reps ? '✓ Set complete — reward saved' : s.reps[selected.index] > 0 ? remaining(selected.index) + 's until set resets' : 'Ready · maximum pause 10s') | t }}</span>
+                <button [disabled]="locked() || !!error() || s.reps[selected.index] >= selected.reps" (click)="rep(selected.index)">{{ (locked() ? 'Finish the movement…' : s.reps[selected.index] >= selected.reps ? '✓ Completed' : 'Do rep') | t }}</button>
               </div>
             }
             <div class="exercise-catalog" >
               @for (item of exercises(); track item.id) {
                 <button [class.chosen]="exercise() === item.index" [disabled]="locked()" (click)="selectExercise(item.index)" [attr.aria-pressed]="exercise() === item.index">
-                  <b>{{ item.name }}</b><small>{{ s.reps[item.index] }} / {{ item.reps }} · +{{ item.gain }} strength</small>
+                  <b>{{ (item.name) | t }}</b><small>{{ '{0} / {1} · +{2} strength' | t: [s.reps[item.index], item.reps, item.gain] }}</small>
                 </button>
               }
             </div>
-            <p class="reset-note">New assignments every day. A pause of 10 seconds resets only unfinished sets.</p>
+            <p class="reset-note">{{ 'New assignments every day. A pause of 10 seconds resets only unfinished sets.' | t }}</p>
           } @else {
-            @if (mode() === 'battle') { <h2>{{ face.name }}</h2><p class="taunt">{{ face.quote }}</p> } @else { <h2>Make it count.</h2><p class="taunt">One strike. All your power.</p><div class="digital"><small>PERSONAL BEST</small><strong>{{ s.best.toString().padStart(4, '0') }}</strong><span>POWER POINTS</span></div> }
+            @if (mode() === 'battle') { <h2>{{ (face.name) | t }}</h2><p class="taunt">{{ (face.quote) | t }}</p> } @else { <h2>{{ 'Make it count.' | t }}</h2><p class="taunt">{{ 'One strike. All your power.' | t }}</p><div class="digital"><small>{{ 'PERSONAL BEST' | t }}</small><strong>{{ (s.best.toString().padStart(4, '0')) | t }}</strong><span>{{ 'POWER POINTS' | t }}</span></div> }
             <app-power-scene [mode]="mode() === 'machine' ? 'machine' : 'battle'" [character]="face.kind" [disabled]="locked() || !!error()" (grabbed)="grab()" (charge)="position.set($event * 100)" (punched)="strike($event)" />
-            @if (mode() === 'battle') { <div class="health"><div><b>DUMMY DURABILITY</b><span>{{ s.hp }} / {{ maxHp }} HP</span></div><progress [value]="s.hp" [max]="maxHp" aria-label="Dummy health"></progress></div> }
+            @if (mode() === 'battle') { <div class="health"><div><b>{{ 'DUMMY DURABILITY' | t }}</b><span>{{ '{0} / {1} HP' | t: [s.hp, maxHp] }}</span></div><progress [value]="s.hp" [max]="maxHp" [attr.aria-label]="'Dummy health' | t"></progress></div> }
           }
         </section>
         <aside>
-          <section class="control"><p class="eyebrow">{{ mode() === 'gym' ? 'THE LONG GAME' : 'FIRST-PERSON BOXING' }}</p><h2>{{ mode() === 'gym' ? 'Every rep matters.' : 'Pull. Aim. Punch.' }}</h2><p>{{ mode() === 'gym' ? 'Your training gains are permanent. Come back tomorrow for another set and take on tougher dummies.' : 'Grab the left or right glove and drag down to pull that fist back. After pulling back, steer up, down or sideways to aim at the head or body. Release to punch. A longer pull means a stronger hit.' }}</p>
-            @if (mode() !== 'gym') { <div class="meter-label"><span>PULL POWER</span><span>{{ position().toFixed(0) }}%</span></div><progress [value]="position()" max="100" aria-label="Pull power"></progress><small class="hint">Touch / mouse: drag down, aim, release.<br>Keyboard: focus the scene, choose a hand with A / D, hold Space, aim with ← ↑ → ↓, release Space. Esc cancels.</small> }
-            <div class="feedback" role="status" aria-live="polite">{{ feedback() }}</div>
+          <section class="control"><p class="eyebrow">{{ (mode() === 'gym' ? 'THE LONG GAME' : 'FIRST-PERSON BOXING') | t }}</p><h2>{{ (mode() === 'gym' ? 'Every rep matters.' : 'Pull. Aim. Punch.') | t }}</h2><p>{{ (mode() === 'gym' ? 'Your training gains are permanent. Come back tomorrow for another set and take on tougher dummies.' : 'Grab the left or right glove and drag down to pull that fist back. After pulling back, steer up, down or sideways to aim at the head or body. Release to punch. A longer pull means a stronger hit.') | t }}</p>
+            @if (mode() !== 'gym') { <div class="meter-label"><span>{{ 'PULL POWER' | t }}</span><span>{{ '{0}%' | t: [position().toFixed(0)] }}</span></div><progress [value]="position()" max="100" [attr.aria-label]="'Pull power' | t"></progress><small class="hint">{{ 'Touch / mouse: drag down, aim, release.' | t }}<br>{{ 'Keyboard: focus the scene, choose a hand with A / D, hold Space, aim with ← ↑ → ↓, release Space. Esc cancels.' | t }}</small> }
+            <div class="feedback" role="status" aria-live="polite">{{ (feedback()) | t }}</div>
           </section>
-          <section class="stats"><div><span>PERSONAL BEST</span><b>{{ s.best }} <small>pts</small></b></div><div><span>DUMMIES BEATEN</span><b>{{ s.wins.toString().padStart(2, '0') }}</b></div></section>
-          <section class="tip"><span>↗</span><div><h3>{{ mode() === 'gym' ? 'Ready to test your gains?' : 'Big hits start in the gym.' }}</h3><p>{{ mode() === 'gym' ? 'Take your new strength for a spin.' : 'Finish your daily sets for +30 strength.' }}</p><button (click)="switchMode(mode() === 'gym' ? 'battle' : 'gym')">{{ mode() === 'gym' ? 'Back to the bag' : 'Visit daily gym' }} →</button></div></section>
+          <section class="stats"><div><span>{{ 'PERSONAL BEST' | t }}</span><b>{{ (s.best) | t }}<small>{{ 'pts' | t }}</small></b></div><div><span>{{ 'DUMMIES BEATEN' | t }}</span><b>{{ (s.wins.toString().padStart(2, '0')) | t }}</b></div></section>
+          <section class="tip"><span>↗</span><div><h3>{{ (mode() === 'gym' ? 'Ready to test your gains?' : 'Big hits start in the gym.') | t }}</h3><p>{{ (mode() === 'gym' ? 'Take your new strength for a spin.' : 'Finish your daily sets for +30 strength.') | t }}</p><button (click)="switchMode(mode() === 'gym' ? 'battle' : 'gym')">{{ '{0} →' | t: [mode() === 'gym' ? 'Back to the bag' : 'Visit daily gym'] }}</button></div></section>
         </aside>
       </div>
-    } @else if (!error()) { <p role="status">Getting the gym ready…</p> }
-    <footer><span>TRAIN. STRIKE. REPEAT.</span><span>Power scores are in-game points, not a physical force measurement.</span></footer>
+    } @else if (!error()) { <p role="status">{{ 'Getting the gym ready…' | t }}</p> }
+    <footer><span>{{ 'TRAIN. STRIKE. REPEAT.' | t }}</span><span>{{ 'Power scores are in-game points, not a physical force measurement.' | t }}</span></footer>
   </main>
 </div>

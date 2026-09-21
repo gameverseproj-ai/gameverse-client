@@ -1,21 +1,21 @@
 <details [class.floating]="compact" [open]="!compact">
-  <summary aria-label="Music settings">♫ <span>Music</span><b>{{ music.preferences().enabled ? music.preferences().genre : 'Off' }}</b></summary>
-  <section class="music-panel" aria-label="Music preferences">
-    <header><span>YOUR SOUNDTRACK</span><h2>Find your groove.</h2><p>One soundtrack, wherever you play.</p></header>
-    <div class="choices" role="group" aria-label="Music genre">
+  <summary [attr.aria-label]="'Music settings' | t">♫ <span>{{ 'Music' | t }}</span><b>{{ (music.preferences().enabled ? music.preferences().genre : 'Off') | t }}</b></summary>
+  <section class="music-panel" [attr.aria-label]="'Music preferences' | t">
+    <header><span>{{ 'YOUR SOUNDTRACK' | t }}</span><h2>{{ 'Find your groove.' | t }}</h2><p>{{ 'One soundtrack, wherever you play.' | t }}</p></header>
+    <div class="choices" role="group" [attr.aria-label]="'Music genre' | t">
       @for (genre of genres; track genre.id) {
         <button type="button" [disabled]="music.loading() || music.saving()" [attr.aria-pressed]="music.preferences().enabled && music.preferences().genre === genre.id" (click)="music.choose(genre.id)">
-          <span class="icon">{{ genre.icon }}</span><span><strong>{{ genre.name }}</strong><small>{{ genre.detail }}</small></span><span class="indicator" aria-hidden="true"></span>
+          <span class="icon">{{ (genre.icon) | t }}</span><span><strong>{{ (genre.name) | t }}</strong><small>{{ (genre.detail) | t }}</small></span><span class="indicator" aria-hidden="true"></span>
         </button>
       }
-      <button type="button" class="off" [disabled]="music.loading() || music.saving()" [attr.aria-pressed]="!music.preferences().enabled" (click)="music.turnOff()"><span class="icon">○</span><strong>Music off</strong><span class="indicator" aria-hidden="true"></span></button>
+      <button type="button" class="off" [disabled]="music.loading() || music.saving()" [attr.aria-pressed]="!music.preferences().enabled" (click)="music.turnOff()"><span class="icon">○</span><strong>{{ 'Music off' | t }}</strong><span class="indicator" aria-hidden="true"></span></button>
     </div>
-    <label class="volume">Volume <span>{{ (music.preferences().volume * 100).toFixed(0) }}%</span><input type="range" min="0" max="100" step="5" [value]="music.preferences().volume * 100" [disabled]="music.loading() || music.saving()" (change)="changeVolume($event)"></label>
-    @if (music.preferences().enabled) { <p class="note" aria-live="polite">♫ {{ music.currentTrack().title }} · {{ music.currentTrack().bpm }} BPM</p> }
-    <p class="note">A new tune whenever you enter or leave a game.</p>
-    <p class="note">Saved to your profile. Game sound effects have their own controls.</p>
-    @if (music.preferences().enabled && !music.ready()) { <button class="start" type="button" (click)="music.unlock()">Play music</button> }
-    <div class="status" role="status">{{ music.loading() ? 'Loading your settings…' : music.saving() ? 'Saving…' : music.error() }}</div>
-    @if (music.error()) { <button class="start" type="button" (click)="music.load()">Reload settings</button> }
+    <label class="volume">{{ 'Volume' | t }} <span>{{ '{0}%' | t: [(music.preferences().volume * 100).toFixed(0)] }}</span><input type="range" min="0" max="100" step="5" [value]="music.preferences().volume * 100" [disabled]="music.loading() || music.saving()" (change)="changeVolume($event)"></label>
+    @if (music.preferences().enabled) { <p class="note" aria-live="polite">{{ '♫ {0} · {1} BPM' | t: [music.currentTrack().title, music.currentTrack().bpm] }}</p> }
+    <p class="note">{{ 'A new tune whenever you enter or leave a game.' | t }}</p>
+    <p class="note">{{ 'Saved to your profile. Game sound effects have their own controls.' | t }}</p>
+    @if (music.preferences().enabled && !music.ready()) { <button class="start" type="button" (click)="music.unlock()">{{ 'Play music' | t }}</button> }
+    <div class="status" role="status">{{ (music.loading() ? 'Loading your settings…' : music.saving() ? 'Saving…' : music.error()) | t }}</div>
+    @if (music.error()) { <button class="start" type="button" (click)="music.load()">{{ 'Reload settings' | t }}</button> }
   </section>
 </details>

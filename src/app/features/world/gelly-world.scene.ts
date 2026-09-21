@@ -63,6 +63,14 @@ export class GellyWorldScene {
     this.init(heroRenderer);
   }
 
+  setLanguage(translate: (value: string) => string, rtl: boolean): void {
+    this.scene.traverse(object => object.userData['localize']?.(translate, rtl));
+    for (const portal of this.portals) {
+      const element = this.portalUI.get(portal.id)?.labelEl;
+      if (element) { element.textContent = translate(portal.name); element.dir = rtl ? 'rtl' : 'ltr'; }
+    }
+  }
+
   private init(heroRenderer: HeroRenderer): void {
     const w = window.innerWidth;
     const h = window.innerHeight;

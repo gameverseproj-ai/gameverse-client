@@ -1,8 +1,9 @@
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-card',
-  standalone: true,
+  standalone: true, imports: [TranslatePipe],
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss',
 })

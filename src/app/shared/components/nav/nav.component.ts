@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { LanguageControlsComponent } from '../language-controls/language-controls.component';
 import { MusicControlsComponent } from '../music-controls/music-controls.component';
 import { Component, signal } from '@angular/core';
@@ -11,7 +12,7 @@ interface NavLink {
 @Component({
   selector: 'app-nav',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, MusicControlsComponent, LanguageControlsComponent],
+  imports: [TranslatePipe, RouterLink, RouterLinkActive, MusicControlsComponent, LanguageControlsComponent],
   templateUrl: './nav.component.html',
   styleUrl: './nav.component.scss',
 })

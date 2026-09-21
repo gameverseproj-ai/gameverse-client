@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Component, ElementRef, HostListener, OnDestroy, afterNextRender, inject, signal, viewChild } from '@angular/core';
 import { slide } from './temple-engine';
 import { RouterLink } from '@angular/router';
@@ -5,7 +6,7 @@ import { Observable, Subscription, take, timeout } from 'rxjs';
 import { TEMPLE_API } from '../../../core/api/temple.api';
 import { GameFacade } from '../../../core/facades/game.facade';
 import { TempleBootstrap, TempleDirection } from '../../../core/models/temple.model';
-@Component({selector:'app-temple',standalone:true,imports:[RouterLink],templateUrl:'./temple.component.html',styleUrl:'./temple.component.scss'})
+@Component({selector:'app-temple',standalone:true,imports: [TranslatePipe, RouterLink],templateUrl:'./temple.component.html',styleUrl:'./temple.component.scss'})
 export class TempleComponent implements OnDestroy {
   private readonly api=inject(TEMPLE_API);
   private readonly games=inject(GameFacade);

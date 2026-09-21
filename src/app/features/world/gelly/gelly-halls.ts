@@ -29,12 +29,20 @@ function plaque(g: THREE.Group, text: string, width: number, y: number, z: numbe
   box(g, 0x342437, [0, y, z + .18], [width, 1.65, .18]);
   const canvas = document.createElement('canvas'); canvas.width = 768; canvas.height = 256;
   const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = '#fff0ba'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.font = '900 88px Arial, sans-serif';
-  const lines = text.split('\n');
-  lines.forEach((line, i) => ctx.fillText(line, 384, lines.length === 1 ? 128 : 74 + i * 108, 710));
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
-  mesh(g, new THREE.PlaneGeometry(width - .25, 1.5), new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false }), [0, y, z + .29]);
+  const sign = mesh(g, new THREE.PlaneGeometry(width - .25, 1.5), new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false }), [0, y, z + .29]);
+  const redraw = (translate: (value: string) => string, rtl = false) => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#fff0ba'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.direction = rtl ? 'rtl' : 'ltr'; ctx.font = '900 88px Arial, sans-serif';
+    const original = text.replace(/\s+/g, ' ').trim();
+    const localized = translate(original);
+    const lines = localized === original ? text.split('\n') : [localized];
+    lines.forEach((line, i) => ctx.fillText(line, 384, lines.length === 1 ? 128 : 74 + i * 108, 710));
+    texture.needsUpdate = true;
+  };
+  sign.userData['localize'] = redraw;
+  redraw(value => value);
   for (const x of [-width / 2 + .2, width / 2 - .2]) ball(g, trim, [x, y, z + .31], [.09, .09, .06]);
 }
 function portal(g: THREE.Group, z: number, color: number, stone: number): void {

@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { Component, afterNextRender, inject, signal } from '@angular/core';
 import { GameListComponent } from './components/game-list/game-list.component';
 import { GameFacade } from '../../core/facades/game.facade';
@@ -5,7 +6,7 @@ import { GameFacade } from '../../core/facades/game.facade';
 @Component({
   selector: 'app-games',
   standalone: true,
-  imports: [GameListComponent],
+  imports: [TranslatePipe, GameListComponent],
   templateUrl: './games.component.html',
   styleUrl: './games.component.scss',
 })

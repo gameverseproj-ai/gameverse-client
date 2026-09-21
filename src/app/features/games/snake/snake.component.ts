@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Component, ElementRef, HostListener, NgZone, OnDestroy, afterNextRender, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Subscription, take, timeout } from 'rxjs';
@@ -9,7 +10,7 @@ import { Direction, SnakeEngine } from '../engines/snake/snake-engine';
 import { SnakeRenderer } from '../engines/snake/snake-renderer';
 
 type Screen = 'loading' | 'ready' | 'starting' | 'playing' | 'paused' | 'saving' | 'lost' | 'won';
-@Component({selector:'app-jelly-snake',standalone:true,imports:[RouterLink],templateUrl:'./snake.component.html',styleUrl:'./snake.component.scss'})
+@Component({selector:'app-jelly-snake',standalone:true,imports: [TranslatePipe, RouterLink],templateUrl:'./snake.component.html',styleUrl:'./snake.component.scss'})
 export class SnakeComponent implements OnDestroy {
   private readonly api=inject(SNAKE_API);
   private readonly games=inject(GameFacade);

@@ -6,34 +6,34 @@
   (lostpointercapture)="onPointerEnd($event)"
   (contextmenu)="$event.preventDefault()"
 >
-  <canvas #canvas class="world-canvas" aria-label="Gelly World, a 3D playground. Use W and S to move, A and D to turn, Space to jump and Q to wave."></canvas>
+  <canvas #canvas class="world-canvas" [attr.aria-label]="'Gelly World, a 3D playground. Use W and S to move, A and D to turn, Space to jump and Q to wave.' | t"></canvas>
   <header class="world-header">
-    <a routerLink="/home" class="world-brand"><span class="brand-mark">g.</span><span>GELLY WORLD<small>A LITTLE WORLD OF PLAY</small></span></a>
-    <a class="world-menu" routerLink="/games">Explore games <span>↗</span></a>
+    <a routerLink="/home" class="world-brand"><span class="brand-mark">{{ 'g.' | t }}</span><span>{{ 'GELLY WORLD' | t }}<small>{{ 'A LITTLE WORLD OF PLAY' | t }}</small></span></a>
+    <a class="world-menu" routerLink="/games">{{ 'Explore games' | t }} <span>↗</span></a>
   </header>
-  <section class="world-intro" aria-live="polite"><span class="eyebrow">YOUR NEXT ADVENTURE</span>
+  <section class="world-intro" aria-live="polite"><span class="eyebrow">{{ 'YOUR NEXT ADVENTURE' | t }}</span>
     @if (enteringPortal(); as portal) {
-      <p>{{ entryError() ? 'Could not load your game.' : 'Preparing ' + portal.name + '…' }}</p>
+      <p>{{ (entryError() ? 'Could not load your game.' : 'Preparing ' + portal.name + '…') | t }}</p>
     } @else {
-      <p>{{ mobileControls() ? 'Left stick to move · Swipe to look.' : 'W/S to move · A/D to turn.' }}<br>Walk up to a door to enter its game.</p>
+      <p>{{ (mobileControls() ? 'Left stick to move · Swipe to look.' : 'W/S to move · A/D to turn.') | t }}<br>{{ 'Walk up to a door to enter its game.' | t }}</p>
     }
   </section>
   @if (enteringPortal()) {
     <div class="entry-feedback" aria-live="polite">
       @if (entryError()) {
-        <span>Your progress could not be loaded. Please try again.</span>
-        <button type="button" (click)="loadEntryData()">Try again</button>
+        <span>{{ 'Your progress could not be loaded. Please try again.' | t }}</span>
+        <button type="button" (click)="loadEntryData()">{{ 'Try again' | t }}</button>
       }
-      <button type="button" (click)="cancelEntry()">Return to world</button>
+      <button type="button" (click)="cancelEntry()">{{ 'Return to world' | t }}</button>
     </div>
   }
-  <div class="hero-card"><span class="hero-avatar">●</span><span><strong>Gelly</strong><small>Level 01 · Born to bounce</small></span><span class="hero-status">{{ enteringPortal() ? 'OFF WE GO!' : 'READY TO PLAY' }}</span></div>
+  <div class="hero-card"><span class="hero-avatar">●</span><span><strong>{{ 'Gelly' | t }}</strong><small>{{ 'Level 01 · Born to bounce' | t }}</small></span><span class="hero-status">{{ (enteringPortal() ? 'OFF WE GO!' : 'READY TO PLAY') | t }}</span></div>
 
   <!-- Interaction prompt — shown when player is near a building -->
   @if (nearbyPortal(); as portal) {
     <button type="button" class="interaction-prompt" (click)="enterPortal()">
-      <kbd>E</kbd>
-      <span>Enter {{ portal.name }}</span>
+      <kbd>{{ 'E' | t }}</kbd>
+      <span>{{ 'Enter {0}' | t: [portal.name] }}</span>
     </button>
   }
 
@@ -54,17 +54,17 @@
   </div>
 
   @if (!enteringPortal()) {
-  <div class="hero-actions" aria-label="Hero actions">
-    <div class="camera-modes" role="group" aria-label="Camera mode">
-      <button type="button" (click)="setCameraMode('first-person')" [attr.aria-pressed]="cameraMode() === 'first-person'">Eyes</button>
-      <button type="button" (click)="setCameraMode('third-person')" [attr.aria-pressed]="cameraMode() === 'third-person'">Behind</button>
+  <div class="hero-actions" [attr.aria-label]="'Hero actions' | t">
+    <div class="camera-modes" role="group" [attr.aria-label]="'Camera mode' | t">
+      <button type="button" (click)="setCameraMode('first-person')" [attr.aria-pressed]="cameraMode() === 'first-person'">{{ 'Eyes' | t }}</button>
+      <button type="button" (click)="setCameraMode('third-person')" [attr.aria-pressed]="cameraMode() === 'third-person'">{{ 'Behind' | t }}</button>
     </div>
-    <button type="button" (click)="playAction('wave')"><span>✦</span> Wave <kbd>Q</kbd></button>
-    <button type="button" (click)="playAction('jump')"><span>↑</span> Jump <kbd>SPACE</kbd></button>
+    <button type="button" (click)="playAction('wave')"><span>✦</span>  {{ 'Wave' | t }} <kbd>{{ 'Q' | t }}</kbd></button>
+    <button type="button" (click)="playAction('jump')"><span>↑</span>  {{ 'Jump' | t }} <kbd>{{ 'SPACE' | t }}</kbd></button>
   </div>
   <!-- Controls hint — desktop only -->
   <div class="controls-hint">
-    <span>W/S forward/back &nbsp;·&nbsp; A/D turn &nbsp;·&nbsp; E enter</span>
+    <span>{{ 'W/S forward/back · A/D turn · E enter' | t }}</span>
   </div>
   }
 </div>

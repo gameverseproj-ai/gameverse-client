@@ -14,11 +14,10 @@
       }
       <h1>{{ profile.username }}</h1>
       <p class="profile__level">
-        Level {{ profile.level }}&nbsp;&middot;&nbsp;{{ profile.xp }}&thinsp;/&thinsp;{{ profile.xpToNextLevel }}&thinsp;XP
-      </p>
+        {{ 'Level {0} · {1} / {2} XP' | t: [profile.level, profile.xp, profile.xpToNextLevel] }}</p>
     } @else {
       <div class="profile__avatar profile__avatar--placeholder">?</div>
-      <h1>{{ playerFacade.loading() ? 'Loading...' : 'Guest' }}</h1>
+      <h1>{{ (playerFacade.loading() ? 'Loading...' : 'Guest') | t }}</h1>
     }
   </header>
 

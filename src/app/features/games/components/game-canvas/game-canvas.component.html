@@ -1,13 +1,12 @@
 <div class="game-canvas">
   <div class="game-canvas__hud">
-    <span class="game-canvas__score">Score: {{ score() }}</span>
+    <span class="game-canvas__score">{{ 'Score: {0}' | t: [score()] }}</span>
     <button
       class="btn btn--primary"
       (click)="togglePlay()"
-      [attr.aria-label]="running() ? 'Pause game' : 'Play game'"
+      [attr.aria-label]="(running() ? 'Pause game' : 'Play game') | t"
     >
-      {{ running() ? 'Pause' : 'Play' }}
-    </button>
+      {{ (running() ? 'Pause' : 'Play') | t }}</button>
   </div>
   <canvas #canvas class="game-canvas__surface" width="480" height="480"></canvas>
 </div>

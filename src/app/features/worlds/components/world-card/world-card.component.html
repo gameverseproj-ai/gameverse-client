@@ -1,9 +1,9 @@
 <a [routerLink]="['/worlds', world().id]" class="world-card-link">
   <app-card
-    [title]="world().name"
+    [title]="(world().name) | t"
     [subtitle]="world().theme"
     [imageUrl]="world().coverImageUrl"
   >
-    <p class="world-card__desc">{{ world().description }}</p>
+    <p class="world-card__desc">{{ (world().description) | t }}</p>
   </app-card>
 </a>

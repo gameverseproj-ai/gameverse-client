@@ -2,14 +2,14 @@
   @for (game of filteredGames(); track game.id) {
     <a [routerLink]="['/games', game.id, 'play']" class="game-list__link">
       <app-card
-        [title]="game.title"
+        [title]="(game.title) | t"
         [subtitle]="game.engineType"
         [imageUrl]="game.thumbnailUrl"
       >
-        <p class="game-list__desc">{{ game.description }}</p>
+        <p class="game-list__desc">{{ (game.description) | t }}</p>
       </app-card>
     </a>
   } @empty {
-    <p class="game-list__empty">No games match your search.</p>
+    <p class="game-list__empty">{{ 'No games match your search.' | t }}</p>
   }
 </div>

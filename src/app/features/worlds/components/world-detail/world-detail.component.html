@@ -2,17 +2,17 @@
   @if (worldFacade.currentWorld(); as w) {
     <header class="world-detail__header">
       @if (w.coverImageUrl) {
-        <img [src]="w.coverImageUrl" [alt]="w.name" class="world-detail__cover" />
+        <img [src]="w.coverImageUrl" [alt]="(w.name) | t" class="world-detail__cover" />
       }
       <div class="world-detail__meta">
-        <span class="world-detail__theme">{{ w.theme }}</span>
-        <h1>{{ w.name }}</h1>
-        <p>{{ w.description }}</p>
+        <span class="world-detail__theme">{{ (w.theme) | t }}</span>
+        <h1>{{ (w.name) | t }}</h1>
+        <p>{{ (w.description) | t }}</p>
       </div>
     </header>
   } @else if (worldFacade.loading()) {
-    <p class="world-detail__loading">Loading world...</p>
+    <p class="world-detail__loading">{{ 'Loading world...' | t }}</p>
   } @else {
-    <p class="world-detail__not-found">World not found.</p>
+    <p class="world-detail__not-found">{{ 'World not found.' | t }}</p>
   }
 </section>

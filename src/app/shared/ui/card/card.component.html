@@ -1,11 +1,11 @@
 <article class="card">
   @if (imageUrl()) {
-    <img class="card__image" [src]="imageUrl()" [alt]="title()" loading="lazy" />
+    <img class="card__image" [src]="imageUrl()" [alt]="(title()) | t" loading="lazy" />
   }
   <div class="card__body">
-    <h3 class="card__title">{{ title() }}</h3>
+    <h3 class="card__title">{{ (title()) | t }}</h3>
     @if (subtitle()) {
-      <span class="card__subtitle">{{ subtitle() }}</span>
+      <span class="card__subtitle">{{ (subtitle()) | t }}</span>
     }
     <ng-content />
   </div>

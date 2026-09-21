@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
 import {
   Component,
   ElementRef,
@@ -10,7 +11,7 @@ import { GameEngineType } from '../../../../core/models/game.model';
 
 @Component({
   selector: 'app-game-canvas',
-  standalone: true,
+  standalone: true, imports: [TranslatePipe],
   templateUrl: './game-canvas.component.html',
   styleUrl: './game-canvas.component.scss',
 })

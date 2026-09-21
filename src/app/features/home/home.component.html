@@ -1,10 +1,10 @@
 <section class="home">
   <div class="home__hero">
-    <h1 class="home__headline">{{ headline() }}</h1>
-    <p class="home__tagline">{{ tagline() }}</p>
+    <h1 class="home__headline">{{ (headline()) | t }}</h1>
+    <p class="home__tagline">{{ (tagline()) | t }}</p>
     <div class="home__cta">
-      <a routerLink="/worlds" class="btn btn--primary">Explore Worlds</a>
-      <a routerLink="/games" class="btn btn--secondary">Browse Games</a>
+      <a routerLink="/worlds" class="btn btn--primary">{{ 'Explore Worlds' | t }}</a>
+      <a routerLink="/games" class="btn btn--secondary">{{ 'Browse Games' | t }}</a>
     </div>
   </div>
 </section>
