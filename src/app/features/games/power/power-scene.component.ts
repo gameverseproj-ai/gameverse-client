@@ -1,3 +1,4 @@
+import { drawPowerGym } from './power-gym-art';
 import { LanguageService } from '../../../core/i18n/language.service';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { punchZone } from './power-engine';
@@ -93,9 +94,7 @@ export class PowerSceneComponent implements OnChanges, OnDestroy {
   private text(value: string,x: number,y: number,size: number,color='#e9f3dc'): void { const c=this.ctx!;c.fillStyle=color;c.font=`700 ${size}px system-ui`;c.textAlign='center';c.direction=this.locale.language()==='he'||this.locale.language()==='ar'?'rtl':'ltr';c.fillText(this.locale.t(value),x,y,this.width-20); }
   private draw(now: number): void {
     if (!this.ctx) return; const c=this.ctx,w=this.width,h=this.height;
-    c.clearRect(0,0,w,h); const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#14252a');bg.addColorStop(1,'#3f5048');c.fillStyle=bg;c.fillRect(0,0,w,h);
-    for(let i=0;i<7;i++)this.line([[w/2,h*.48],[(i-1)*w/4,h]],'#b5d2b514',1);
-    this.line([[0,h*.75],[w,h*.75]],'#d5e0ba28',2);
+    c.clearRect(0,0,w,h); drawPowerGym(c,w,h);
     const elapsed=now-this.strikeAt, punching=elapsed<430;
     if (this.keyAt) { this.pull=Math.min(1,(now-this.keyAt)/1000);this.charge.emit(this.pull); }
     c.save();c.translate(w/2,h*.47);

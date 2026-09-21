@@ -1,0 +1,262 @@
+// Shared art direction: all four halls belong to the same tactile toy world.
+// Keep this global so the shared treatment does not duplicate in four lazy chunks.
+.gelly-game.gelly-game.gelly-game {
+  --hall-light: #baffae;
+  --hall-accent: #71dfb6;
+  --hall-deep: #285d68;
+  --hall-panel: #263655;
+  --hall-ink: #203b46;
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  background: #1a1740;
+  color: #fff3e2;
+  font-family: 'Trebuchet MS', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  padding: 24px clamp(18px, 4vw, 68px) 48px;
+  &::before {
+    content: '';
+    position: absolute;
+    z-index: -2;
+    inset: 0;
+    background: linear-gradient(180deg, #1a174029, #20173b70 48%, #181638e8 100%), url('/assets/gelly/ui/halls-panorama-v1.jpg') center top / max(100%, 1500px) auto no-repeat;
+    pointer-events: none;
+  }
+  &::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 15%, transparent 15%, #12133333 80%);
+    pointer-events: none;
+  }
+  &.gelly-theme-temple { --hall-light: #ffeab1; --hall-accent: #ffc56c; --hall-deep: #956244; --hall-panel: #493451; --hall-ink: #603d41; }
+  &.gelly-theme-tetris { --hall-light: #f6c2ff; --hall-accent: #ca9aff; --hall-deep: #724a9f; --hall-panel: #3b285f; --hall-ink: #45235f; }
+  &.gelly-theme-power { --hall-light: #ffe0a0; --hall-accent: #ffac76; --hall-deep: #a85a58; --hall-panel: #49304e; --hall-ink: #633444; }
+
+  > header {
+    max-width: 1200px;
+    margin-inline: auto;
+    min-height: 48px;
+    gap: 14px;
+    a { text-shadow: 0 2px 5px #160e38; }
+    .brand { color: #fff2d8; letter-spacing: 1px; font-weight: 900; font-size: 13px; }
+    .brand b, .brand > span:first-child:not(:last-child), .brand > span:only-child {
+      color: #fff4e8;
+      background: linear-gradient(145deg, #ffc0e8, #ee71be 60%, #af4ea1);
+      border: 2px solid #ffd5ed;
+      border-radius: 42% 42% 35% 35%;
+      box-shadow: inset 0 3px 1px #fff7, 0 5px 0 #792f78, 0 8px 18px #130f4340;
+    }
+    > a:not(.brand) { border: 1px solid #dec7ff55; background: #29224bce; border-radius: 24px; padding: 11px 17px; font-size: 11px; box-shadow: inset 0 1px #fff2, 0 4px 0 #17143266; }
+  }
+  > main { max-width: 1160px; margin-top: 76px; gap: clamp(28px, 5vw, 74px); }
+  h1 { font-size: clamp(32px, 3.6vw, 48px); line-height: 1.12; letter-spacing: -1.5px; font-weight: 900; margin: 12px 0 17px; text-shadow: 0 4px 0 #1c174855, 0 6px 22px #17143b88; }
+  h1 em { color: var(--hall-light); }
+  h2 { letter-spacing: -.5px; }
+  .eyebrow { color: var(--hall-light); letter-spacing: 1.4px; line-height: 1.6; font-weight: 800; }
+  .lead, .story > p, .intro p:not(.eyebrow) { color: #e1d5ed; text-shadow: 0 2px 6px #181332; }
+  .intro, .story { padding-top: 0; min-width: 0; }
+  app-hall-art { max-width: 285px; margin: -28px auto 2px; }
+  .wallet, .player {
+    border: 1px solid color-mix(in srgb, var(--hall-accent) 50%, transparent);
+    border-radius: 24px 24px 29px 29px;
+    background: linear-gradient(130deg, color-mix(in srgb, var(--hall-deep) 80%, #fff 5%), var(--hall-panel));
+    padding: 16px 20px;
+    box-shadow: inset 0 2px 1px #fff3, inset 0 -4px 0 #140f382e, 0 7px 0 #19153966, 0 15px 24px #12103233;
+    margin-block: 23px;
+  }
+  .wallet strong, .wallet > span, .point-icon { color: var(--hall-light); }
+  .wallet small, .wallet-note, .player small { color: #e5d7ed; }
+  .wallet strong { font-size: 30px; }
+  .wallet-note { margin-inline-start: auto; margin-inline-end: 0; }
+  .journey, .details { background: #211b45d9; border: 1px solid #c3a6e330; border-radius: 22px; padding: 17px; margin-top: 22px; box-shadow: inset 0 1px #fff1; }
+  .level-row, .stage { border-bottom: 0; padding: 9px 8px; }
+  .level-row.current, .stage.current { background: color-mix(in srgb, var(--hall-accent) 13%, transparent); border: 1px solid color-mix(in srgb, var(--hall-accent) 45%, transparent); border-radius: 13px; color: var(--hall-light); }
+  .level-lock, .stage i { margin-inline-start: auto; margin-inline-end: 0; }
+  .one-life, .keys { padding: 12px 16px; border-radius: 17px; background: #211b45bd; }
+  .section-title, .under, .under-board, .hint, .one-life span { color: #d1c1df; }
+
+  .play-section, .play {
+    align-self: start;
+    padding: 20px;
+    border-radius: 34px;
+    background: linear-gradient(155deg, color-mix(in srgb, var(--hall-deep) 75%, #53477a), #252044 65%);
+    border: 2px solid color-mix(in srgb, var(--hall-accent) 46%, #574272);
+    box-shadow: inset 0 3px 1px #fff3, inset 0 -7px 0 #100e302b, 0 10px 0 #15113199, 0 22px 50px #100c3880;
+    box-sizing: border-box;
+  }
+  .board-heading, .heading { margin-bottom: 15px; padding: 0 3px; }
+  .board-heading h2, .heading h2 { color: #fff0d6; font-size: 23px; }
+  .board-shell, .board {
+    border: 3px solid color-mix(in srgb, var(--hall-accent) 65%, #8e6dc0);
+    border-radius: 23px;
+    background: #332953;
+    box-shadow: 0 0 0 4px #100e382b, inset 0 3px 7px #100e3844, 0 6px 0 #17133699;
+  }
+  .board-shell { padding: 6px; }
+  .board-overlay, .overlay { background: linear-gradient(165deg, #291b54e6, #282249e8); backdrop-filter: blur(4px); }
+  .overlay h2, .overlay-card h2 { color: #fff3dc; }
+  .overlay p, .overlay-card p { color: #ded1ee; }
+  .overlay-symbol, .symbol { color: var(--hall-light); text-shadow: 0 0 28px var(--hall-accent); }
+  button { transition: transform .16s, filter .16s, box-shadow .16s; }
+  button:not(:disabled):hover { filter: brightness(1.12); }
+  button:not(:disabled):active { transform: translateY(3px); }
+  .primary, .training-controls button {
+    background: linear-gradient(165deg, var(--hall-light), var(--hall-accent));
+    color: var(--hall-ink);
+    border: 1px solid var(--hall-light);
+    border-radius: 17px;
+    font-weight: 900;
+    box-shadow: inset 0 3px 0 #fff6, 0 5px 0 var(--hall-deep), 0 10px 22px #100c384d;
+  }
+  .primary:hover { background: linear-gradient(165deg, #fff0d9, var(--hall-accent)); }
+  .board-tools button, .heading > button, .board-heading > button, .directions button, .touch-controls button, .dpad button {
+    border: 1px solid #e3c5ff55;
+    background: linear-gradient(#655082, #493767);
+    box-shadow: inset 0 2px #fff2, 0 3px 0 #1d1738;
+    border-radius: 12px;
+  }
+  .run-stats small, .stat small, aside small, .target small, .progress small { color: #d6c5e7; }
+  .run-stats strong, .stat strong { color: var(--hall-light); }
+  .progress-track, .target > div, .progress > div { height: 8px; background: #120e324d; box-shadow: inset 0 2px 3px #100c3833; }
+  .progress-track i, .target i, .progress i { background: linear-gradient(90deg, var(--hall-accent), var(--hall-light)); border-radius: inherit; }
+  .collectibles { background: #211b45d9; padding: 18px; border: 1px solid #c3a6e330; border-radius: 22px; }
+  .collectibles > div { gap: 18px; }
+  .collectibles b { color: var(--hall-light); }
+  button:focus-visible, a:focus-visible, canvas:focus-visible, .board:focus-visible { outline-color: var(--hall-light); }
+}
+
+.gelly-game.gelly-game.gelly-theme-temple {
+  .board { background: linear-gradient(150deg, #8f665d, #58405c); border-color: #dba777; padding: 12px; gap: 9px; }
+  .cell { background: #2c233f69; box-shadow: inset 0 3px 7px #22143566, 0 1px #ffe8c22b; }
+  .cell .tile { border: 2px solid #fff5; border-radius: 24%; box-shadow: inset 0 5px 2px #fff5, inset 0 -7px 1px #3a20442e, 0 4px 4px #20133540; }
+  .tile::after { content: ''; position: absolute; inset: 7% 18% auto; height: 10%; border-radius: 50%; background: #fff4; pointer-events: none; }
+}
+.gelly-game.gelly-game.gelly-theme-tetris {
+  .play { max-width: clamp(300px, calc((100dvh - 450px) / 2 + 150px), 500px); padding: 12px; }
+  .heading { margin-bottom: 10px; gap: 7px; }
+  .heading h2 { font-size: 20px; line-height: 1.2; margin: 4px 0; }
+  .heading .eyebrow { font-size: 8px; letter-spacing: .6px; }
+  aside small { font-size: 8px; letter-spacing: .5px; }
+  aside .stat { padding: 3px; margin-bottom: 5px; }
+  aside .stat strong { font-size: 18px; margin-top: 0; }
+  aside .preview-card { padding: 6px; margin-bottom: 6px; }
+  aside .mini { max-width: 32px; margin: 5px auto; }
+  .hold > span { padding: 0; }
+  .overlay { padding: 12px; overflow-y: auto; }
+  .overlay h2 { font-size: 20px; }
+  .overlay .symbol { font-size: 28px; }
+  .overlay .primary { padding: 11px 14px; }
+  .progress { margin-top: 10px; }
+  .under { margin-top: 6px; }
+  .touch-controls { margin-top: 10px; }
+  .touch-controls button { padding: 6px 3px; font-size: 19px; min-height: 44px; }
+  .touch-controls small { font-size: 7px; margin-top: 1px; }
+  .preview-card, .stat { background: linear-gradient(145deg, #70539699, #362550); border: 1px solid #e8b8ff44; box-shadow: inset 0 2px #fff2, 0 3px 0 #1c143a77; }
+  .mini .block { border-radius: 4px; box-shadow: inset 0 3px 1px #fffa, inset 0 -3px #3c235033, 0 2px 3px #110c3044; }
+}
+.gelly-game.gelly-game.gelly-theme-power {
+  > header .brand { order: -1; }
+  > header .sound-toggle { background: #493253; border: 1px solid #ffa87966; border-radius: 22px; color: #ffe2b3; }
+  > main { margin-top: 60px; }
+  .intro { margin: 0 0 22px; gap: 24px; }
+  .intro app-hall-art { width: 225px; margin: 0; flex-shrink: 0; }
+  .intro > div:first-of-type { flex: 1; }
+  .intro h1 { font-size: clamp(32px, 4vw, 53px); }
+  .player { flex-shrink: 0; padding: 16px; gap: 10px; }
+  .player strong > span { font-size: 12px; margin-inline-start: 6px; }
+  .player-icon { color: var(--hall-light); font-size: 25px; }
+  nav { padding: 7px; border: 1px solid #d9acd84d; background: #251c45db; border-radius: 22px; gap: 8px; }
+  nav button { flex: 1; justify-content: center; color: #dbc9df; border-radius: 15px; min-height: 47px; }
+  nav .selected { background: linear-gradient(145deg, #ffd49b, #f7a075); color: #693747; box-shadow: inset 0 2px #fff5, 0 3px 0 #a45459; }
+  .arena { background: radial-gradient(ellipse at 50% 35%, #b5635f40, transparent 65%), linear-gradient(145deg, #684557, #332847); border: 2px solid #db9b8966; border-radius: 30px; box-shadow: inset 0 3px #fff2, 0 8px 0 #1c143777, 0 20px 45px #120e3855; }
+  .arena-top, .health > div, .taunt, .gym-title p, .reset-note { color: #e4c7d3; }
+  .pill { background: #ffcd9622; color: #ffe0aa; border: 1px solid #ffd7a733; border-radius: 12px; }
+  .arena > h2 { color: #fff0d3; margin-top: 18px; }
+  .control, .stats > div, .tip { background: linear-gradient(145deg, #513754ed, #2c2446ed); border: 1px solid #d8adce44; border-radius: 24px; box-shadow: inset 0 2px #fff2, 0 5px 0 #1b143966; }
+  .control > p:not(.eyebrow), .hint, .meter-label, .tip p, .stats span { color: #d6c2d8; }
+  .feedback, .tip button, .digital strong, .training-controls span { color: var(--hall-light); }
+  .stats b { color: #ffe0b0; }
+  .stats b small { font-size: 11px; margin-inline-start: 5px; }
+  .tip { padding: 20px; }
+  progress { height: 11px; }
+  progress::-webkit-progress-value { background: linear-gradient(90deg, #ee9276, #ffe5a2); }
+  progress::-moz-progress-bar { background: #ffbe84; }
+  .exercise-catalog button { text-align: start; background: #34264699; border-color: #e8c6df33; border-radius: 15px; }
+  .exercise-catalog .chosen { background: #ffce9422; border-color: var(--hall-accent); }
+  .exercise-catalog small, footer { color: #d4bfd8; }
+}
+
+@media(max-width:760px) {
+  .gelly-game.gelly-game.gelly-game {
+    padding: 18px 14px 30px;
+    &::before { background-size: auto 1000px; background-position: center top; }
+    > header .brand { font-size: 10px; letter-spacing: .7px; }
+    > header > a:not(.brand) { padding: 10px; font-size: 10px; }
+    > main { margin-top: 68px; gap: 24px; }
+    .intro, .story { position: relative; }
+    .intro > app-hall-art, .story > app-hall-art { float: inline-end; width: 130px; margin: -10px -5px 0 7px; }
+    h1, .story h1, .intro h1 { font-size: 31px; letter-spacing: -1px; margin: 12px 0; }
+    .wallet { clear: both; margin: 18px 0 0; padding: 12px 16px; }
+    .wallet strong { font-size: 25px; }
+    .journey, .details { display: none; }
+    .play, .play-section { padding: 15px 12px; border-radius: 27px; }
+    .run-stats { gap: 10px; }
+    .eyebrow { font-size: 8px; letter-spacing: 1px; }
+    .board-heading h2, .heading h2 { font-size: 21px; }
+    .board-tools { gap: 5px; }
+    .overlay-card h2 { font-size: 23px; }
+    .collectibles { padding: 15px 10px; }
+    .collectibles > div { gap: 12px; }
+    &.active-run > main, &.active-game > main { margin-top: 66px; }
+  }
+  .gelly-game.gelly-game.gelly-theme-tetris .play { max-width: min(100%, clamp(300px, calc((100dvh - 450px) / 2 + 150px), 440px)); }
+  .gelly-game.gelly-game.gelly-theme-power {
+    > header { flex-wrap: wrap; }
+    > header .sound-toggle { padding: 8px; font-size: 9px; }
+    .intro { gap: 12px; flex-wrap: wrap; }
+    .intro > app-hall-art { width: 115px; margin: 0; float: none; }
+    .intro > div:first-of-type { min-width: 160px; }
+    .intro h1 { font-size: 33px; }
+    .intro .player { width: 100%; margin: 0; padding: 10px 16px; }
+    .player > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; }
+    .player small { font-size: 9px; }
+    nav { gap: 3px; }
+    nav button { padding: 10px 5px; gap: 5px; }
+    nav b { font-size: 11px; }
+    .arena { padding: 18px 14px; }
+  }
+}
+@media(prefers-reduced-motion:reduce) { .gelly-game.gelly-game.gelly-game button { transition: none; } }
+
+// Keep account controls together: translations have different intrinsic widths.
+.game-preferences {
+  position: fixed; top: 88px; right: 20px; z-index: 120;
+  display: flex; align-items: center; gap: 8px; max-width: calc(100vw - 28px);
+  app-language-controls.floating { position: static; transform: none; }
+  app-music-controls .floating { position: relative; top: auto; right: auto; }
+  app-music-controls .floating .music-panel { position: fixed; top: 145px; right: 20px; background: #251d40f5; border: 1px solid #d6b9ff44; border-radius: 22px; box-shadow: 0 12px 35px #100e4266; padding-top: 18px; }
+}
+.gelly-game.gelly-game.gelly-theme-power .arena-top { gap: 10px; flex-wrap: wrap; }
+.gelly-game.gelly-game.gelly-theme-power .sound-toggle { background: #2e254b; color: #ffe0b0; border: 1px solid #d99c8d66; border-radius: 14px; font-size: 10px; padding: 8px; box-shadow: inset 0 1px #fff2, 0 3px #221c3b; }
+@media(max-width:760px) { .game-preferences { top: 78px; right: 14px; } .game-preferences app-music-controls .floating .music-panel { top: 127px; right: 14px; } }
+
+// Reserve space for the header, score and controls as well as the board.
+.gelly-game.gelly-game.gelly-theme-snake .play-section {
+  width: 100%; max-width: min(100%, clamp(320px, calc(100dvh - 350px), 620px));
+}
+.gelly-game.gelly-game.gelly-theme-temple .play {
+  width: 100%; max-width: min(100%, clamp(320px, calc(100dvh - 360px), 510px)); justify-self: end;
+}
+.gelly-game.gelly-game .board-overlay, .gelly-game.gelly-game .overlay {
+  overflow-y: auto; align-items: safe center;
+}
+@media(max-width:760px) {
+  .gelly-game.gelly-game.gelly-theme-snake .play-section {
+    max-width: min(100%, clamp(290px, calc(100dvh - 430px), 620px)); align-self: center;
+  }
+  .gelly-game.gelly-game.gelly-theme-snake .run-stats { padding: 12px 0; }
+  .gelly-game.gelly-game.gelly-theme-snake .under-board { display: none; }
+  .gelly-game.gelly-game.gelly-theme-snake .dpad { margin-top: 10px; }
+  .gelly-game.gelly-game.gelly-theme-temple .play { justify-self: center; }
+}

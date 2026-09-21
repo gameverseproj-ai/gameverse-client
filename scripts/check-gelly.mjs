@@ -17,7 +17,9 @@ for(let i=0;i<180;i++)hero.update(1/60,{x:1,z:0},3+i/60);
 assert.ok(Math.abs(hero.mesh.rotation.y-Math.PI/2)<.001,'Hero turns toward travel');
 for(const rate of [30,60,120]){for(let i=0;i<rate;i++)hero.update(1/rate,{x:0,z:1},7+i/rate);assert.ok(Number.isFinite(rig.position.y));}
 hero.destroy();
-for(const file of fs.readdirSync('public/assets/gelly')){
+const models=fs.readdirSync('public/assets/gelly',{withFileTypes:true}).filter(file=>file.isFile()&&file.name.endsWith('.glb'));
+assert.equal(models.length,8,'All eight world models must be checked');
+for(const {name:file} of models){
  const b=fs.readFileSync(`public/assets/gelly/${file}`);assert.equal(b.readUInt32LE(8),b.length);
  const doc=JSON.parse(b.subarray(20,20+b.readUInt32LE(12)));assert.ok(doc.accessors[2].count/3<=24000,`${file} exceeds triangle budget`);
  assert.ok(b.length<650000,`${file} exceeds download budget`);

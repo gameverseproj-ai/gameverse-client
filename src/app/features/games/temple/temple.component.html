@@ -1,7 +1,7 @@
-<div class="temple-page" [class.active-game]="active()">
+<div class="temple-page gelly-game gelly-theme-temple" [class.active-game]="active()">
   <header><a routerLink="/world" class="brand"><b>{{ 'g.' | t }}</b>  {{ 'GELLY WORLD' | t }}</a><a routerLink="/world">{{ '↖ Back to world' | t }}</a></header>
   <main>
-    <section class="story">
+    <section class="story"><app-hall-art theme="temple" />
       <span class="eyebrow">{{ '2048 TEMPLE · A LITTLE MOMENT OF ZEN' | t }}</span>
       <h1>{{ 'Small numbers.' | t }}<br><em>{{ 'Golden wonders.' | t }}</em></h1>
       <p>{{ 'Bring matching tiles together.' | t }}<br>{{ 'Build something a little extraordinary.' | t }}</p>

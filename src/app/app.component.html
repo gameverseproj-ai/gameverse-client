@@ -5,4 +5,4 @@
   <router-outlet />
 </main>
 
-@if (!showNav()) { <app-language-controls class="floating" /> <app-music-controls [compact]="true" /> }
+@if (!showNav()) { <div class="game-preferences"><app-language-controls class="floating" /><app-music-controls [compact]="true" /></div> }

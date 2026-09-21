@@ -1,7 +1,7 @@
-<div class="factory" [class.active-game]="screen() === 'playing' || screen() === 'paused'">
+<div class="factory gelly-game gelly-theme-tetris" [class.active-game]="screen() === 'playing' || screen() === 'paused'">
  <header><a routerLink="/world" class="brand"><b>{{ 'g.' | t }}</b><span>{{ 'GELLY WORLD' | t }}</span></a><a routerLink="/world">{{ '↖ Back to world' | t }}</a></header>
  <main>
-  <section class="story"><span class="eyebrow">{{ 'TETRIS FACTORY · MADE OF LITTLE WONDERS' | t }}</span><h1>{{ 'Find your flow.' | t }}<br><em>{{ 'Make room for joy.' | t }}</em></h1><p>{{ 'Seven little shapes. Endless possibilities.' | t }}<br>{{ 'Stack, spin, and let the good lines roll.' | t }}</p>
+  <section class="story"><app-hall-art theme="tetris" /><span class="eyebrow">{{ 'TETRIS FACTORY · MADE OF LITTLE WONDERS' | t }}</span><h1>{{ 'Find your flow.' | t }}<br><em>{{ 'Make room for joy.' | t }}</em></h1><p>{{ 'Seven little shapes. Endless possibilities.' | t }}<br>{{ 'Stack, spin, and let the good lines roll.' | t }}</p>
    <div class="wallet"><span>✦</span><div><small>{{ 'YOUR TETRIS POINTS' | t }}</small><strong>{{ (data()?.progress?.state?.tetrisPoints ?? 0) | t }}</strong></div></div>
    <div class="details"><span class="eyebrow">{{ 'YOUR FACTORY JOURNEY' | t }}</span><h2>{{ 'Level {0}' | t: [data()?.progress?.state?.currentLevel ?? 1] }}</h2><p>{{ '{0} lines cleared · {1} runs' | t: [data()?.progress?.state?.totalLines ?? 0, data()?.progress?.gamesPlayed ?? 0] }}</p><p>{{ 'Every {0} lines, a little faster.' | t: [target] }}<br>{{ '+{0} TP per line · +{1} TP per level' | t: [data()?.settings?.rules?.pointsPerLine ?? 10, data()?.settings?.rules?.levelBonus ?? 50] }}</p></div>
    <p class="keys">{{ '← → / A D to move' | t }}<br>{{ '↑ / W / X to rotate · Z reverse' | t }}<br>{{ '↓ / S soft drop · Space hard drop' | t }}<br>{{ 'C / Shift to hold · P / Esc to pause' | t }}</p>

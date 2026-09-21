@@ -53,7 +53,7 @@ assert.ok(player.eyes.y>3,'Eye anchor follows jumping');
 assert.ok(camera.camera.position.distanceTo(player.eyes)<1e-6);
 player.setFirstPerson(false);assert.equal(hero.mesh.visible,true);
 // Label canvas is stubbed; geometry and material validation use real Three.js.
-globalThis.document={createElement:()=>({width:0,height:0,getContext:()=>({fillText(){}})})};
+globalThis.document={createElement:()=>({width:0,height:0,getContext:()=>({clearRect(){},fillText(){}})})};
 for(const buildHall of [halls.buildSnakeHall,halls.buildTemple,halls.buildFactory,halls.buildGym]){
  const hall=buildHall();halls.batchHall(hall);hall.updateMatrixWorld(true);
  const bounds=new THREE.Box3().setFromObject(hall),size=bounds.getSize(new THREE.Vector3());

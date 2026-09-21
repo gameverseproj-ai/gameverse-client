@@ -1,0 +1,68 @@
+<svg viewBox="0 0 400 215" aria-hidden="true" focusable="false">
+ <defs>
+  <linearGradient id="hall-rock" x2="0" y2="1"><stop stop-color="#9675d6"/><stop offset="1" stop-color="#2c2869"/></linearGradient>
+  <linearGradient id="hall-green" x2=".7" y2="1"><stop stop-color="#d7ff82"/><stop offset=".45" stop-color="#74d856"/><stop offset="1" stop-color="#269887"/></linearGradient>
+  <linearGradient id="hall-gold" x2=".8" y2="1"><stop stop-color="#fff3ae"/><stop offset=".4" stop-color="#ffbd4a"/><stop offset="1" stop-color="#d87136"/></linearGradient>
+  <linearGradient id="hall-purple" x2=".6" y2="1"><stop stop-color="#ecb7ff"/><stop offset=".45" stop-color="#b96bed"/><stop offset="1" stop-color="#6046bc"/></linearGradient>
+  <linearGradient id="hall-pink" x2=".7" y2="1"><stop stop-color="#ffd1ef"/><stop offset=".45" stop-color="#f776c8"/><stop offset="1" stop-color="#ba469c"/></linearGradient>
+  <linearGradient id="hall-orange" x2=".7" y2="1"><stop stop-color="#ffe792"/><stop offset=".4" stop-color="#ff9955"/><stop offset="1" stop-color="#d8545d"/></linearGradient>
+  <radialGradient id="hall-aura"><stop stop-color="#cd96ff" stop-opacity=".45"/><stop offset="1" stop-color="#9275ff" stop-opacity="0"/></radialGradient>
+  <filter id="hall-shadow" x="-40%" y="-40%" width="180%" height="200%"><feDropShadow dx="0" dy="9" stdDeviation="6" flood-color="#120b3e" flood-opacity=".5"/></filter>
+ </defs>
+ <ellipse cx="205" cy="122" rx="192" ry="96" fill="url(#hall-aura)"/>
+ <g class="spark" fill="#ffe8af"><path d="m69 63 3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/><path d="m322 27 2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/><circle cx="303" cy="101" r="2"/><circle cx="120" cy="32" r="2"/></g>
+ <g class="float" filter="url(#hall-shadow)">
+  <path d="M84 153Q198 115 310 151L285 180 248 183 219 205 190 195 163 200 133 179 107 177Z" fill="url(#hall-rock)" stroke="#ac8cea" stroke-width="2"/>
+  <ellipse cx="197" cy="149" rx="113" ry="32" fill="#6253a4" stroke="#c0a1ed" stroke-width="3"/>
+  <ellipse cx="197" cy="147" rx="97" ry="24" fill="#453b85" stroke="#9481c7"/>
+  @switch(theme) {
+   @case('snake') {
+    <ellipse cx="194" cy="150" rx="78" ry="18" fill="#91d366"/>
+    <path d="M155 149C110 150 111 111 153 112H222C265 112 266 145 224 145H171C130 145 141 88 190 91" fill="none" stroke="#1c746e" stroke-width="31" stroke-linecap="round"/>
+    <path d="M155 143C110 145 111 105 153 106H222C265 106 266 139 224 139H171C130 139 141 82 190 85" fill="none" stroke="url(#hall-green)" stroke-width="28" stroke-linecap="round"/>
+    <path d="M176 96Q160 58 186 47Q211 35 239 54Q258 71 243 91Q221 107 195 92" fill="url(#hall-green)" stroke="#bdff9e" stroke-width="2"/>
+    <ellipse cx="228" cy="67" rx="11" ry="14" fill="#fff3bf"/><ellipse cx="231" cy="68" rx="6" ry="9" fill="#332d58"/><circle cx="233" cy="65" r="2.5" fill="white"/>
+    <path d="M239 86q-14 7-27 1" fill="none" stroke="#28685b" stroke-width="3" stroke-linecap="round"/>
+    <path d="m218 96 6 11 7-5" fill="none" stroke="#ff8bc5" stroke-width="4" stroke-linecap="round"/>
+    <path d="M140 110q7-6 15-5M174 135h27M177 59q9-9 20-9" fill="none" stroke="#f1ffc2" stroke-opacity=".65" stroke-width="5" stroke-linecap="round"/>
+   }
+   @case('temple') {
+    <rect x="118" y="122" width="155" height="37" rx="10" fill="url(#hall-gold)" stroke="#ffdf8c" stroke-width="2"/>
+    <rect x="135" y="91" width="122" height="37" rx="9" fill="url(#hall-gold)" stroke="#ffdf8c" stroke-width="2"/>
+    <rect x="153" y="65" width="85" height="32" rx="8" fill="url(#hall-gold)" stroke="#ffdf8c" stroke-width="2"/>
+    <path d="M180 158v-24a16 16 0 0 1 32 0v24" fill="#9a482f" stroke="#ffeab0" stroke-width="4"/>
+    <path d="m196 5 18 27-18 27-18-27z" fill="#ffe6a2" stroke="#fff4c8" stroke-width="2"/><path d="m196 5 3 27-3 27-18-27z" fill="#ffba48"/><path d="m199 32 15 0-18 27z" fill="#f78c49"/>
+    <path d="M145 111h10m75 0h10m-72-30h11m-47 61h13m103 0h11" stroke="#fff2b4" stroke-width="5" stroke-linecap="round"/>
+    <path d="M178 155h36m-42 6h48m-54 6h60" stroke="#ffcf80" stroke-width="5" stroke-linecap="round"/>
+   }
+   @case('tetris') {
+    <g stroke="#e3b9ff" stroke-width="2" fill="url(#hall-purple)">
+     <rect x="125" y="117" width="142" height="40" rx="9"/><rect x="132" y="82" width="35" height="40" rx="7"/><rect x="132" y="47" width="35" height="35" rx="7"/><rect x="231" y="82" width="35" height="40" rx="7"/><rect x="231" y="47" width="35" height="35" rx="7"/>
+    </g>
+    <path d="M179 157v-22a17 17 0 0 1 34 0v22" fill="#f590fa" stroke="#ffdcff" stroke-width="4"/>
+    <g fill="url(#hall-pink)" stroke="#ffd4f6" stroke-width="2"><rect x="175" y="37" width="25" height="25" rx="5"/><rect x="200" y="37" width="25" height="25" rx="5"/><rect x="200" y="12" width="25" height="25" rx="5"/></g>
+    <g fill="url(#hall-green)" stroke="#c7ffce" stroke-width="2"><rect x="97" y="102" width="27" height="27" rx="6"/><rect x="97" y="129" width="27" height="27" rx="6"/></g>
+    <g fill="url(#hall-gold)" stroke="#ffe5b6" stroke-width="2"><rect x="267" y="128" width="26" height="27" rx="6"/><rect x="267" y="101" width="26" height="27" rx="6"/></g>
+    <path d="M140 58h10m-10 35h10m89-35h10m-10 35h10" stroke="#ffe798" stroke-width="4" stroke-linecap="round"/>
+   }
+   @case('power') {
+    <rect x="125" y="118" width="140" height="42" rx="12" fill="url(#hall-orange)" stroke="#ffc385" stroke-width="2"/>
+    <path d="M105 139h183" stroke="#bcaddd" stroke-width="10"/>
+    <g fill="url(#hall-purple)" stroke="#d1a6f5" stroke-width="3"><rect x="97" y="118" width="14" height="42" rx="6"/><rect x="110" y="126" width="10" height="28" rx="5"/><rect x="279" y="118" width="14" height="42" rx="6"/><rect x="270" y="126" width="10" height="28" rx="5"/></g>
+    <path d="M170 102Q144 83 154 59Q161 40 179 45V31Q179 16 192 19Q204 18 205 31Q206 17 219 23Q228 25 228 39Q241 29 249 41Q254 49 249 64Q263 63 263 77Q263 103 237 118L232 128H183Z" fill="url(#hall-gold)" stroke="#ffe9a1" stroke-width="3"/>
+    <path d="M180 48v22m25-39v32m23-22-3 27m24-4-9 22m-73-26q12-2 20 16l15 6" fill="none" stroke="#d68440" stroke-width="3" stroke-linecap="round"/>
+    <rect x="176" y="111" width="62" height="22" rx="7" fill="url(#hall-orange)" stroke="#ffc69a" stroke-width="2"/>
+    <path d="m208 111-11 12h10l-5 9 15-14h-11z" fill="#fff3c4"/>
+   }
+  }
+  <g fill="#65c8ae" stroke="#a2ecd6" stroke-width="1.5"><path d="M106 155q-26-27-20-35 19 4 20 35Z"/><path d="M106 155q-9-33 1-36 12 15-1 36Z"/><path d="M286 158q20-27 27-20 0 17-27 20Z"/></g>
+  <g stroke="#edd0ff" stroke-width="1.5"><path d="m299 146-7-20 9-15 10 18-12 17" fill="#bc8ffa"/><path d="m292 126 9 5-2 15m2-35v20l10-2" fill="none"/></g>
+ </g>
+ <!-- The same little jelly explorer greets the player in every hall. -->
+ <g transform="translate(54 138) rotate(-9)" filter="url(#hall-shadow)">
+  <ellipse cx="15" cy="37" rx="29" ry="7" fill="#211949" opacity=".6"/>
+  <path d="M-9 17Q-11-10 12-14Q38-17 40 13L44 28Q43 37 32 34Q13 42-4 34Q-20 39-18 28Z" fill="url(#hall-pink)" stroke="#ffc9eb" stroke-width="1.5"/>
+  <ellipse cx="8" cy="11" rx="3" ry="5" fill="#45245c"/><ellipse cx="25" cy="11" rx="3" ry="5" fill="#45245c"/><circle cx="9" cy="9" r="1" fill="white"/><circle cx="26" cy="9" r="1" fill="white"/>
+  <path d="M13 20q5 6 10 0" fill="none" stroke="#752d72" stroke-width="2" stroke-linecap="round"/><ellipse cx="3" cy="19" rx="4" ry="2" fill="#ffadc9"/><path d="M1-2q7-7 14-7" fill="none" stroke="#ffdeef" stroke-width="4" stroke-linecap="round"/>
+ </g>
+</svg>

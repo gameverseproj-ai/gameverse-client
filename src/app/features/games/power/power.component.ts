@@ -1,3 +1,4 @@
+import { HallArtComponent } from '../../../shared/components/hall-art/hall-art.component';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Component, HostListener, OnDestroy, afterNextRender, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -11,7 +12,7 @@ import { PowerTrainingComponent } from './power-training.component';
 import { exerciseSeconds } from './training-rig';
 import { CHALLENGERS } from './power-challengers';
 import { PowerAudio } from './power-audio';
-@Component({ selector: 'app-power', standalone: true, imports: [TranslatePipe, RouterLink, PowerSceneComponent, PowerTrainingComponent], templateUrl: './power.component.html', styleUrl: './power.component.scss' })
+@Component({ selector: 'app-power', standalone: true, imports: [HallArtComponent, TranslatePipe, RouterLink, PowerSceneComponent, PowerTrainingComponent], templateUrl: './power.component.html', styleUrl: './power.component.scss' })
 export class PowerComponent implements OnDestroy {
   private readonly api = inject(MockPowerApi);
   private readonly games = inject(GameFacade);

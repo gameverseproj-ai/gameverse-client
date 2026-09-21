@@ -1,12 +1,12 @@
-<div class="snake-page" [class.active-run]="screen() === 'playing' || screen() === 'paused'">
+<div class="snake-page gelly-game gelly-theme-snake" [class.active-run]="screen() === 'playing' || screen() === 'paused'">
   <header class="topbar">
     <a routerLink="/world" class="brand"><b>{{ 'g.' | t }}</b><span>{{ 'GELLY WORLD' | t }}<small>{{ 'A LITTLE WORLD OF PLAY' | t }}</small></span></a>
     <a routerLink="/world" class="back">{{ '↖ Back to world' | t }}</a>
   </header>
   <main class="snake-layout">
-    <section class="intro">
+    <section class="intro"><app-hall-art theme="snake" />
       <span class="eyebrow"><i></i>  {{ 'SNAKE HALL · NOW PLAYING' | t }}</span>
-      <h1>{{ 'A little snake.' | t }}<br>{{ 'A big' | t }} <em>{{ 'appetite.' | t }}</em></h1>
+      <h1>{{ 'A little snake.' | t }}<br> {{ 'A big' | t }} <em>{{ 'appetite.' | t }}</em></h1>
       <p class="lead">{{ 'A delicious little tour of Gelly World.' | t }}<br>{{ 'Collect tiny wonders. Grow your glow.' | t }}</p>
       <div class="wallet"><span class="point-icon">✦</span><div><small>{{ 'YOUR SNAKE POINTS' | t }}</small><strong>{{ (data()?.progress?.state?.snakePoints ?? 0) | t }}</strong></div><span class="wallet-note">{{ 'A little more' | t }}<br>{{ 'with every bite.' | t }}</span></div>
       <div class="journey">
