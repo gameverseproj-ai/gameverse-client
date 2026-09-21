@@ -1,13 +1,15 @@
+import { LanguagePreference, validLanguage } from '../../models/language.model';
 import { DEFAULT_MUSIC, MusicPreferences, validMusic } from '../../models/music.model';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, defer, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { delay, map } from 'rxjs/operators';
 import { PlayerApi } from '../player.api';
 import { PlayerProfile, PlayerProgress, PlayerInventory } from '../../models/player.model';
 import { FIRST_USER_SEGMENT } from './snake-mock-server';
 
 const MOCK_PROFILE: PlayerProfile = {
+  language: 'en',
   segment: FIRST_USER_SEGMENT,
   id: 'player-001',
   username: 'GellyExplorer',
@@ -39,6 +41,25 @@ const MOCK_SELECTED_HEROES: Record<string, string> = {
 export class MockPlayerApi implements PlayerApi {
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly ms = this.browser ? 400 : 0;
+  private language: LanguagePreference = {language: 'en'};
+  private readonly languageKey = `gameverse.player.${MOCK_PROFILE.id}.language.v1`;
+  getLanguagePreference(): Observable<LanguagePreference> {
+    return defer(() => {
+      const raw = this.browser ? localStorage.getItem(this.languageKey) : null;
+      const saved = raw ? JSON.parse(raw) : this.language;
+      if (!saved || !validLanguage(saved.language)) throw new Error('Invalid language preference');
+      return of({language: saved.language});
+    });
+  }
+  saveLanguagePreference(preference: LanguagePreference): Observable<LanguagePreference> {
+    return defer(() => {
+      if (!preference || !validLanguage(preference.language)) throw new Error('Invalid language preference');
+      const saved = {language: preference.language};
+      if (this.browser) localStorage.setItem(this.languageKey, JSON.stringify(saved));
+      this.language = saved;
+      return of({...saved});
+    });
+  }
   private music = { ...DEFAULT_MUSIC };
   private readonly musicKey = `gameverse.player.${MOCK_PROFILE.id}.music.v1`;
 
@@ -62,7 +83,7 @@ export class MockPlayerApi implements PlayerApi {
   }
 
   getProfile(): Observable<PlayerProfile> {
-    return of(MOCK_PROFILE).pipe(delay(this.ms));
+    return this.getLanguagePreference().pipe(map(({language}) => ({...MOCK_PROFILE, language})), delay(this.ms));
   }
 
   getProgress(): Observable<PlayerProgress> {

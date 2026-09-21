@@ -1,5 +1,5 @@
 import { MusicGenre } from '../models/music.model';
-import { MUSIC_TEMPO, MusicNote, musicStep } from './music-score';
+import { MUSIC_TRACKS, MusicNote, musicStep } from './music-score';
 
 /** One audio clock across routes; all sources and timers are owned here. */
 export class MusicPlayer {
@@ -9,6 +9,7 @@ export class MusicPlayer {
   private voices = new Set<AudioScheduledSourceNode>();
   private noise?: AudioBuffer;
   private genre?: MusicGenre;
+  private track = 0;
   private step = 0;
   private nextAt = 0;
 
@@ -20,12 +21,12 @@ export class MusicPlayer {
     } catch { return false; }
   }
 
-  play(genre: MusicGenre, volume: number): void {
+  play(genre: MusicGenre, volume: number, track = 0): void {
     if (!this.context || this.context.state !== 'running') return;
-    if (this.genre === genre && this.timer) { this.setVolume(volume); return; }
+    if (this.genre === genre && this.track === track && this.timer) { this.setVolume(volume); return; }
     this.stop();
     const ctx = this.context;
-    this.genre = genre; this.step = 0; this.nextAt = ctx.currentTime + .04;
+    this.genre = genre; this.track = track; this.step = 0; this.nextAt = ctx.currentTime + .04;
     this.output = ctx.createGain(); this.output.gain.value = 0; this.output.connect(ctx.destination);
     this.output.gain.linearRampToValueAtTime(volume * .3, ctx.currentTime + .08);
     const schedule = () => {
@@ -33,8 +34,8 @@ export class MusicPlayer {
       // Skip missed wall-clock time instead of producing a burst after a stall.
       if (this.nextAt < ctx.currentTime) this.nextAt = ctx.currentTime + .02;
       while (this.nextAt < ctx.currentTime + .12) {
-        for (const note of musicStep(genre, this.step)) this.note(note, this.nextAt);
-        this.nextAt += 60 / MUSIC_TEMPO[genre] / 4;
+        for (const note of musicStep(genre, this.step, track)) this.note(note, this.nextAt);
+        this.nextAt += 60 / MUSIC_TRACKS[genre][track].bpm / 4;
         this.step = (this.step + 1) % 128;
       }
     };

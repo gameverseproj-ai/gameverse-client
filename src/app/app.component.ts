@@ -1,3 +1,5 @@
+import { LanguageService } from './core/i18n/language.service';
+import { LanguageControlsComponent } from './shared/components/language-controls/language-controls.component';
 import { MusicService } from './core/audio/music.service';
 import { MusicControlsComponent } from './shared/components/music-controls/music-controls.component';
 import { Component, afterNextRender, inject } from '@angular/core';
@@ -9,13 +11,14 @@ import { NavComponent } from './shared/components/nav/nav.component';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavComponent, MusicControlsComponent],
+  imports: [RouterOutlet, NavComponent, MusicControlsComponent, LanguageControlsComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
+  private readonly locale = inject(LanguageService);
   private readonly music = inject(MusicService);
-  constructor() { afterNextRender(() => this.music.init()); }
+  constructor() { afterNextRender(() => { this.locale.init(); this.music.init(); }); }
 
   private readonly router = inject(Router);
 

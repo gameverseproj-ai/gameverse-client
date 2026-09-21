@@ -1,4 +1,7 @@
-import { DestroyRef, Injectable, NgZone, inject, signal } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { MUSIC_TRACKS } from './music-score';
+import { MusicRotation } from './music-rotation';
+import { DestroyRef, Injectable, NgZone, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { take, timeout } from 'rxjs';
 import { PLAYER_API } from '../api/player.api';
@@ -7,6 +10,10 @@ import { MusicPlayer } from './music-player';
 
 @Injectable({providedIn: 'root'})
 export class MusicService {
+  private readonly router = inject(Router);
+  private readonly rotation = new MusicRotation();
+  private readonly tracks = signal<Record<MusicGenre, number>>({rock: this.rotation.next('rock'), pop: this.rotation.next('pop'), funk: this.rotation.next('funk')});
+  readonly currentTrack = computed(() => MUSIC_TRACKS[this.preferences().genre][this.tracks()[this.preferences().genre]]);
   private readonly api = inject(PLAYER_API);
   private readonly zone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
@@ -23,6 +30,14 @@ export class MusicService {
   init(): void {
     if (this.started) return;
     this.started = true;
+    this.rotation.visit(this.router.url);
+    this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(event => {
+      if (event instanceof NavigationEnd && this.rotation.visit(event.urlAfterRedirects)) {
+        const genre = this.preferences().genre;
+        this.tracks.update(tracks => ({...tracks, [genre]: this.rotation.next(genre)}));
+        this.sync();
+      }
+    });
     const unlock = () => { if (this.preferences().enabled) void this.unlock(); };
     const visibility = () => {
       if (document.hidden) this.player.stop();
@@ -74,7 +89,7 @@ export class MusicService {
     const p = this.preferences();
     this.zone.runOutsideAngular(() => {
       if (!p.enabled || !this.ready() || document.hidden || p.volume === 0) this.player.stop();
-      else this.player.play(p.genre, p.volume);
+      else this.player.play(p.genre, p.volume, this.tracks()[p.genre]);
     });
   }
 }

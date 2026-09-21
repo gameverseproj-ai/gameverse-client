@@ -1,4 +1,6 @@
+import { Language } from './language.model';
 export interface PlayerProfile {
+  language: Language;
   segment: string;
   id: string;
   username: string;

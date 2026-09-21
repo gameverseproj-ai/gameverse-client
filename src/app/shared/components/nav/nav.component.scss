@@ -74,3 +74,6 @@
     }
   }
 }
+
+app-language-controls { margin-inline: 10px; }
+@media(max-width: 420px) { .nav { padding-inline: 10px; } .nav__brand { font-size: 15px; } }

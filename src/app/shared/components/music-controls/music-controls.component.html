@@ -11,6 +11,8 @@
       <button type="button" class="off" [disabled]="music.loading() || music.saving()" [attr.aria-pressed]="!music.preferences().enabled" (click)="music.turnOff()"><span class="icon">○</span><strong>Music off</strong><span class="indicator" aria-hidden="true"></span></button>
     </div>
     <label class="volume">Volume <span>{{ (music.preferences().volume * 100).toFixed(0) }}%</span><input type="range" min="0" max="100" step="5" [value]="music.preferences().volume * 100" [disabled]="music.loading() || music.saving()" (change)="changeVolume($event)"></label>
+    @if (music.preferences().enabled) { <p class="note" aria-live="polite">♫ {{ music.currentTrack().title }} · {{ music.currentTrack().bpm }} BPM</p> }
+    <p class="note">A new tune whenever you enter or leave a game.</p>
     <p class="note">Saved to your profile. Game sound effects have their own controls.</p>
     @if (music.preferences().enabled && !music.ready()) { <button class="start" type="button" (click)="music.unlock()">Play music</button> }
     <div class="status" role="status">{{ music.loading() ? 'Loading your settings…' : music.saving() ? 'Saving…' : music.error() }}</div>

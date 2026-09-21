@@ -1,9 +1,12 @@
+import { LanguagePreference } from '../models/language.model';
 import { MusicPreferences } from '../models/music.model';
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PlayerProfile, PlayerProgress, PlayerInventory } from '../models/player.model';
 
 export interface PlayerApi {
+  getLanguagePreference(): Observable<LanguagePreference>;
+  saveLanguagePreference(preference: LanguagePreference): Observable<LanguagePreference>;
   getMusicPreferences(): Observable<MusicPreferences>;
   saveMusicPreferences(preferences: MusicPreferences): Observable<MusicPreferences>;
   getProfile(): Observable<PlayerProfile>;
