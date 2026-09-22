@@ -1,0 +1,27 @@
+<div class="account" [attr.data-client-mode]="auth.mode()">
+  @if (open()) {
+    <section class="account-panel" id="account-panel" aria-labelledby="account-title">
+      <header><h2 id="account-title">{{ (auth.session()?.anonymous ? 'Save your game progress' : 'Your account') | t }}</h2><button type="button" (click)="close()" [attr.aria-label]="'Close' | t">×</button></header>
+      <p class="demo">{{ 'Demo only. Progress stays in this browser; cloud saving is not connected yet.' | t }}</p>
+      @if (auth.session()?.anonymous) {
+        <p>{{ 'Keep playing as a guest, or connect Google or Telegram to save your progress when accounts launch.' | t }}</p>
+        <div class="providers">
+          @if (auth.mode() === 'telegram') {
+            <button type="button" [disabled]="auth.busy()" (click)="auth.demo('telegram')">{{ 'Try Telegram sign-in' | t }}</button>
+            <button type="button" [disabled]="auth.busy()" (click)="auth.demo('google')">{{ 'Try Google sign-in' | t }}</button>
+          } @else {
+            <button type="button" [disabled]="auth.busy()" (click)="auth.demo('google')">{{ 'Try Google sign-in' | t }}</button>
+            <button type="button" [disabled]="auth.busy()" (click)="auth.demo('telegram')">{{ 'Try Telegram sign-in' | t }}</button>
+          }
+        </div>
+        <button type="button" class="skip" (click)="close()">{{ 'Continue without signing in' | t }}</button>
+      } @else if (auth.session()) {
+        <p>{{ 'Demo account connected. Your existing player and progress are unchanged.' | t }}</p>
+        <strong>{{ auth.session()!.identities.join(' · ') }}</strong>
+      }
+      @if (auth.busy()) { <p role="status">{{ 'Loading…' | t }}</p> }
+      @if (auth.error()) { <p role="alert">{{ auth.error() | t }}</p>@if (!auth.session()) { <button type="button" (click)="auth.init()" [disabled]="auth.busy()">{{ 'Retry' | t }}</button> } }
+    </section>
+  }
+  <button #accountToggle class="account-toggle" type="button" [attr.aria-expanded]="open()" [attr.aria-controls]="open() ? 'account-panel' : null" (click)="open() ? close() : expanded.set(true)">{{ (auth.session()?.anonymous ? 'Save progress' : 'Your account') | t }}</button>
+</div>

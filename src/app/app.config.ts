@@ -1,4 +1,6 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { AUTH_API } from './core/api/auth.api';
+import { MockAuthApi } from './core/api/mock/mock-auth.api';
 import {
   provideRouter,
   withComponentInputBinding,
@@ -34,6 +36,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch(), withInterceptors([apiInterceptor])),
 
     // ─── API layer — swap useClass here to switch mock ↔ real implementation ───
+    { provide: AUTH_API, useExisting: MockAuthApi },
     { provide: PLAYER_API,   useClass: MockPlayerApi },
     { provide: WORLD_API,    useClass: MockWorldApi },
     { provide: GAME_API,     useClass: MockGameApi },

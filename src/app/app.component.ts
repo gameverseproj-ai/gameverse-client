@@ -1,4 +1,5 @@
 import { LanguageService } from './core/i18n/language.service';
+import { AccountControlsComponent } from './shared/components/account-controls/account-controls.component';
 import { LanguageControlsComponent } from './shared/components/language-controls/language-controls.component';
 import { MusicService } from './core/audio/music.service';
 import { MusicControlsComponent } from './shared/components/music-controls/music-controls.component';
@@ -11,7 +12,7 @@ import { NavComponent } from './shared/components/nav/nav.component';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavComponent, MusicControlsComponent, LanguageControlsComponent],
+  imports: [RouterOutlet, NavComponent, MusicControlsComponent, LanguageControlsComponent, AccountControlsComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

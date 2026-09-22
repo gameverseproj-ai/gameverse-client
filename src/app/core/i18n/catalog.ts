@@ -1,5 +1,17 @@
 // English source messages and their translations. Parameters use {0}, {1}, etc.
 export const CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
+  "Close": {"ru":"Закрыть","he":"סגירה","ar":"إغلاق"},
+"Save your game progress": {"ru":"Сохраните игровой прогресс","he":"שמרו את ההתקדמות במשחק","ar":"احفظ تقدمك في اللعبة"},
+"Your account": {"ru":"Ваш аккаунт","he":"החשבון שלכם","ar":"حسابك"},
+"Demo only. Progress stays in this browser; cloud saving is not connected yet.": {"ru":"Демонстрация входа. Прогресс остаётся в этом браузере; облачное сохранение ещё не подключено.","he":"הדגמה בלבד. ההתקדמות נשארת בדפדפן הזה; שמירה בענן עדיין לא מחוברת.","ar":"عرض تجريبي فقط. يبقى التقدم في هذا المتصفح؛ الحفظ السحابي غير متصل بعد."},
+"Keep playing as a guest, or connect Google or Telegram to save your progress when accounts launch.": {"ru":"Играйте гостем или попробуйте вход через Google или Telegram. Сохранение в аккаунте станет доступно после подключения сервера.","he":"המשיכו לשחק כאורחים או נסו כניסה עם Google או Telegram. שמירה בחשבון תהיה זמינה לאחר חיבור השרת.","ar":"تابع اللعب كضيف أو جرّب الدخول عبر Google أو Telegram. سيتاح الحفظ في الحساب بعد ربط الخادم."},
+"Try Telegram sign-in": {"ru":"Попробовать вход через Telegram","he":"נסו כניסה עם Telegram","ar":"جرّب الدخول عبر Telegram"},
+"Try Google sign-in": {"ru":"Попробовать вход через Google","he":"נסו כניסה עם Google","ar":"جرّب الدخول عبر Google"},
+"Continue without signing in": {"ru":"Продолжить без входа","he":"המשך ללא כניסה","ar":"المتابعة دون تسجيل الدخول"},
+"Demo account connected. Your existing player and progress are unchanged.": {"ru":"Демоаккаунт подключён. Ваш игрок и накопленный прогресс сохранены.","he":"חשבון הדגמה חובר. השחקן וההתקדמות הקיימים נשמרו.","ar":"تم ربط حساب تجريبي. تم الاحتفاظ باللاعب والتقدم الحاليين."},
+"Save progress": {"ru":"Сохранить прогресс","he":"שמירת התקדמות","ar":"حفظ التقدم"},
+"Sign-in is unavailable. You can keep playing.": {"ru":"Вход недоступен. Вы можете продолжить игру.","he":"הכניסה אינה זמינה. אפשר להמשיך לשחק.","ar":"تسجيل الدخول غير متاح. يمكنك متابعة اللعب."},
+"This account belongs to another player. Your current progress is unchanged.": {"ru":"Этот аккаунт привязан к другому игроку. Ваш текущий прогресс не изменён.","he":"החשבון הזה שייך לשחקן אחר. ההתקדמות הנוכחית לא השתנתה.","ar":"هذا الحساب مرتبط بلاعب آخر. لم يتغير تقدمك الحالي."},
   "+{0} SP": {
     "ru": "+{0} ОЗ",
     "he": "+{0} נק׳ נחש",

@@ -1,0 +1,15 @@
+:host { position: fixed; z-index: 90; inset-inline-end: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); font-family: inherit; }
+.account { display: grid; justify-items: end; gap: 10px; }
+button { cursor: pointer; font: inherit; color: #fff7ee; border: 1px solid #ffffff45; border-radius: 18px; background: #34234deF; padding: 11px 16px; min-height: 44px; }
+button:hover { background: #513767; }
+button:focus-visible { outline: 3px solid #ffde98; outline-offset: 3px; }
+button:disabled { cursor: wait; opacity: .6; }
+.account-panel { width: min(380px, calc(100vw - 28px)); max-height: min(560px, 75dvh); overflow-y: auto; box-sizing: border-box; padding: 20px; border-radius: 24px; border: 1px solid #ffffff45; background: #2a203bf5; color: #fff7ee; box-shadow: 0 16px 45px #120e3560; }
+header { display: flex; align-items: center; gap: 12px; justify-content: space-between; }
+h2 { font-size: 20px; margin: 0; }
+p { line-height: 1.5; font-size: 14px; }
+.demo { color: #ffe0a6; }
+.providers { display: grid; gap: 10px; }
+.providers button:first-child { background: #ffe0a6; color: #34234d; font-weight: 700; }
+.skip { width: 100%; margin-top: 10px; background: transparent; }
+@media (max-height: 500px) { .account-panel { max-height: 65dvh; } }

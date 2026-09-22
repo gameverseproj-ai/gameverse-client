@@ -4,5 +4,6 @@
 <main [class.main-content]="showNav()">
   <router-outlet />
 </main>
+<app-account-controls />
 
 @if (!showNav()) { <div class="game-preferences"><app-language-controls class="floating" /><app-music-controls [compact]="true" /></div> }
