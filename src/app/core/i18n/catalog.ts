@@ -655,10 +655,10 @@ export const CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
     "he": "מכה טובה!",
     "ar": "لكمة جيدة!"
   },
-  "Grab the left or right glove and drag down to pull that fist back. After pulling back, steer up, down or sideways to aim at the head or body. Release to punch. A longer pull means a stronger hit.": {
-    "ru": "Возьмите любую перчатку и потяните вниз для замаха. Затем прицельтесь в голову или корпус и отпустите. Чем длиннее замах, тем сильнее удар.",
-    "he": "אחזו באחת הכפפות ומשכו למטה. כוונו לראש או לגוף ושחררו כדי להכות. משיכה ארוכה יותר נותנת מכה חזקה יותר.",
-    "ar": "أمسك أحد القفازين واسحب للأسفل، ثم صوّب نحو الرأس أو الجسم وأفلت للكم. كلما زاد السحب زادت قوة اللكمة."
+  "Grab the left or right glove and drag down to pull that fist back. After pulling back, steer up, down or sideways to aim at the head or body. Release to punch. Hit strength varies within your power range. Head hits are strongest; body hits deal less damage.": {
+    "ru": "Возьмите любую перчатку и потяните вниз для замаха. Затем прицельтесь в голову или корпус и отпустите. Сила удара меняется в пределах вашего диапазона. Удары в голову сильнее, удары в корпус наносят меньше урона.",
+    "he": "אחזו באחת הכפפות ומשכו למטה. כוונו לראש או לגוף ושחררו כדי להכות. עוצמת המכה משתנה בטווח הכוח שלכם. פגיעות בראש חזקות יותר; פגיעות בגוף גורמות פחות נזק.",
+    "ar": "أمسك أحد القفازين واسحب للأسفل، ثم صوّب نحو الرأس أو الجسم وأفلت للكم. تتغير قوة اللكمة ضمن نطاق قوتك. ضربات الرأس أقوى، وضربات الجسم تسبب ضرراً أقل."
   },
   "Grow to {0} cells — a quarter of the garden.": {
     "ru": "Вырастите до {0} клеток — четверти сада.",

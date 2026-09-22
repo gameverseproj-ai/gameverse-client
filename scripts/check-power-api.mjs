@@ -1,12 +1,22 @@
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
-const compiled=await build({stdin:{contents:`import '@angular/compiler';export {MockPowerApi} from './src/app/core/api/mock/mock-power.api';export {createEnvironmentInjector,runInInjectionContext,PLATFORM_ID} from '@angular/core';export {firstValueFrom} from 'rxjs';`,resolveDir:process.cwd()},bundle:true,platform:'node',format:'esm',write:false});
-const {MockPowerApi,createEnvironmentInjector,runInInjectionContext,PLATFORM_ID,firstValueFrom}=await import(`data:text/javascript;base64,${Buffer.from(compiled.outputFiles[0].text).toString('base64')}`);
+const compiled=await build({stdin:{contents:`import '@angular/compiler';export {MockPowerApi,POWER_STRIKE_RULES} from './src/app/core/api/mock/mock-power.api';export {createEnvironmentInjector,runInInjectionContext,PLATFORM_ID} from '@angular/core';export {firstValueFrom} from 'rxjs';`,resolveDir:process.cwd()},bundle:true,platform:'node',format:'esm',write:false});
+const {MockPowerApi,POWER_STRIKE_RULES,createEnvironmentInjector,runInInjectionContext,PLATFORM_ID,firstValueFrom}=await import(`data:text/javascript;base64,${Buffer.from(compiled.outputFiles[0].text).toString('base64')}`);
 const injector=createEnvironmentInjector([{provide:PLATFORM_ID,useValue:'server'}]);
 const api=runInInjectionContext(injector,()=>new MockPowerApi());
+const configuredInjector=createEnvironmentInjector([{provide:PLATFORM_ID,useValue:'server'},{provide:POWER_STRIKE_RULES,useValue:{minimumPower:.6,maximumPower:.6,headMultiplier:1,bodyMultiplier:.4}}]);
+try {
+ const configured=runInInjectionContext(configuredInjector,()=>new MockPowerApi());
+ const response=await firstValueFrom(configured.act({type:'hit',mode:'machine',pull:1,aim:0,aimY:-.6}));
+ assert.equal(response.settings.rules.maximumPower,.6);
+ assert.equal(response.progress.state.lastStrike.damage,30);
+ assert.equal(response.progress.state.lastStrike.points,300);
+ console.log('PASS: injected server configuration controls the actual strike and response.');
+} finally { configuredInjector.destroy(); }
 const clock=Date.now;let now=new Date(2026,8,13,12).getTime();Date.now=()=>now;
 try{
  const player=await firstValueFrom(api.getBootstrap()),preview=await firstValueFrom(api.getBootstrap(true));
+ assert.equal(player.settings.rules.minimumPower,.8);assert.equal(player.settings.rules.maximumPower,1);assert.equal(player.settings.rules.headMultiplier,1);assert.ok(player.settings.rules.bodyMultiplier<1);
  assert.equal(player.settings.rules.exercises.length,3);assert.equal(preview.settings.rules.exercises.length,60);
  const i=player.settings.rules.exercises[0].index;
  now+=1000;await firstValueFrom(api.act({type:'rep',exercise:i}));

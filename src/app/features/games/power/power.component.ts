@@ -4,8 +4,8 @@ import { Component, HostListener, OnDestroy, afterNextRender, inject, signal, vi
 import { RouterLink } from '@angular/router';
 import { MockPowerApi } from '../../../core/api/mock/mock-power.api';
 import { GameFacade } from '../../../core/facades/game.facade';
-import { PowerAction, PowerState } from '../../../core/models/power.model';
-import { strikeDamage, REP_TIMEOUT, localDay } from './power-engine';
+import { PowerAction, PowerState, PowerStrikeResult } from '../../../core/models/power.model';
+import { REP_TIMEOUT, localDay } from './power-engine';
 import { PowerSceneComponent, PunchGesture } from './power-scene.component';
 import { PowerExercise } from './power-exercises';
 import { PowerTrainingComponent } from './power-training.component';
@@ -20,6 +20,8 @@ export class PowerComponent implements OnDestroy {
   readonly mode = signal<'battle' | 'machine' | 'gym'>('battle');
   readonly charging = signal(false);
   readonly position = signal(0);
+  readonly meterResult = signal<PowerStrikeResult | null>(null);
+  get meterPercent(): number { const result = this.meterResult(); return result && result.maxDamage > 0 ? Math.min(100, result.damage / result.maxDamage * 100) : 0; }
   readonly impact = signal(false);
   readonly feedback = signal('Your next big hit starts here.');
   readonly error = signal('');
@@ -52,17 +54,21 @@ export class PowerComponent implements OnDestroy {
   load(): void { this.error.set(''); this.api.getBootstrap().subscribe({ next: data => { this.exercises.set(data.settings.rules.exercises); if (!this.selectedExercise) this.exercise.set(this.exercises()[0]?.index ?? 0); this.state.set(data.progress.state); this.games.bootstrap.set(data); }, error: () => this.error.set('Could not load saved progress. Check browser storage and retry.') }); }
   switchMode(mode: 'battle' | 'machine' | 'gym'): void { this.cancel(); this.mode.set(mode); this.audio.unlock(); if (mode === 'gym') this.audio.gym(); this.feedback.set(mode === 'gym' ? 'Complete each set to permanently increase your strength.' : 'Pull down to wind up, steer your fist, then release to punch.'); if (this.state()) this.load(); }
   toggleSound(): void { this.sound.update(value => !value); this.audio.enabled = this.sound(); if (this.sound()) this.audio.unlock(); }
-  grab(): void { this.audio.unlock(); this.audio.pull(); }
+  grab(): void { this.meterResult.set(null); this.audio.unlock(); this.audio.pull(); }
   strike(gesture: PunchGesture): void {
     if (!this.state() || this.locked() || this.error() || this.mode() === 'gym') return;
     const before = this.state()!, mode = this.mode() as 'battle' | 'machine';
-    const hit = strikeDamage(before.strength, gesture.pull, gesture.aim, gesture.aimY);
+    this.meterResult.set(null);
     this.audio.unlock(); this.audio.swing(); this.locked.set(true);
     this.strikeTimer = setTimeout(() => {
-      if (hit) this.audio.hit(gesture.pull);
       this.send({ type: 'hit', mode, ...gesture }, after => {
-        const quality = hit === 0 ? 'Miss! Aim at the center of the dummy.' : gesture.pull > .9 && Math.abs(gesture.aim) < .15 ? 'POWER HIT!' : 'Good hit!';
-        this.feedback.set(mode === 'machine' ? `${quality} ${hit * 10} points${hit * 10 > before.best ? ' · NEW RECORD!' : ''}` : after.stage > before.stage ? `${this.faceName(before.stage)} knocked out! Level ${after.stage} unlocked.` : hit ? `${quality} −${hit} HP` : quality);
+        const result = after.lastStrike;
+        if (!result) { this.error.set('Progress could not be saved. Check browser storage, then reload to continue.'); return; }
+        const hit = result.damage;
+        if (hit) this.audio.hit(hit / result.maxDamage);
+        if (mode === 'machine') this.meterResult.set(result);
+        const quality = hit === 0 ? 'Miss! Aim at the center of the dummy.' : hit >= result.maxDamage * .95 ? 'POWER HIT!' : 'Good hit!';
+        this.feedback.set(mode === 'machine' ? `${quality} ${result.points} points${result.points > before.best ? ' · NEW RECORD!' : ''}` : after.stage > before.stage ? `${this.faceName(before.stage)} knocked out! Level ${after.stage} unlocked.` : hit ? `${quality} −${hit} HP` : quality);
         if (after.stage > before.stage || after.best > before.best) this.audio.reward();
       });
     }, 140);

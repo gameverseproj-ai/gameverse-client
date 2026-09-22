@@ -3,7 +3,7 @@ import { build } from 'esbuild';
 const result = await build({stdin:{contents:`export * from './src/app/core/api/mock/power-mock-server'; export * from './src/app/features/games/power/power-engine';`,resolveDir:process.cwd()},bundle:true,platform:'node',format:'esm',write:false});
 const {freshPower,applyPower,damage,health,EXERCISES,strikeDamage,normalizePower,punchZone} = await import(`data:text/javascript;base64,${Buffer.from(result.outputFiles[0].text).toString('base64')}`);
 let now = new Date(2026,8,13,12).getTime(), state = freshPower();
-const act = action => state = applyPower(state,action,now += 500,true);
+const act = action => state = applyPower(state,{aimY:-.6,...action},now += 500,true,undefined,()=>1);
 assert.equal(damage(20,75),50);
 assert.ok(damage(20,75)>damage(20,0));
 const initial = structuredClone(state);
@@ -23,7 +23,23 @@ now+=86400000;act({type:'rep',exercise:0});assert.equal(state.reps[0],1);assert.
 assert.equal(damage(state.strength,75),125);
 console.log('PASS: timing, damage, immutable state, knockout progression, machine isolation, records, daily rewards, duplicate rejection, cooldown, day rollover.');
 
-assert.equal(strikeDamage(20,1,.8),0); assert.equal(strikeDamage(20,1,0),50); assert.ok(strikeDamage(20,.5,0)<50);
+assert.equal(strikeDamage(20,1,.8),0); assert.equal(strikeDamage(20,1,0),32); assert.equal(strikeDamage(20,.5,0,-.6),50);
+assert.equal(strikeDamage(20,1,0,-.6),50,'A centered head hit reaches the configured maximum');
+assert.equal(strikeDamage(20,1,0,.6),32,'A body hit is reduced by the configured multiplier');
+for (const [sample, expected] of [[0,80],[.5,90],[1,100]]) {
+  const hit = applyPower({...freshPower(),strength:40}, {type:'hit',mode:'machine',pull:1,aim:0,aimY:-.6}, now+500, false, undefined, ()=>sample);
+  assert.equal(hit.lastStrike.damage,expected);
+  assert.equal(hit.best,expected*10);
+  assert.equal(hit.lastStrike.maxDamage,100);
+  assert.ok(strikeDamage(40,1,0,0,undefined,sample)<expected);
+}
+assert.equal(strikeDamage(40,.1,0,-.6,undefined,0),80);
+assert.equal(strikeDamage(40,.01,0,-.6),0);
+const custom={minimumPower:.5,maximumPower:.6,headMultiplier:1,bodyMultiplier:.4};
+assert.equal(strikeDamage(40,1,0,-.6,custom,0),50);
+assert.equal(strikeDamage(40,1,0,-.6,custom,1),60);
+assert.equal(strikeDamage(40,1,0,0,custom,1),24);
+console.log('PASS: sampled 80–100 strength, authoritative receipts, reduced center-body damage, configurable bounds and tap rejection.');
 
 assert.equal(EXERCISES.length,60);assert.equal(new Set(EXERCISES.map(e=>e.id)).size,60);
 let set = normalizePower(freshPower(),now);const assigned=set.assigned[0];
@@ -48,7 +64,7 @@ console.log('PASS: head/body hit zones, vertical misses, invalid vertical aim re
 // Strong and untrained players face a similar number of well-aimed punches.
 for (const strength of [20, 50, 500, 5000]) {
   for (const stage of [1, 2, 10, 20, 50, 100]) {
-    const hits = Math.ceil(health(stage, strength) / strikeDamage(strength, 1, 0));
+    const hits = Math.ceil(health(stage, strength) / strikeDamage(strength, 1, 0, -.6));
     assert.ok(hits >= 4 && hits <= 9, `Balanced fight at stage ${stage}, strength ${strength}`);
     assert.ok(health(stage + 1, strength) >= health(stage, strength));
   }

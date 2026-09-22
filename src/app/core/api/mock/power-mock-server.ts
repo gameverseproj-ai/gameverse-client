@@ -1,6 +1,6 @@
 import { PowerAction, PowerState } from '../../models/power.model';
 import { EXERCISES, dailyExercises } from '../../../features/games/power/power-exercises';
-import { REP_TIMEOUT, localDay, strikeDamage } from '../../../features/games/power/power-engine';
+import { REP_TIMEOUT, localDay, strikeDamage, punchZone, DEFAULT_STRIKE_RULES, PowerStrikeRules } from '../../../features/games/power/power-engine';
 
 // Mock server authority: creation, HP balance, save migration and progression.
 // Replace this layer with backend endpoints; the UI consumes PowerState only.
@@ -29,7 +29,7 @@ export function normalizePower(before: PowerState, now: number): PowerState {
   state.reps = state.reps.map((reps,i) => reps < EXERCISES[i].reps && now - state.repTimes[i] >= REP_TIMEOUT ? 0 : reps);
   return state;
 }
-export function applyPower(before: PowerState, action: PowerAction, now: number, preview = false): PowerState {
+export function applyPower(before: PowerState, action: PowerAction, now: number, preview = false, rules: PowerStrikeRules = DEFAULT_STRIKE_RULES, random = Math.random): PowerState {
   const state = normalizePower(before, now);
   if (now - state.lastAt < 350) throw new Error('Take a breath before your next move.');
   if (action.type === 'rep') {
@@ -40,7 +40,8 @@ export function applyPower(before: PowerState, action: PowerAction, now: number,
     if (state.reps[action.exercise] === exercise.reps) state.strength += exercise.gain;
   } else {
     if (!['battle', 'machine'].includes(action.mode) || !Number.isFinite(action.pull) || action.pull < 0 || action.pull > 1 || !Number.isFinite(action.aim) || Math.abs(action.aim) > 1 || !Number.isFinite(action.aimY ?? 0) || Math.abs(action.aimY ?? 0) > 1) throw new Error('Invalid strike.');
-    const hit = strikeDamage(state.strength, action.pull, action.aim, action.aimY);
+    const hit = strikeDamage(state.strength, action.pull, action.aim, action.aimY, rules, random());
+    state.lastStrike = { damage: hit, maxDamage: Math.round(state.strength * 2.5 * rules.maximumPower), points: hit * 10, zone: punchZone(action.aim, action.aimY), mode: action.mode };
     state.hits++;
     if (action.mode === 'machine') state.best = Math.max(state.best, hit * 10);
     else {

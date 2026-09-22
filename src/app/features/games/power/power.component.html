@@ -34,8 +34,17 @@
           }
         </section>
         <aside>
-          <section class="control"><p class="eyebrow">{{ (mode() === 'gym' ? 'THE LONG GAME' : 'FIRST-PERSON BOXING') | t }}</p><h2>{{ (mode() === 'gym' ? 'Every rep matters.' : 'Pull. Aim. Punch.') | t }}</h2><p>{{ (mode() === 'gym' ? 'Your training gains are permanent. Come back tomorrow for another set and take on tougher dummies.' : 'Grab the left or right glove and drag down to pull that fist back. After pulling back, steer up, down or sideways to aim at the head or body. Release to punch. A longer pull means a stronger hit.') | t }}</p>
-            @if (mode() !== 'gym') { <div class="meter-label"><span>{{ 'PULL POWER' | t }}</span><span>{{ '{0}%' | t: [position().toFixed(0)] }}</span></div><progress [value]="position()" max="100" [attr.aria-label]="'Pull power' | t"></progress><small class="hint">{{ 'Touch / mouse: drag down, aim, release.' | t }}<br>{{ 'Keyboard: focus the scene, choose a hand with A / D, hold Space, aim with ← ↑ → ↓, release Space. Esc cancels.' | t }}</small> }
+          <section class="control"><p class="eyebrow">{{ (mode() === 'gym' ? 'THE LONG GAME' : 'FIRST-PERSON BOXING') | t }}</p><h2>{{ (mode() === 'gym' ? 'Every rep matters.' : 'Pull. Aim. Punch.') | t }}</h2><p>{{ (mode() === 'gym' ? 'Your training gains are permanent. Come back tomorrow for another set and take on tougher dummies.' : 'Grab the left or right glove and drag down to pull that fist back. After pulling back, steer up, down or sideways to aim at the head or body. Release to punch. Hit strength varies within your power range. Head hits are strongest; body hits deal less damage.') | t }}</p>
+            @if (mode() === 'machine') {
+              <div class="arcade-meter" role="meter" [attr.aria-label]="'Power meter' | t" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="meterPercent">
+                <div class="thermometer"><div class="thermometer-fill" [style.height.%]="meterPercent"></div></div>
+                <div class="meter-label"><span>{{ 'POWER METER' | t }}</span><strong>{{ '{0}%' | t: [meterPercent.toFixed(0)] }}</strong><span>{{ meterResult()?.points ?? 0 }}</span></div>
+              </div>
+            }
+            @if (mode() !== 'gym') {
+              @if (mode() === 'battle') { <div class="meter-label"><span>{{ 'PULL POWER' | t }}</span><span>{{ '{0}%' | t: [position().toFixed(0)] }}</span></div><progress class="power-meter" [value]="position()" max="100" [attr.aria-label]="'Pull power' | t"></progress> }
+              <small class="hint">{{ 'Touch / mouse: drag down, aim, release.' | t }}<br>{{ 'Keyboard: focus the scene, choose a hand with A / D, hold Space, aim with ← ↑ → ↓, release Space. Esc cancels.' | t }}</small>
+            }
             <div class="feedback" role="status" aria-live="polite">{{ (feedback()) | t }}</div>
           </section>
           <section class="stats"><div><span>{{ 'PERSONAL BEST' | t }}</span><b>{{ (s.best) | t }}<small>{{ 'pts' | t }}</small></b></div><div><span>{{ 'DUMMIES BEATEN' | t }}</span><b>{{ (s.wins.toString().padStart(2, '0')) | t }}</b></div></section>

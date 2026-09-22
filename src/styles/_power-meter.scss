@@ -1,0 +1,24 @@
+.power-page.gelly-game.gelly-game.gelly-game.gelly-theme-power .power-meter {
+  height: 20px;
+  margin-top: 12px;
+  border: 2px solid #8c9b77;
+  border-radius: 5px;
+  background: repeating-linear-gradient(90deg, #1e2829 0 9%, #536052 9.5% 10%);
+  box-shadow: inset 0 2px 5px #121817, 0 0 0 2px #1a211f, 0 0 18px #cfff5233;
+  transition: filter .2s;
+}
+.power-page .power-meter::-webkit-progress-bar { background: repeating-linear-gradient(90deg, #1e2829 0 9%, #536052 9.5% 10%); border-radius: 3px; }
+.power-page .power-meter::-webkit-progress-value { background: linear-gradient(90deg, #f06d4f, #f3b649 55%, #e9ff8a); border-radius: 2px; box-shadow: 0 0 12px #eaff8c99; transition: width .12s ease-out; }
+.power-page .power-meter::-moz-progress-bar { background: linear-gradient(90deg, #f06d4f, #f3b649 55%, #e9ff8a); border-radius: 2px; box-shadow: 0 0 12px #eaff8c99; }
+.power-page.gelly-game.gelly-game.gelly-game.gelly-theme-power .machine-meter { height: 26px; border-color: #d2df8e; box-shadow: inset 0 2px 5px #121817, 0 0 0 2px #1a211f, 0 0 24px #e9ff8a66; }
+.power-page .machine-meter::-webkit-progress-value { animation: meter-glow .65s ease-in-out infinite alternate; }
+.power-page .machine-mode .meter-label { color: #e9ff8a; font-weight: 800; }
+@keyframes meter-glow { to { filter: brightness(1.3); box-shadow: 0 0 22px #eaff8ccc; } }
+
+.power-page .arcade-meter { display: flex; align-items: center; justify-content: center; gap: 24px; margin: 20px 0; }
+.power-page .arcade-meter .meter-label { display: grid; gap: 12px; color: #e9ff8a; }
+.power-page .arcade-meter strong { font-size: 32px; font-variant-numeric: tabular-nums; }
+.power-page .thermometer { position: relative; width: 44px; height: 180px; overflow: hidden; border: 3px solid #d2df8e; border-radius: 16px 16px 8px 8px; background: #17221d; box-shadow: 0 0 18px #cfff5233; }
+.power-page .thermometer::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(to top, transparent 0 9%, #17221d99 9% 10%); }
+.power-page .thermometer-fill { position: absolute; bottom: 0; width: 100%; background: linear-gradient(to top, #70d66b, #ffe66c 65%, #ff7058); transition: height .85s cubic-bezier(.16, 1, .3, 1); box-shadow: 0 0 16px #e9ff8aaa; }
+@media (prefers-reduced-motion: reduce) { .power-page .thermometer-fill { transition: none; } }
