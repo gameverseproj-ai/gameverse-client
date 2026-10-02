@@ -4,10 +4,19 @@ import { InjectionToken } from '@angular/core';
  * Origin of the be-core server, without a trailing slash. Paths already carry
  * their own `/api` prefix, matching `authEndpoint` in the auth model.
  *
- * Override it in `app.config.ts` per environment:
- * `{ provide: API_BASE_URL, useValue: 'https://api.example.com' }`
+ * Local development talks to the be-core dev server on its own port. Anywhere
+ * else the origin is empty, so calls go to `/api/**` on the page's own host —
+ * a deployment serves or reverse-proxies the API there, and no CORS is needed.
+ *
+ * A deployment with the API on a separate domain overrides this in
+ * `app.config.ts`: `{ provide: API_BASE_URL, useValue: 'https://api.example.com' }`
+ * (and that domain must appear in be-core's GAMEVERSE_CORS_ORIGINS).
  */
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL', {
   providedIn: 'root',
-  factory: () => 'http://localhost:8080',
+  factory: () => {
+    const local = typeof location === 'undefined'
+      || ['localhost', '127.0.0.1'].includes(location.hostname);
+    return local ? 'http://localhost:8080' : '';
+  },
 });

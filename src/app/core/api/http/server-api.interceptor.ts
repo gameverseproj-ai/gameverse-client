@@ -14,7 +14,9 @@ import { toApiError } from './api-error';
  */
 export const serverApiInterceptor: HttpInterceptorFn = (req, next) => {
   const baseUrl = inject(API_BASE_URL);
-  if (!req.url.startsWith(baseUrl)) return next(req);
+  // Match the API prefix, not just the origin: with a same-origin base ('')
+  // a bare origin check would capture every request.
+  if (!req.url.startsWith(`${baseUrl}/api/`)) return next(req);
 
   const session = inject(SessionStore);
   const gate = inject(SessionGate);
