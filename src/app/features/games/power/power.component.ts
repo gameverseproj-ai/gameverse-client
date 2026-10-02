@@ -32,9 +32,14 @@ export class PowerComponent implements OnDestroy {
   get selectedExercise() { return this.exercises().find(e => e.index === this.exercise()); }
   selectExercise(index: number): void { if (!this.locked()) { this.exercise.set(index); this.repPulse.set(0); } }
   remaining(index: number): number { const s = this.state(); return s ? Math.min(10, Math.max(0, Math.ceil((s.repTimes[index] + REP_TIMEOUT - this.now()) / 1000))) : 0; }
+  /** The server day already asked about; it owns the clock, so one reload per value is enough. */
+  private dayReloaded = '';
   private tick(): void {
-    this.now.set(Date.now()); const s = this.state(); if (!s || this.error()) return;
-    if (s.day !== localDay(this.now()) || this.exercises().some(e => s.reps[e.index] > 0 && s.reps[e.index] < e.reps && this.remaining(e.index) === 0)) {
+    this.now.set(Date.now()); const s = this.state(); if (!s || this.error() || this.loading) return;
+    // The server rolls the day in its own zone, which can lag the browser's by
+    // hours; reloading once per server day keeps this from looping until then.
+    if (s.day !== localDay(this.now()) && s.day !== this.dayReloaded) { this.dayReloaded = s.day; this.load(); return; }
+    if (this.exercises().some(e => s.reps[e.index] > 0 && s.reps[e.index] < e.reps && this.remaining(e.index) === 0)) {
       this.load(); this.feedback.set('A 10-second pause resets an unfinished set. Start again when ready.');
     }
   }
@@ -51,7 +56,8 @@ export class PowerComponent implements OnDestroy {
   get face() { return this.faces[((this.state()?.stage ?? 1) - 1) % this.faces.length]; }
   get maxHp() { return this.state()?.maxHp ?? 0; }
   get level() { return 1 + Math.floor(((this.state()?.strength ?? 20) - 20) / 10); }
-  load(): void { this.error.set(''); this.api.getBootstrap().subscribe({ next: data => { this.exercises.set(data.settings.rules.exercises); if (!this.selectedExercise) this.exercise.set(this.exercises()[0]?.index ?? 0); this.state.set(data.progress.state); this.games.bootstrap.set(data); }, error: () => this.error.set('Could not load saved progress. Check browser storage and retry.') }); }
+  private loading = false;
+  load(): void { this.error.set(''); this.loading = true; this.api.getBootstrap().subscribe({ next: data => { this.loading = false; this.exercises.set(data.settings.rules.exercises); if (!this.selectedExercise) this.exercise.set(this.exercises()[0]?.index ?? 0); this.state.set(data.progress.state); this.games.bootstrap.set(data); }, error: () => { this.loading = false; this.error.set('Could not load saved progress. Check browser storage and retry.'); } }); }
   switchMode(mode: 'battle' | 'machine' | 'gym'): void { this.cancel(); this.mode.set(mode); this.audio.unlock(); if (mode === 'gym') this.audio.gym(); this.feedback.set(mode === 'gym' ? 'Complete each set to permanently increase your strength.' : 'Pull down to wind up, steer your fist, then release to punch.'); if (this.state()) this.load(); }
   toggleSound(): void { this.sound.update(value => !value); this.audio.enabled = this.sound(); if (this.sound()) this.audio.unlock(); }
   grab(): void { this.meterResult.set(null); this.audio.unlock(); this.audio.pull(); }
