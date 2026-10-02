@@ -15,11 +15,22 @@ export class AuthService {
   readonly dismissed = signal(false);
   init(): void {
     if (this.busy() || this.session()) return;
-    const telegram = !!(window as Window & { Telegram?: { WebApp?: { initData?: string } } }).Telegram?.WebApp?.initData || new URLSearchParams(window.location.hash.slice(1)).has('tgWebAppData');
+    const webApp = (window as Window & { Telegram?: { WebApp?: { initData?: string; ready?: () => void } } }).Telegram?.WebApp;
+    webApp?.ready?.();
+    const telegram = !!webApp?.initData || new URLSearchParams(window.location.hash.slice(1)).has('tgWebAppData');
     this.mode.set(clientMode(telegram, Math.min(screen.width, screen.height), navigator.maxTouchPoints > 0));
     try { this.dismissed.set(localStorage.getItem('gameverse.auth.prompt-dismissed.v1') === 'true'); } catch { /* Playing remains available without storage. */ }
     this.busy.set(true); this.error.set('');
-    this.api.me().pipe(switchMap(session => session ? of(session) : this.api.anonymous(this.locale.language())), take(1), timeout(10000), finalize(() => this.busy.set(false))).subscribe({ next: session => this.session.set(session), error: () => this.error.set('Sign-in is unavailable. You can keep playing.') });
+    this.api.me().pipe(switchMap(session => session ? of(session) : this.api.anonymous(this.locale.language())), take(1), timeout(10000), finalize(() => this.busy.set(false))).subscribe({
+      next: session => {
+        this.session.set(session);
+        // A Mini App launch carries the user's signed initData, so upgrade the
+        // fresh anonymous session to their Telegram account with no extra tap.
+        // Deferred so the init request has settled (busy cleared) before attach.
+        if (session?.anonymous && this.telegramInitData()) setTimeout(() => this.attachTelegram(), 0);
+      },
+      error: () => this.error.set('Sign-in is unavailable. You can keep playing.'),
+    });
   }
   dismiss(): void {
     this.dismissed.set(true);
@@ -28,9 +39,15 @@ export class AuthService {
   /** A real Google ID token from the Identity Services button. */
   attachGoogle(idToken: string): void { this.attach({ kind: 'google', body: { idToken } }); }
 
+  /** The signed initData the Telegram SDK exposes inside a Mini App, or null elsewhere. */
+  private telegramInitData(): string | null {
+    const data = (window as Window & { Telegram?: { WebApp?: { initData?: string } } }).Telegram?.WebApp?.initData;
+    return data && data.length > 0 ? data : null;
+  }
+
   /** Inside the Telegram Mini App the signed initData is already in hand. */
   attachTelegram(): void {
-    const initData = (window as Window & { Telegram?: { WebApp?: { initData?: string } } }).Telegram?.WebApp?.initData;
+    const initData = this.telegramInitData();
     if (!initData) { this.error.set('Sign-in is unavailable. You can keep playing.'); return; }
     this.attach({ kind: 'telegram', body: { initData } });
   }
