@@ -5,18 +5,18 @@ import { InjectionToken } from '@angular/core';
  * their own `/api` prefix, matching `authEndpoint` in the auth model.
  *
  * Local development talks to the be-core dev server on its own port. Anywhere
- * else the origin is empty, so calls go to `/api/**` on the page's own host —
- * a deployment serves or reverse-proxies the API there, and no CORS is needed.
+ * else the client calls the production be-core on Render, whose
+ * GAMEVERSE_CORS_ORIGINS must list the client's domain.
  *
- * A deployment with the API on a separate domain overrides this in
- * `app.config.ts`: `{ provide: API_BASE_URL, useValue: 'https://api.example.com' }`
- * (and that domain must appear in be-core's GAMEVERSE_CORS_ORIGINS).
+ * A different deployment overrides this in `app.config.ts`:
+ * `{ provide: API_BASE_URL, useValue: 'https://api.example.com' }`
+ * (an empty value means same-origin behind a reverse proxy, with no CORS).
  */
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL', {
   providedIn: 'root',
   factory: () => {
     const local = typeof location === 'undefined'
       || ['localhost', '127.0.0.1'].includes(location.hostname);
-    return local ? 'http://localhost:8080' : '';
+    return local ? 'http://localhost:8080' : 'https://gameverse-core.onrender.com';
   },
 });
