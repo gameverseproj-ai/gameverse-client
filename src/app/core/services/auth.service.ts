@@ -25,9 +25,23 @@ export class AuthService {
     this.dismissed.set(true);
     try { localStorage.setItem('gameverse.auth.prompt-dismissed.v1','true'); } catch { /* Optional preference. */ }
   }
-  demo(provider: 'google' | 'telegram'): void {
+  /** A real Google ID token from the Identity Services button. */
+  attachGoogle(idToken: string): void { this.attach({ kind: 'google', body: { idToken } }); }
+
+  /** Inside the Telegram Mini App the signed initData is already in hand. */
+  attachTelegram(): void {
+    const initData = (window as Window & { Telegram?: { WebApp?: { initData?: string } } }).Telegram?.WebApp?.initData;
+    if (!initData) { this.error.set('Sign-in is unavailable. You can keep playing.'); return; }
+    this.attach({ kind: 'telegram', body: { initData } });
+  }
+
+  /** The signed user object the Telegram Login Widget hands to its callback. */
+  attachTelegramWidget(user: { id: number; hash: string; auth_date?: number; first_name?: string; last_name?: string; username?: string; photo_url?: string }): void {
+    this.attach({ kind: 'telegram/web', body: user });
+  }
+
+  private attach(credential: ProviderCredential): void {
     if (this.busy() || !this.session()) return;
-    const credential: ProviderCredential = provider === 'google' ? {kind:'google',body:{idToken:'mock:success'}} : this.mode() === 'telegram' ? {kind:'telegram',body:{initData:'mock:success'}} : {kind:'telegram/web',body:{id:1,hash:'mock:success'}};
     this.busy.set(true); this.error.set('');
     this.api.attach(credential).pipe(take(1),timeout(10000),finalize(() => this.busy.set(false))).subscribe({ next: session => this.session.set(session), error: err => this.error.set(err?.code === 'IDENTITY_ALREADY_LINKED' ? 'This account belongs to another player. Your current progress is unchanged.' : 'Sign-in is unavailable. You can keep playing.') });
   }

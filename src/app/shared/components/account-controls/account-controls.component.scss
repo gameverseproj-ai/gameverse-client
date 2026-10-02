@@ -13,3 +13,4 @@ p { line-height: 1.5; font-size: 14px; }
 .providers button:first-child { background: #ffe0a6; color: #34234d; font-weight: 700; }
 .skip { width: 100%; margin-top: 10px; background: transparent; }
 @media (max-height: 500px) { .account-panel { max-height: 65dvh; } }
+.provider-host { min-height: 44px; display: flex; justify-content: center; align-items: center; }
