@@ -1,6 +1,5 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { AUTH_API } from './core/api/auth.api';
-import { MockAuthApi } from './core/api/mock/mock-auth.api';
 import {
   provideRouter,
   withComponentInputBinding,
@@ -17,32 +16,41 @@ import { PLAYER_API }   from './core/api/player.api';
 import { WORLD_API }    from './core/api/world.api';
 import { GAME_API }     from './core/api/game.api';
 import { CURRENCY_API } from './core/api/currency.api';
-import { MockPlayerApi }   from './core/api/mock/mock-player.api';
-import { MockWorldApi }    from './core/api/mock/mock-world.api';
-import { MockGameApi }     from './core/api/mock/mock-game.api';
-import { MockCurrencyApi } from './core/api/mock/mock-currency.api';
 import { TETRIS_API } from './core/api/tetris.api';
-import { MockTetrisApi } from './core/api/mock/mock-tetris.api';
 import { TEMPLE_API } from './core/api/temple.api';
-import { MockTempleApi } from './core/api/mock/mock-temple.api';
 import { SNAKE_API } from './core/api/snake.api';
-import { MockSnakeApi } from './core/api/mock/mock-snake.api';
+import { MockPowerApi } from './core/api/mock/mock-power.api';
+import { serverApiInterceptor } from './core/api/http/server-api.interceptor';
+import { HttpAuthApi } from './core/api/http/http-auth.api';
+import { HttpPlayerApi } from './core/api/http/http-player.api';
+import { HttpWorldApi } from './core/api/http/http-world.api';
+import { HttpGameApi } from './core/api/http/http-game.api';
+import { HttpCurrencyApi } from './core/api/http/http-currency.api';
+import { HttpTetrisApi } from './core/api/http/http-tetris.api';
+import { HttpTempleApi } from './core/api/http/http-temple.api';
+import { HttpSnakeApi } from './core/api/http/http-snake.api';
+import { HttpPowerApi } from './core/api/http/http-power.api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
     provideClientHydration(withEventReplay()),
-    provideHttpClient(withFetch(), withInterceptors([apiInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([apiInterceptor, serverApiInterceptor])),
 
-    // ─── API layer — swap useClass here to switch mock ↔ real implementation ───
-    { provide: AUTH_API, useExisting: MockAuthApi },
-    { provide: PLAYER_API,   useClass: MockPlayerApi },
-    { provide: WORLD_API,    useClass: MockWorldApi },
-    { provide: GAME_API,     useClass: MockGameApi },
-    { provide: TETRIS_API, useExisting: MockTetrisApi },
-    { provide: TEMPLE_API, useExisting: MockTempleApi },
-    { provide: SNAKE_API,    useExisting: MockSnakeApi },
-    { provide: CURRENCY_API, useClass: MockCurrencyApi },
+    // ─── API layer — swap useExisting here to switch mock ↔ real implementation ───
+    // The mock adapters are still in core/api/mock and can be restored by name.
+    // The server origin comes from API_BASE_URL in core/api/http/api-config.ts.
+    { provide: AUTH_API, useExisting: HttpAuthApi },
+    { provide: PLAYER_API,   useExisting: HttpPlayerApi },
+    { provide: WORLD_API,    useExisting: HttpWorldApi },
+    { provide: GAME_API,     useExisting: HttpGameApi },
+    { provide: TETRIS_API, useExisting: HttpTetrisApi },
+    { provide: TEMPLE_API, useExisting: HttpTempleApi },
+    { provide: SNAKE_API,    useExisting: HttpSnakeApi },
+    { provide: CURRENCY_API, useExisting: HttpCurrencyApi },
+    // The gym screen injects the class directly, so the class token is aliased
+    // rather than the screen being changed.
+    { provide: MockPowerApi, useExisting: HttpPowerApi },
   ],
 };
