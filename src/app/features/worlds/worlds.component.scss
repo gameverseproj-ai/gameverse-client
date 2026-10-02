@@ -1,31 +1,7 @@
-@use '../../../styles/mixins' as *;
-
-.worlds {
-  @include container;
-  padding-block: var(--spacing-2xl);
-
-  &__header {
-    margin-bottom: var(--spacing-xl);
-
-    h1 {
-      font-size: 2rem;
-      font-weight: 700;
-    }
-  }
-
-  &__grid {
-    @include grid-auto(300px);
-  }
-
-  &__loading,
-  &__empty {
-    color: var(--color-text-muted);
-    text-align: center;
-    padding: var(--spacing-2xl);
-  }
-
-  &__error {
-    color: var(--color-error);
-    padding: var(--spacing-md);
-  }
-}
+:host { display: block; min-height: 100dvh; background: radial-gradient(ellipse at 20% 0,#3e235d,transparent 65%),#141020; color: #fff; }
+.worlds { max-width: 1180px; margin: auto; padding: max(40px, env(safe-area-inset-top)) 24px 40px; }
+.worlds__header { margin-bottom: 32px; padding-inline-end: 60px; }
+h1 { margin: 0; font-size: clamp(28px,5vw,42px); }
+.worlds__grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 24px; }
+.worlds__error { color: #ffc5ce; }
+@media(max-width:650px) { .worlds { padding-top: 28px; } .worlds__grid { grid-template-columns: 1fr; gap: 20px; } }

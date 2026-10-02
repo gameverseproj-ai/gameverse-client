@@ -1,0 +1,16 @@
+<div class="game-shell" [attr.data-game]="gameId()">
+  <header>
+    <a class="exit" routerLink="/world" [queryParams]="{ from: gameId() }" [attr.aria-label]="'Back to world' | t">←</a>
+    <h1>{{ title() | t }}</h1>
+    <nav [attr.aria-label]="'Game pages' | t">
+      <button (click)="go('play')" [attr.aria-current]="page() === 'play' ? 'page' : null" [attr.aria-label]="'Play' | t">▷</button>
+      <button (click)="go('progress')" [attr.aria-current]="page() === 'progress' ? 'page' : null" [attr.aria-label]="'Progress' | t">▥</button>
+      <button (click)="go('help')" [attr.aria-current]="page() === 'help' ? 'page' : null" [attr.aria-label]="'How to play' | t">?</button>
+    </nav>
+  </header>
+  <main>
+    <div class="page" [hidden]="page() !== 'play'" [attr.inert]="page() !== 'play' ? '' : null"><ng-content select="[gamePlay]" /></div>
+    <section class="page secondary" [hidden]="page() !== 'progress'"><h2>{{ 'Progress' | t }}</h2><ng-content select="[gameProgress]" /><button class="return" (click)="go('play')">{{ 'Back to game' | t }} →</button></section>
+    <section class="page secondary" [hidden]="page() !== 'help'"><h2>{{ 'How to play' | t }}</h2><ng-content select="[gameHelp]" /><button class="return" (click)="go('play')">{{ 'Back to game' | t }} →</button></section>
+  </main>
+</div>

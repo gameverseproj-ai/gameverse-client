@@ -1,17 +1,13 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'world', pathMatch: 'full' },
+  { path: '', redirectTo: 'worlds', pathMatch: 'full' },
   {
     path: 'world',
     loadChildren: () =>
       import('./features/world/world.routes').then((m) => m.WORLD_ROUTES),
   },
-  {
-    path: 'home',
-    loadChildren: () =>
-      import('./features/home/home.routes').then((m) => m.HOME_ROUTES),
-  },
+  { path: 'home', redirectTo: 'worlds', pathMatch: 'full' },
   {
     path: 'worlds',
     loadChildren: () =>
@@ -27,5 +23,5 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/profile/profile.routes').then((m) => m.PROFILE_ROUTES),
   },
-  { path: '**', redirectTo: 'world' },
+  { path: '**', redirectTo: 'worlds' },
 ];

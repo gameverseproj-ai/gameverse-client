@@ -1,34 +1,38 @@
 import { LanguageService } from './core/i18n/language.service';
 import { AccountControlsComponent } from './shared/components/account-controls/account-controls.component';
-import { LanguageControlsComponent } from './shared/components/language-controls/language-controls.component';
 import { MusicService } from './core/audio/music.service';
-import { MusicControlsComponent } from './shared/components/music-controls/music-controls.component';
-import { Component, afterNextRender, inject } from '@angular/core';
+import { Component, afterNextRender, computed, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { filter, map } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs/operators';
 import { NavComponent } from './shared/components/nav/nav.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavComponent, MusicControlsComponent, LanguageControlsComponent, AccountControlsComponent],
+  imports: [RouterOutlet, NavComponent, AccountControlsComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
   private readonly locale = inject(LanguageService);
   private readonly music = inject(MusicService);
-  constructor() { afterNextRender(() => { this.locale.init(); this.music.init(); }); }
-
   private readonly router = inject(Router);
+  private readonly currentUrl = signal(this.router.url);
 
-  readonly showNav = toSignal(
+  constructor() {
     this.router.events.pipe(
-      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-      map((e) => !e.urlAfterRedirects.startsWith('/world') && !e.urlAfterRedirects.startsWith('/games/snake') && !e.urlAfterRedirects.startsWith('/games/2048') && !e.urlAfterRedirects.startsWith('/games/tetris') && !e.urlAfterRedirects.startsWith('/games/power')),
-    ),
-    // initialValue checks the URL already present before first navigation
-    { initialValue: !this.router.url.startsWith('/world') && !this.router.url.startsWith('/games/snake') && !this.router.url.startsWith('/games/2048') && !this.router.url.startsWith('/games/tetris') && !this.router.url.startsWith('/games/power') },
-  );
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      takeUntilDestroyed(),
+    ).subscribe(event => this.currentUrl.set(event.urlAfterRedirects));
+    afterNextRender(() => {
+      // Hydration may finish initial navigation before this component subscribes.
+      this.currentUrl.set(this.router.url);
+      this.locale.init();
+      this.music.init();
+    });
+  }
+
+  readonly isWorld = computed(() => /^\/world(?:s)?(?:\/|$)/.test(this.currentUrl().split(/[?#]/)[0]));
+  readonly showNav = computed(() => !this.isWorld() && !/^\/games\/(snake|2048|tetris|power)(?:\/|$)/.test(this.currentUrl().split(/[?#]/)[0]));
 }

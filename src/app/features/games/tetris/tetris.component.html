@@ -1,23 +1,16 @@
-<div class="factory gelly-game gelly-theme-tetris" [class.active-game]="screen() === 'playing' || screen() === 'paused'">
- <header><a routerLink="/world" class="brand"><b>{{ 'g.' | t }}</b><span>{{ 'GELLY WORLD' | t }}</span></a><a routerLink="/world">{{ '↖ Back to world' | t }}</a></header>
- <main>
-  <section class="story"><app-hall-art theme="tetris" /><span class="eyebrow">{{ 'TETRIS FACTORY · MADE OF LITTLE WONDERS' | t }}</span><h1>{{ 'Find your flow.' | t }}<br><em>{{ 'Make room for joy.' | t }}</em></h1><p>{{ 'Seven little shapes. Endless possibilities.' | t }}<br>{{ 'Stack, spin, and let the good lines roll.' | t }}</p>
-   <div class="wallet"><span>✦</span><div><small>{{ 'YOUR TETRIS POINTS' | t }}</small><strong>{{ (data()?.progress?.state?.tetrisPoints ?? 0) | t }}</strong></div></div>
-   <div class="details"><span class="eyebrow">{{ 'YOUR FACTORY JOURNEY' | t }}</span><h2>{{ 'Level {0}' | t: [data()?.progress?.state?.currentLevel ?? 1] }}</h2><p>{{ '{0} lines cleared · {1} runs' | t: [data()?.progress?.state?.totalLines ?? 0, data()?.progress?.gamesPlayed ?? 0] }}</p><p>{{ 'Every {0} lines, a little faster.' | t: [target] }}<br>{{ '+{0} TP per line · +{1} TP per level' | t: [data()?.settings?.rules?.pointsPerLine ?? 10, data()?.settings?.rules?.levelBonus ?? 50] }}</p></div>
-   <p class="keys">{{ '← → / A D to move' | t }}<br>{{ '↑ / W / X to rotate · Z reverse' | t }}<br>{{ '↓ / S soft drop · Space hard drop' | t }}<br>{{ 'C / Shift to hold · P / Esc to pause' | t }}</p>
-  </section>
-  <section class="play" [attr.aria-label]="'Tetris Factory game' | t">
-   <div class="heading"><div><span class="eyebrow">{{ 'THE JELLY ASSEMBLY LINE' | t }}</span><h2>{{ 'Level {0}' | t: [level()] }}</h2></div><button (click)="toggleSound()" [disabled]="soundBusy() || !data() || screen() === 'saving'" [attr.aria-label]="'Sound effects' | t" [attr.aria-pressed]="sound()">{{ (sound() ? '♫' : '♪') | t }}</button><button (click)="screen() === 'paused' ? resume() : pause()" [disabled]="screen() !== 'playing' && screen() !== 'paused'" [attr.aria-label]="'Pause or resume' | t">{{ (screen() === 'paused' ? '▶' : 'Ⅱ') | t }}</button></div>
+<app-game-shell gameId="tetris" title="Tetris Factory" (pageChange)="changePage($event)">
+<section gamePlay class="play" [attr.aria-label]="'Tetris Factory game' | t">
+   <div class="heading"><div><h2>{{ 'Level {0}' | t: [level()] }}</h2></div><button (click)="toggleSound()" [disabled]="soundBusy() || !data() || screen() === 'saving'" [attr.aria-label]="'Sound effects' | t" [attr.aria-pressed]="sound()">{{ (sound() ? '♫' : '♪') | t }}</button><button (click)="screen() === 'paused' ? resume() : pause()" [disabled]="screen() !== 'playing' && screen() !== 'paused'" [attr.aria-label]="'Pause or resume' | t">{{ (screen() === 'paused' ? '▶' : 'Ⅱ') | t }}</button></div>
    <div class="arena">
     <div class="board-shell"><canvas #board tabindex="0" [attr.aria-label]="'Tetris board. Arrow keys move and rotate, Space drops, C holds, Escape pauses.' | t"></canvas>
      @if(toast() && screen() === 'playing'){<div class="clear-toast" aria-live="polite">{{ (toast()) | t }}</div>}
      @if(screen() !== 'playing'){
       <div class="overlay" aria-live="polite"><div>
-       @if(error()){<span class="symbol">☁</span><h2>{{ 'A little jam.' | t }}</h2><p>{{ (error()) | t }}</p><button class="primary" (click)="retry()">{{ 'Retry ↗' | t }}</button>}
-       @else if(screen() === 'loading' || screen() === 'starting' || screen() === 'saving'){<span class="symbol pulse">✦</span><h2>{{ (screen() === 'saving' ? 'Saving your spark…' : 'Warming up…') | t }}</h2><p>{{ (screen() === 'saving' ? 'Your points and progress are being saved.' : 'Getting your factory ready.') | t }}</p>}
-       @else if(screen() === 'paused'){<span class="symbol">☾</span><h2>{{ 'A little breather.' | t }}</h2><p>{{ 'Your blocks can wait.' | t }}</p><button class="primary" (click)="resume()">{{ 'Keep going ↗' | t }}</button>}
-       @else if(screen() === 'over'){<span class="symbol">♡</span><h2>{{ 'A lovely little run.' | t }}</h2><p>{{ '{0} lines · {1} score' | t: [receipt()?.lines, receipt()?.score] }}</p><div class="reward">{{ '+{0}' | t: [receipt()?.earned] }}<small>{{ 'Tetris Points' | t }}</small></div><p>{{ 'Saved · Balance {0}' | t: [receipt()?.balance] }}</p><button class="primary" (click)="start()" [disabled]="soundBusy()">{{ 'Play again ↗' | t }}</button>}
-       @else{<span class="symbol">✦</span><h2>{{ 'Let\'s make space.' | t }}</h2><p>{{ 'Fill a row to clear it.' | t }}<br>{{ 'Keep the stack below the top.' | t }}</p><button class="primary" (click)="start()" [disabled]="soundBusy()">{{ 'Let’s play ↗' | t }}</button><small>{{ 'One life. So many possibilities.' | t }}</small>}
+       @if(error()){<span class="symbol">☁</span><h2>{{ 'Connection error' | t }}</h2><p>{{ (error()) | t }}</p><button class="primary" (click)="retry()">{{ 'Retry ↗' | t }}</button>}
+       @else if(screen() === 'loading' || screen() === 'starting' || screen() === 'saving'){<span class="symbol pulse">✦</span><h2>{{ (screen() === 'saving' ? 'Saving…' : 'Loading…') | t }}</h2>}
+       @else if(screen() === 'paused'){<span class="symbol">☾</span><h2>{{ 'Paused' | t }}</h2><button class="primary" (click)="resume()">{{ 'Keep going ↗' | t }}</button>}
+       @else if(screen() === 'over'){<span class="symbol">♡</span><h2>{{ 'Run complete' | t }}</h2><p>{{ '{0} lines · {1} score' | t: [receipt()?.lines, receipt()?.score] }}</p><div class="reward">{{ '+{0}' | t: [receipt()?.earned] }}<small>{{ 'Tetris Points' | t }}</small></div><p>{{ 'Saved · Balance {0}' | t: [receipt()?.balance] }}</p><button class="primary" (click)="start()" [disabled]="soundBusy()">{{ 'Play again ↗' | t }}</button>}
+       @else{<span class="symbol">✦</span><h2>{{ 'Tetris Factory' | t }}</h2><p>{{ 'Fill a row to clear it.' | t }}<br>{{ 'Keep the stack below the top.' | t }}</p><button class="primary" (click)="start()" [disabled]="soundBusy()">{{ 'Let’s play ↗' | t }}</button>}
       </div></div>
      }
     </div>
@@ -26,11 +19,12 @@
     </div><button class="preview-card hold" (click)="action('hold')" [disabled]="!holdReady() || screen() !== 'playing'" [attr.aria-label]="'Hold piece' | t"><small>{{ 'HOLD · C' | t }}</small>@if(held();as type){<div class="mini" [style.--columns]="width(type)" [attr.aria-label]="('Held piece ' + type) | t">@for(cell of preview(type);track $index){<i [style.background]="cell ? colors[type] : 'transparent'" [class.block]="cell"></i>}</div>}@else{<span>◇</span>}</button></aside>
    </div>
    <div class="progress"><small>{{ 'NEXT LEVEL' | t }} <b>{{ '{0} / {1} lines' | t: [progress, target] }}</b></small><div><i [style.width.%]="progress / target * 100"></i></div></div>
-   <div class="under"><span>{{ 'Best {0}' | t: [data()?.progress?.bestScore ?? 0] }}</span><span>{{ 'Progress saved after each run' | t }}</span></div>
+   
    <div class="touch-controls" [attr.aria-label]="'Touch controls' | t">
     @for(control of controls;track control.action){<button [attr.aria-label]="(control.label) | t" [disabled]="screen() !== 'playing'" (pointerdown)="pointerDown($event,control.action)" (pointerup)="pointerEnd($event)" (pointercancel)="pointerEnd($event)" (lostpointercapture)="pointerEnd($event)" (click)="buttonClick($event,control.action)">{{ (control.icon) | t }}<small>{{ (control.short) | t }}</small></button>}
    </div>
    @if(soundError()){<p role="status">{{ (soundError()) | t }}</p>}
   </section>
- </main>
-</div>
+<div gameProgress><div><small>{{ 'Tetris Points' | t }}</small><strong>{{ data()?.progress?.state?.tetrisPoints ?? 0 }}</strong></div><div><small>{{ 'PERSONAL BEST' | t }}</small><strong>{{ data()?.progress?.bestScore ?? 0 }}</strong></div><div><small>{{ 'LINES' | t }}</small><strong>{{ data()?.progress?.state?.totalLines ?? 0 }}</strong></div><div><small>{{ 'Level' | t }}</small><strong>{{ data()?.progress?.state?.currentLevel ?? 1 }}</strong></div></div>
+<div gameHelp><p><b aria-hidden="true">← ↓ →</b>{{ '← → / A D to move' | t }}</p><p><b aria-hidden="true">↻</b>{{ '↑ / W / X to rotate · Z reverse' | t }}</p><p><b aria-hidden="true">⤓</b>{{ '↓ / S soft drop · Space hard drop' | t }}</p><p><b aria-hidden="true">⇄</b>{{ 'C / Shift to hold · P / Esc to pause' | t }}</p></div>
+</app-game-shell>

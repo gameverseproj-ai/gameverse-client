@@ -1,7 +1,6 @@
-import { HallArtComponent } from '../../../shared/components/hall-art/hall-art.component';
+import { GameShellComponent, GamePage } from '../../../shared/components/game-shell/game-shell.component';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Component,ElementRef,HostListener,NgZone,OnDestroy,afterNextRender,inject,signal,viewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { Subscription,take,timeout } from 'rxjs';
 import { TETRIS_API } from '../../../core/api/tetris.api';
 import { GameFacade } from '../../../core/facades/game.facade';
@@ -11,8 +10,11 @@ import { COLORS,SHAPES,TetrisEngine } from './tetris-engine';
 import { TetrisRenderer } from './tetris-renderer';
 type Action='left'|'right'|'down'|'rotate'|'counter'|'drop'|'hold';
 type Screen='loading'|'ready'|'starting'|'playing'|'paused'|'saving'|'over';
-@Component({selector:'app-tetris',standalone:true,imports: [HallArtComponent, TranslatePipe, RouterLink],templateUrl:'./tetris.component.html',styleUrl:'./tetris.component.scss'})
+@Component({selector:'app-tetris',standalone:true,imports: [GameShellComponent, TranslatePipe],templateUrl:'./tetris.component.html',styleUrl:'./tetris.component.scss'})
 export class TetrisComponent implements OnDestroy {
+  readonly gamePage = signal<GamePage>('play');
+  changePage(page: GamePage): void { this.gamePage.set(page); if (page !== 'play') this.pause(); }
+
  private readonly api=inject(TETRIS_API);private readonly games=inject(GameFacade);private readonly zone=inject(NgZone);private readonly monetization=inject(MonetizationService);
  private readonly canvas=viewChild.required<ElementRef<HTMLCanvasElement>>('board');
  readonly data=signal<TetrisBootstrap|null>(null);readonly screen=signal<Screen>('loading');readonly error=signal('');readonly receipt=signal<TetrisReceipt|null>(null);
@@ -35,7 +37,7 @@ export class TetrisComponent implements OnDestroy {
   if(this.soundBusy()||['playing','paused','saving'].includes(this.screen())||(this.screen()==='starting'&&!this.error()))return;
   try{this.audio??=new AudioContext();void this.audio.resume().catch(()=>{});}catch{/* Audio is optional. */}
   this.error.set('');this.retryAction='start';this.screen.set('starting');this.startId??=crypto.randomUUID();this.request?.unsubscribe();this.games.bootstrap.set(null);
-  this.request=this.api.startRun(this.startId).pipe(timeout(10000),take(1)).subscribe({next:run=>{this.run=run;this.startId=null;this.result=null;this.finished=false;this.receipt.set(null);this.toast.set('');this.flash=0;this.repeats.clear();this.engine=new TetrisEngine(run.rules,run.seed);this.engine.start();this.sync();this.renderer?.render(this.engine);this.time=performance.now();this.screen.set('playing');this.canvas().nativeElement.focus({preventScroll:true});if(document.hidden)this.pause();},error:()=>this.error.set('The run could not start. Retry the same request.')});
+  this.request=this.api.startRun(this.startId).pipe(timeout(10000),take(1)).subscribe({next:run=>{this.run=run;this.startId=null;this.result=null;this.finished=false;this.receipt.set(null);this.toast.set('');this.flash=0;this.repeats.clear();this.engine=new TetrisEngine(run.rules,run.seed);this.engine.start();this.sync();this.renderer?.render(this.engine);this.time=performance.now();this.screen.set('playing');this.canvas().nativeElement.focus({preventScroll:true});if(document.hidden || this.gamePage() !== 'play')this.pause();},error:()=>this.error.set('The run could not start. Retry the same request.')});
  }
  private frame(time:number):void {
   if(this.disposed)return;const delta=this.time?time-this.time:0;this.time=time;
@@ -76,8 +78,9 @@ export class TetrisComponent implements OnDestroy {
  pause(){if(this.screen()==='playing'){this.engine?.pause();this.screen.set('paused');}this.repeats.clear();}
  resume(){if(this.screen()==='paused'){this.engine?.start();this.screen.set('playing');this.time=performance.now();this.canvas().nativeElement.focus({preventScroll:true});}}
  @HostListener('window:blur') blur(){this.pause();}
- @HostListener('document:visibilitychange') visibility(){if(document.hidden)this.pause();}
+ @HostListener('document:visibilitychange') visibility(){if(document.hidden || this.gamePage() !== 'play')this.pause();}
  @HostListener('window:keydown',['$event']) key(event:KeyboardEvent){
+  if(this.gamePage() !== 'play')return;
   if((event.target as HTMLElement)?.closest('button,a,input,textarea,select'))return;
   if(event.code==='Escape'||event.code==='KeyP'){event.preventDefault();if(!event.repeat)this.screen()==='paused'?this.resume():this.pause();return;}
   const map:Record<string,Action>={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowDown:'down',KeyS:'down',ArrowUp:'rotate',KeyW:'rotate',KeyX:'rotate',KeyZ:'counter',Space:'drop',KeyC:'hold',ShiftLeft:'hold',ShiftRight:'hold'};

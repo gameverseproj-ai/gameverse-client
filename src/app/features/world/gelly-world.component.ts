@@ -1,3 +1,4 @@
+import { WorldReturnService } from './world-return.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import {
@@ -12,7 +13,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { GellyWorldScene } from './gelly-world.scene';
 import { GamePortal } from '../../shared/world/game-portal.model';
 import { GELLY_WORLD_THEME } from './gelly/gelly-world.theme';
@@ -35,6 +36,8 @@ import { Subscription } from 'rxjs';
 export class GellyWorldComponent implements OnDestroy {
   private readonly locale = inject(LanguageService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly returnPoint = inject(WorldReturnService);
   private readonly zone = inject(NgZone);
   private readonly games = inject(GameFacade);
   private bootstrapRequest?: Subscription;
@@ -111,11 +114,13 @@ export class GellyWorldComponent implements OnDestroy {
       new GellyHeroRenderer(),
       new GellyEnvironment(GELLY_PORTALS),
       portal => this.zone.run(() => {
+        this.returnPoint.remember(portal.id);
         this.enteringPortal.set(portal);
         this.resetJoystick();
         this.animationFinished = false;
         this.loadEntryData();
       }),
+      this.route.snapshot.queryParamMap.get('from') ?? this.returnPoint.read(),
     );
 
     this.localizeScene();
@@ -147,7 +152,10 @@ export class GellyWorldComponent implements OnDestroy {
     const portal = this.enteringPortal();
     if (this.disposed || !portal || !this.animationFinished || !this.dataReady || this.navigating) return;
     this.navigating = true;
-    this.router.navigate([portal.route]).then(success => {
+    // Keep the world history entry tied to the latest door, including when
+    // the player uses browser Back after visiting several different games.
+    this.router.navigate(['/world'], { queryParams: { from: portal.id }, replaceUrl: true })
+      .then(success => success ? this.router.navigate([portal.route]) : false).then(success => {
       if (!success && !this.disposed) { this.navigating = false; this.entryError.set(true); }
     }).catch(() => {
       if (!this.disposed) { this.navigating = false; this.entryError.set(true); }

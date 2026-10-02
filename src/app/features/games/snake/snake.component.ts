@@ -1,7 +1,6 @@
-import { HallArtComponent } from '../../../shared/components/hall-art/hall-art.component';
+import { GameShellComponent, GamePage } from '../../../shared/components/game-shell/game-shell.component';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Component, ElementRef, HostListener, NgZone, OnDestroy, afterNextRender, inject, signal, viewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { Subscription, take, timeout } from 'rxjs';
 import { SNAKE_API } from '../../../core/api/snake.api';
 import { GameFacade } from '../../../core/facades/game.facade';
@@ -11,8 +10,11 @@ import { Direction, SnakeEngine } from '../engines/snake/snake-engine';
 import { SnakeRenderer } from '../engines/snake/snake-renderer';
 
 type Screen = 'loading' | 'ready' | 'starting' | 'playing' | 'paused' | 'saving' | 'lost' | 'won';
-@Component({selector:'app-jelly-snake',standalone:true,imports: [HallArtComponent, TranslatePipe, RouterLink],templateUrl:'./snake.component.html',styleUrl:'./snake.component.scss'})
+@Component({selector:'app-jelly-snake',standalone:true,imports: [GameShellComponent, TranslatePipe],templateUrl:'./snake.component.html',styleUrl:'./snake.component.scss'})
 export class SnakeComponent implements OnDestroy {
+  readonly gamePage = signal<GamePage>('play');
+  changePage(page: GamePage): void { this.gamePage.set(page); if (page !== 'play') this.pause(); }
+
   private readonly api=inject(SNAKE_API);
   private readonly games=inject(GameFacade);
   private readonly monetization=inject(MonetizationService);
@@ -79,7 +81,7 @@ export class SnakeComponent implements OnDestroy {
         this.engine.init({level:run.level,items:run.items});this.engine.start();
         this.score.set(0);this.collected.set(0);this.lastTime=performance.now();
         this.screen.set('playing');this.renderer.render(this.engine.state);this.canvas().nativeElement.focus({preventScroll:true});
-        if(document.hidden)this.pause();
+        if(document.hidden || this.gamePage() !== 'play')this.pause();
       },error:()=>this.error.set('The run could not start. Try again; you will not be charged anything.'),
     });
   }
@@ -128,6 +130,7 @@ export class SnakeComponent implements OnDestroy {
   steer(direction:Direction):void {if(this.screen()==='playing')this.engine.setDirection(direction);}
   @HostListener('window:keydown',['$event'])
   onKey(event:KeyboardEvent):void {
+    if(this.gamePage() !== 'play')return;
     if((event.target as HTMLElement)?.closest('input,select,textarea'))return;
     const keys:Record<string,Direction>={ArrowUp:'UP',KeyW:'UP',ArrowDown:'DOWN',KeyS:'DOWN',ArrowLeft:'LEFT',KeyA:'LEFT',ArrowRight:'RIGHT',KeyD:'RIGHT'};
     if(keys[event.code]&&this.screen()==='playing'){event.preventDefault();this.steer(keys[event.code]);}
@@ -136,7 +139,7 @@ export class SnakeComponent implements OnDestroy {
     }
   }
   @HostListener('window:blur') onBlur():void {this.pause();}
-  @HostListener('document:visibilitychange') onVisibility():void {if(document.hidden)this.pause();}
+  @HostListener('document:visibilitychange') onVisibility():void {if(document.hidden || this.gamePage() !== 'play')this.pause();}
   pointerDown(event:PointerEvent):void {
     if(this.screen()!=='playing'||this.gesture||event.button!==0)return;
     event.preventDefault();this.gesture={id:event.pointerId,x:event.clientX,y:event.clientY};

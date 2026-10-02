@@ -1,0 +1,17 @@
+:host { display: block; color: #f8f2ff; --game-accent: #b8f6d9; }
+.game-shell { position: fixed; inset: 0; height: 100dvh; box-sizing: border-box; overflow: hidden; display: grid; grid-template-rows: auto minmax(0,1fr); background: radial-gradient(ellipse at 50% 35%,#423269,transparent 75%),#151124; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+[data-game=snake] { --game-accent: #b8f6d9; } [data-game='2048'] { --game-accent: #ffda92; } [data-game=tetris] { --game-accent: #d7baff; } [data-game=power] { --game-accent: #ffbc97; }
+header { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 6px 76px 6px 16px; box-sizing: border-box; border-bottom: 1px solid #ffffff0c; }
+h1 { margin: 0; font-size: clamp(13px,2.5vw,18px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+nav { margin-inline-start: auto; display: flex; gap: 5px; }
+button,.exit { font: inherit; color: #f8f2ff; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; background: #ffffff07; border: 1px solid #ffffff16; border-radius: 14px; cursor: pointer; text-decoration: none; font-size: 21px; flex-shrink: 0; }
+[aria-current=page] { color: var(--game-accent); background: #ffffff15; border-color: var(--game-accent); }
+button:focus-visible,a:focus-visible { outline: 3px solid var(--game-accent); outline-offset: 2px; }
+main { min-height: 0; container-type: size; position: relative; }
+.page { height: 100%; width: 100%; box-sizing: border-box; overflow: hidden; }
+[hidden] { display: none!important; }
+.secondary { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px; padding: 20px; text-align: center; }
+h2 { margin: 0; font-size: clamp(20px,4vw,32px); }
+.return { width: auto; padding: 0 22px; font-size: 14px; color: var(--game-accent); }
+@media(max-width:420px) { header { gap: 6px; padding-inline-start: 10px; padding-inline-end: 70px; } nav { gap: 2px; } button,.exit { width: 40px; } h1 { font-size: 13px; } }
+@media(max-height:500px) { header { min-height: 52px; padding-block: 2px; } .secondary { gap: 10px; padding: 10px; } }

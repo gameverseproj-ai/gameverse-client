@@ -1,7 +1,6 @@
-import { HallArtComponent } from '../../../shared/components/hall-art/hall-art.component';
+import { GameShellComponent, GamePage } from '../../../shared/components/game-shell/game-shell.component';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Component, HostListener, OnDestroy, afterNextRender, inject, signal, viewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { MockPowerApi } from '../../../core/api/mock/mock-power.api';
 import { GameFacade } from '../../../core/facades/game.facade';
 import { PowerAction, PowerState, PowerStrikeResult } from '../../../core/models/power.model';
@@ -12,8 +11,10 @@ import { PowerTrainingComponent } from './power-training.component';
 import { exerciseSeconds } from './training-rig';
 import { CHALLENGERS } from './power-challengers';
 import { PowerAudio } from './power-audio';
-@Component({ selector: 'app-power', standalone: true, imports: [HallArtComponent, TranslatePipe, RouterLink, PowerSceneComponent, PowerTrainingComponent], templateUrl: './power.component.html', styleUrl: './power.component.scss' })
+@Component({ selector: 'app-power', standalone: true, imports: [GameShellComponent, TranslatePipe, PowerSceneComponent, PowerTrainingComponent], templateUrl: './power.component.html', styleUrl: './power.component.scss' })
 export class PowerComponent implements OnDestroy {
+  readonly gamePage = signal<GamePage>('play');
+  changePage(page: GamePage): void { this.gamePage.set(page); if(page !== 'play') this.cancel(); }
   private readonly api = inject(MockPowerApi);
   private readonly games = inject(GameFacade);
   readonly state = signal<PowerState | null>(null);

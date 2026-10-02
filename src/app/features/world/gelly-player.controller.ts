@@ -57,6 +57,14 @@ export class GellyPlayerController {
     this.updateEyes();
   }
 
+  placeAt(x: number, z: number, heading = Math.PI): void {
+    this.position.set(x, this.heroRenderer.spawnY, z);
+    this.heading = heading;
+    this.velocity.set(0, 0);
+    this.heroRenderer.mesh.rotation.y = heading;
+    this.updateEyes();
+  }
+
   setFocused(focused: boolean): void {
     this.heroRenderer.setFocused?.(focused);
   }

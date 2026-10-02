@@ -1,4 +1,5 @@
 <section class="world-detail">
+  <a routerLink="/worlds">← {{ 'Worlds' | t }}</a>
   @if (worldFacade.currentWorld(); as w) {
     <header class="world-detail__header">
       @if (w.coverImageUrl) {

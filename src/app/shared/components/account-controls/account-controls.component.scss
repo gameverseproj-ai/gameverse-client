@@ -14,3 +14,21 @@ p { line-height: 1.5; font-size: 14px; }
 .skip { width: 100%; margin-top: 10px; background: transparent; }
 @media (max-height: 500px) { .account-panel { max-height: 65dvh; } }
 .provider-host { min-height: 44px; display: flex; justify-content: center; align-items: center; }
+
+:host(.world-mode) {
+  top: max(16px, env(safe-area-inset-top));
+  bottom: auto;
+  inset-inline-end: max(16px, env(safe-area-inset-right));
+}
+:host(.world-mode) .account { position: relative; }
+:host(.world-mode) .account-toggle {
+  width: 48px; height: 48px; padding: 0; display: grid; place-items: center;
+  border-radius: 50%; background: #251d40b8; backdrop-filter: blur(16px);
+}
+:host(.world-mode) .account-panel {
+  position: absolute; top: 58px; inset-inline-end: 0;
+  width: min(380px, calc(100vw - 32px));
+  max-height: calc(100dvh - 100px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  overscroll-behavior: contain;
+}
+.account-preferences { display: grid; gap: 16px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #ffffff20; }

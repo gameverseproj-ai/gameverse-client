@@ -9,7 +9,7 @@ export type PunchGesture = { pull: number; aim: number; aimY: number; hand: 'lef
 @Component({
   selector: 'app-power-scene', standalone: true, imports: [TranslatePipe],
   template: `<canvas #canvas tabindex="0" [attr.aria-label]="('First-person boxing. Grab either glove. A selects left, D selects right. Drag down to pull back, steer up, down, left or right, and release to punch. Keyboard: hold Space, aim with arrows, release Space.') | t" (pointerdown)="down($event)" (pointermove)="move($event)" (pointerup)="up($event)" (pointercancel)="cancel()" (lostpointercapture)="cancel()" (keydown)="keyDown($event)" (keyup)="keyUp($event)" (blur)="cancel()"></canvas>`,
-  styles: [`:host{display:block}canvas{display:block;width:100%;height:430px;border-radius:18px;touch-action:none;outline:none;cursor:grab}canvas:active{cursor:grabbing}canvas:focus-visible{outline:3px solid #e4ff83;outline-offset:3px}@media(max-width:760px){canvas{height:390px}}`],
+  styles: [`:host{display:block;height:100%;min-height:0}canvas{display:block;width:100%;height:100%;border-radius:18px;touch-action:none;outline:none;cursor:grab}canvas:active{cursor:grabbing}canvas:focus-visible{outline:3px solid #e4ff83;outline-offset:3px}`],
 })
 export class PowerSceneComponent implements OnChanges, OnDestroy {
   private readonly locale = inject(LanguageService);

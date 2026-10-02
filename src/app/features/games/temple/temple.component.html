@@ -1,19 +1,6 @@
-<div class="temple-page gelly-game gelly-theme-temple" [class.active-game]="active()">
-  <header><a routerLink="/world" class="brand"><b>{{ 'g.' | t }}</b>  {{ 'GELLY WORLD' | t }}</a><a routerLink="/world">{{ '↖ Back to world' | t }}</a></header>
-  <main>
-    <section class="story"><app-hall-art theme="temple" />
-      <span class="eyebrow">{{ '2048 TEMPLE · A LITTLE MOMENT OF ZEN' | t }}</span>
-      <h1>{{ 'Small numbers.' | t }}<br><em>{{ 'Golden wonders.' | t }}</em></h1>
-      <p>{{ 'Bring matching tiles together.' | t }}<br>{{ 'Build something a little extraordinary.' | t }}</p>
-      <div class="wallet"><span>✦</span><div><small>{{ 'YOUR TEMPLE POINTS' | t }}</small><strong>{{ (data()?.progress?.state?.templePoints ?? 0) | t }}</strong></div></div>
-      <div class="journey"><span class="eyebrow">{{ 'YOUR TEMPLE JOURNEY' | t }}</span>
-        @for (stage of data()?.settings?.rules?.levels ?? []; track stage.id) {
-          <div class="stage" [class.current]="stage.id === data()?.progress?.state?.currentLevel"><span>{{ (stage.id < (data()?.progress?.state?.currentLevel ?? 1) ? '✓' : stage.id) | t }}</span><div><b>{{ (stage.name) | t }}</b><small>{{ 'Reach {0} · +{1} TP' | t: [stage.targetTile, stage.winPoints] }}</small></div><i>{{ (stage.id > (data()?.progress?.state?.currentLevel ?? 1) ? '◇' : '✦') | t }}</i></div>
-        }
-      </div>
-    </section>
-    <section class="play" [attr.aria-label]="'2048 Temple game' | t">
-      <div class="board-heading"><div><span class="eyebrow">{{ (level?.name ?? 'THE GOLDEN GARDEN') | t }}</span><h2>{{ 'Level {0}' | t: [level?.id ?? 1] }}</h2></div><div class="score"><small>{{ 'SCORE' | t }}</small><b>{{ (run?.score ?? 0) | t }}</b></div><button (click)="sound.set(!sound())" [attr.aria-pressed]="sound()" [attr.aria-label]="'Sound effects' | t">{{ (sound() ? '♫' : '♪') | t }}</button><button (click)="pause()" [disabled]="!active()" [attr.aria-label]="'Pause game' | t">Ⅱ</button></div>
+<app-game-shell gameId="2048" title="2048 Temple" (pageChange)="changePage($event)">
+<section gamePlay class="play" [attr.aria-label]="'2048 Temple game' | t">
+      <div class="board-heading"><div><h2>{{ 'Level {0}' | t: [level?.id ?? 1] }}</h2></div><div class="score"><small>{{ 'SCORE' | t }}</small><b>{{ (run?.score ?? 0) | t }}</b></div><button (click)="sound.set(!sound())" [attr.aria-pressed]="sound()" [attr.aria-label]="'Sound effects' | t">{{ (sound() ? '♫' : '♪') | t }}</button><button (click)="pause()" [disabled]="!active()" [attr.aria-label]="'Pause game' | t">Ⅱ</button></div>
       <div #board class="board" tabindex="0" role="group" [attr.aria-label]="'2048 board. Arrow keys or WASD to move. Swipe on touch screens.' | t" [style.--size]="level?.gridSize ?? 4"
         (pointerdown)="pointerDown($event)" (pointerup)="pointerEnd($event)" (pointercancel)="pointerEnd($event)" (lostpointercapture)="pointerEnd($event)">
         @for (value of tiles; track $index; let cellIndex = $index) {
@@ -27,18 +14,19 @@
         }
         @if (!active() || error()) {
           <div class="overlay" aria-live="polite"><div>
-            @if(error()) {<span class="symbol">☁</span><h2>{{ 'A little pause.' | t }}</h2><p>{{ (error()) | t }}</p><button class="primary" (click)="retry()" [disabled]="busy()">{{ 'Retry ↗' | t }}</button><button (click)="load()" [disabled]="busy()">{{ 'Reload saved game' | t }}</button>}
-            @else if(!data()) {<span class="symbol">✦</span><h2>{{ 'Opening the temple…' | t }}</h2>}
-            @else if(run?.status === 'won') {<span class="symbol victory">✦</span><h2>{{ 'A golden moment!' | t }}</h2><p>{{ 'You reached {0}.' | t: [run?.level?.targetTile] }}</p><div class="reward">{{ '+{0}' | t: [run?.earned] }}<small>{{ 'Temple Points' | t }}</small></div><p>{{ 'Your reward and progress are saved.' | t }}</p><button class="primary" (click)="start()" [disabled]="busy()">{{ '{0} ↗' | t: [run?.level?.id === 8 ? 'Play again' : 'Next temple'] }}</button>}
-            @else if(run?.status === 'lost') {<span class="symbol">♡</span><h2>{{ 'A fresh perspective.' | t }}</h2><p>{{ 'No moves left. Your balance is safe.' | t }}<br>{{ 'Try a new arrangement.' | t }}</p><button class="primary" (click)="start()" [disabled]="busy()">{{ 'Try again ↗' | t }}</button>}
-            @else {<span class="symbol">✦</span><h2>{{ (run ? 'Your temple awaits.' : 'A little closer to gold.') | t }}</h2><p>{{ 'Merge matching tiles to reach {0}.' | t: [level?.targetTile] }}<br>{{ 'Win +{0} Temple Points.' | t: [level?.winPoints] }}</p><button class="primary" (click)="start()" [disabled]="busy()">{{ '{0} ↗' | t: [run ? 'Continue' : 'Let’s play'] }}</button>}
+            @if(error()) {<span class="symbol">☁</span><h2>{{ 'Connection error' | t }}</h2><p>{{ (error()) | t }}</p><button class="primary" (click)="retry()" [disabled]="busy()">{{ 'Retry ↗' | t }}</button><button (click)="load()" [disabled]="busy()">{{ 'Reload saved game' | t }}</button>}
+            @else if(!data()) {<span class="symbol">✦</span><h2>{{ 'Loading…' | t }}</h2>}
+            @else if(run?.status === 'won') {<span class="symbol victory">✦</span><h2>{{ 'Level complete' | t }}</h2><p>{{ 'You reached {0}.' | t: [run?.level?.targetTile] }}</p><div class="reward">{{ '+{0}' | t: [run?.earned] }}<small>{{ 'Temple Points' | t }}</small></div><button class="primary" (click)="start()" [disabled]="busy()">{{ '{0} ↗' | t: [run?.level?.id === 8 ? 'Play again' : 'Next temple'] }}</button>}
+            @else if(run?.status === 'lost') {<span class="symbol">♡</span><h2>{{ 'No moves left' | t }}</h2><button class="primary" (click)="start()" [disabled]="busy()">{{ 'Try again ↗' | t }}</button>}
+            @else {<span class="symbol">✦</span><h2>{{ (run ? 'Paused' : '2048 Temple') | t }}</h2><p>{{ 'Merge matching tiles to reach {0}.' | t: [level?.targetTile] }}</p><button class="primary" (click)="start()" [disabled]="busy()">{{ '{0} ↗' | t: [run ? 'Continue' : 'Let’s play'] }}</button>}
           </div></div>
         }
       </div>
       <div class="target"><small>{{ 'NEXT WONDER' | t }} <b>{{ (level?.targetTile ?? 128) | t }}</b></small><div><i [style.width.%]="progress"></i></div></div>
-      <div class="under"><span>{{ (busy() ? 'Saving…' : 'Every move saved') | t }}</span><span>{{ 'Best score {0}' | t: [data()?.progress?.bestScore ?? 0] }}</span></div>
+      
       <div class="directions" [attr.aria-label]="'Direction controls' | t"><button [attr.aria-label]="'Move left' | t" (click)="move('left')" [disabled]="!active()">←</button><button [attr.aria-label]="'Move up' | t" (click)="move('up')" [disabled]="!active()">↑</button><button [attr.aria-label]="'Move down' | t" (click)="move('down')" [disabled]="!active()">↓</button><button [attr.aria-label]="'Move right' | t" (click)="move('right')" [disabled]="!active()">→</button></div>
-      <p class="hint">{{ 'Arrow keys / WASD · Swipe to merge · Esc to pause' | t }}</p>
+      
     </section>
-  </main>
-</div>
+<div gameProgress><div><small>{{ 'Temple Points' | t }}</small><strong>{{ data()?.progress?.state?.templePoints ?? 0 }}</strong></div><div><small>{{ 'PERSONAL BEST' | t }}</small><strong>{{ data()?.progress?.bestScore ?? 0 }}</strong></div><div><small>{{ 'Level' | t }}</small><strong>{{ level?.id ?? 1 }}</strong></div><div><small>{{ 'Target' | t }}</small><strong>{{ level?.targetTile ?? 128 }}</strong></div></div>
+<div gameHelp><p><b aria-hidden="true">↑ ← ↓ →</b>{{ 'Arrow keys / WASD · Swipe to merge · Esc to pause' | t }}</p><p><b aria-hidden="true">2 + 2 → 4</b>{{ 'Merge equal tiles to reach the target.' | t }}</p></div>
+</app-game-shell>

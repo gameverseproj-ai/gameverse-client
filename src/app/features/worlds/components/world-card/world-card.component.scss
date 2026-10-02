@@ -1,20 +1,12 @@
-.world-card-link {
-  display: block;
-  text-decoration: none;
-
-  &:focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 4px;
-    border-radius: var(--radius-lg);
-  }
-}
-
-.world-card__desc {
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-  margin-top: var(--spacing-sm);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+.world-card-link { display: block; color: #fff; text-decoration: none; border: 1px solid #ffffff25; border-radius: 28px; overflow: hidden; background: #221b36; transition: transform .2s, border-color .2s; }
+.world-card-link:hover { transform: translateY(-5px); border-color: #edb4ff; }
+.world-card-link:focus-visible { outline: 3px solid #edb4ff; outline-offset: 5px; }
+.world-card__art { height: clamp(180px, 30vw, 320px); background: linear-gradient(0deg,#24163733,#24163700), url('/assets/gelly/ui/halls-panorama-v1.jpg') center / cover; position: relative; overflow: hidden; }
+.world-card__body { padding: 24px; }
+h2 { font-size: 24px; margin: 0 0 14px; }
+.world-card__action { display: flex; justify-content: space-between; color: #e9b9ee; font-size: 14px; }
+[data-world="neon-city"] .world-card__art { background: radial-gradient(ellipse at 70% 30%,#e935bc70,transparent 60%), linear-gradient(145deg,#111b4e,#451d57); }
+[data-world="neon-city"] .world-card__art span { position: absolute; inset: 25% 15% 0; background: repeating-linear-gradient(0deg,transparent 0 18px,#61e2ff80 19px 21px),repeating-linear-gradient(90deg,#171834 0 35px,#ed5ecb 36px 38px); clip-path: polygon(0 45%,20% 45%,20% 20%,40% 20%,40% 0,65% 0,65% 35%,85% 35%,85% 60%,100% 60%,100% 100%,0 100%); }
+[data-world="pixel-realm"] .world-card__art { background: linear-gradient(#4669a5,#c6a1bf); }
+[data-world="pixel-realm"] .world-card__art span { position: absolute; inset: 30% 0 0; background: repeating-linear-gradient(90deg,#426b4f 0 35px,#558450 35px 70px); clip-path: polygon(0 45%,15% 45%,15% 20%,35% 20%,35% 0,55% 0,55% 30%,75% 30%,75% 55%,100% 55%,100% 100%,0 100%); }
+@media(max-width:650px) { .world-card__art { height: 170px; } .world-card__body { padding: 18px 22px; } h2 { font-size: 22px; } }

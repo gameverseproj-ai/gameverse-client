@@ -5,7 +5,7 @@ import { exerciseSeconds } from './training-rig';
 @Component({selector:'app-power-training',standalone: true, imports: [TranslatePipe],template: `
  <div class="stage"><canvas #canvas [attr.aria-label]="'Three-dimensional exercise demonstration' | t"></canvas></div>
  @if (failed()) { <p role="alert">{{ 'The exercise preview needs WebGL. Please enable hardware acceleration.' | t }}</p> }
- `,styles:[`:host{display:block}.stage{position:relative;border-radius:16px;overflow:hidden;background:#e5e8df}canvas{display:block;width:100%;height:420px}@media(max-width:600px){canvas{height:330px}}`]})
+ `,styles:[`:host{display:block;height:100%;min-height:0}.stage{height:100%;position:relative;border-radius:16px;overflow:hidden;background:#e5e8df}canvas{display:block;width:100%;height:100%}`]})
 export class PowerTrainingComponent implements OnChanges,OnDestroy{
  @Input() exercise=0;@Input() pulse=0;@Input() repetition=0;
  readonly failed=signal(false);

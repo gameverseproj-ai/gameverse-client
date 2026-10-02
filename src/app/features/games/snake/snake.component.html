@@ -1,28 +1,6 @@
-<div class="snake-page gelly-game gelly-theme-snake" [class.active-run]="screen() === 'playing' || screen() === 'paused'">
-  <header class="topbar">
-    <a routerLink="/world" class="brand"><b>{{ 'g.' | t }}</b><span>{{ 'GELLY WORLD' | t }}<small>{{ 'A LITTLE WORLD OF PLAY' | t }}</small></span></a>
-    <a routerLink="/world" class="back">{{ '↖ Back to world' | t }}</a>
-  </header>
-  <main class="snake-layout">
-    <section class="intro"><app-hall-art theme="snake" />
-      <span class="eyebrow"><i></i>  {{ 'SNAKE HALL · NOW PLAYING' | t }}</span>
-      <h1>{{ 'A little snake.' | t }}<br> {{ 'A big' | t }} <em>{{ 'appetite.' | t }}</em></h1>
-      <p class="lead">{{ 'A delicious little tour of Gelly World.' | t }}<br>{{ 'Collect tiny wonders. Grow your glow.' | t }}</p>
-      <div class="wallet"><span class="point-icon">✦</span><div><small>{{ 'YOUR SNAKE POINTS' | t }}</small><strong>{{ (data()?.progress?.state?.snakePoints ?? 0) | t }}</strong></div><span class="wallet-note">{{ 'A little more' | t }}<br>{{ 'with every bite.' | t }}</span></div>
-      <div class="journey">
-        <div class="section-title"><span>{{ 'YOUR JOURNEY' | t }}</span><span>{{ '{0} cleared' | t: [data()?.progress?.state?.completedLevels ?? 0] }}</span></div>
-        @for (level of data()?.settings?.rules?.levels ?? []; track level.id; let first = $first) {
-          <div class="level-row" [class.current]="first">
-            <span class="level-number">{{ (first ? '✦' : level.id) | t }}</span>
-            <div><strong>{{ (level.name) | t }}</strong><small>{{ 'Pace {0} · Grow to {1} cells' | t: [level.id, level.winLength] }}</small></div>
-            <span class="level-lock">{{ (first ? 'UP NEXT' : 'LOCKED') | t }}</span>
-          </div>
-        }
-      </div>
-      <p class="one-life">{{ '♡ One life. Make it a lovely one.' | t }}<br><span>{{ 'Keep growing without resets. Your own body becomes the obstacle. Fill a quarter of the garden to win.' | t }}</span></p>
-    </section>
-    <section class="play-section" [attr.aria-label]="'Jelly Snake game' | t">
-      <div class="board-heading"><div><span class="eyebrow">{{ 'THE JELLY GARDEN' | t }}</span><h2>{{ 'Pace {0}' | t: [levelNumber] }}</h2></div><div class="board-tools"><span class="life" [attr.aria-label]="(screen() === 'lost' ? 'No lives remaining' : 'One life') | t">{{ (screen() === 'lost' ? '♡' : '♥') | t }}<small>{{ (screen() === 'lost' ? 0 : 1) | t }}</small></span><button (click)="toggleSound()" [disabled]="settingsBusy() || !data() || screen() === 'saving'" [attr.aria-pressed]="sound()" [attr.aria-label]="'Sound effects' | t">{{ (sound() ? '♫' : '♪') | t }}</button><button (click)="screen() === 'paused' ? resume() : pause()" [disabled]="screen() !== 'playing' && screen() !== 'paused'" [attr.aria-label]="'Pause or resume' | t">{{ (screen() === 'paused' ? '▶' : 'Ⅱ') | t }}</button></div></div>
+<app-game-shell gameId="snake" title="Snake Hall" (pageChange)="changePage($event)">
+<section gamePlay class="play-section" [attr.aria-label]="'Jelly Snake game' | t">
+      <div class="board-heading"><div><h2>{{ 'Pace {0}' | t: [levelNumber] }}</h2></div><div class="board-tools"><span class="life" [attr.aria-label]="(screen() === 'lost' ? 'No lives remaining' : 'One life') | t">{{ (screen() === 'lost' ? '♡' : '♥') | t }}<small>{{ (screen() === 'lost' ? 0 : 1) | t }}</small></span><button (click)="toggleSound()" [disabled]="settingsBusy() || !data() || screen() === 'saving'" [attr.aria-pressed]="sound()" [attr.aria-label]="'Sound effects' | t">{{ (sound() ? '♫' : '♪') | t }}</button><button (click)="screen() === 'paused' ? resume() : pause()" [disabled]="screen() !== 'playing' && screen() !== 'paused'" [attr.aria-label]="'Pause or resume' | t">{{ (screen() === 'paused' ? '▶' : 'Ⅱ') | t }}</button></div></div>
       <div class="board-shell">
         <canvas #board tabindex="0" [attr.aria-label]="'Jelly Snake board. Use arrow keys or WASD to turn, Space to pause, or swipe on the board.' | t"
           (pointerdown)="pointerDown($event)" (pointermove)="pointerMove($event)" (pointerup)="pointerEnd($event)" (pointercancel)="pointerEnd($event)" (lostpointercapture)="pointerEnd($event)"></canvas>
@@ -33,27 +11,27 @@
           <div class="board-overlay" aria-live="polite">
             <div class="overlay-card">
               @if (error()) {
-                <span class="overlay-symbol">☁</span><h2>{{ 'A little hiccup' | t }}</h2><p>{{ (error()) | t }}</p><button class="primary" (click)="retry()">{{ 'Try again ↗' | t }}</button>
+                <span class="overlay-symbol">☁</span><h2>{{ 'Connection error' | t }}</h2><p>{{ (error()) | t }}</p><button class="primary" (click)="retry()">{{ 'Try again ↗' | t }}</button>
               } @else if (screen() === 'loading' || screen() === 'starting' || screen() === 'saving') {
-                <span class="overlay-symbol pulse">✦</span><h2>{{ (screen() === 'saving' ? 'Saving your little wins…' : 'Gathering the jelly…') | t }}</h2><p>{{ (screen() === 'saving' ? 'Your points and progress are being saved.' : 'Getting your garden ready.') | t }}</p>
+                <span class="overlay-symbol pulse">✦</span><h2>{{ (screen() === 'saving' ? 'Saving…' : 'Loading…') | t }}</h2>
               } @else if (screen() === 'paused') {
-                <span class="overlay-symbol">☾</span><h2>{{ 'A tiny breather.' | t }}</h2><p>{{ 'Your garden can wait.' | t }}</p><button class="primary" (click)="resume()">{{ 'Keep going ↗' | t }}</button>
+                <span class="overlay-symbol">☾</span><h2>{{ 'Paused' | t }}</h2><button class="primary" (click)="resume()">{{ 'Keep going ↗' | t }}</button>
               } @else if (screen() === 'lost' || screen() === 'won') {
-                <span class="overlay-symbol">{{ (screen() === 'won' ? '✦' : '♡') | t }}</span><h2>{{ (screen() === 'won' ? 'Deliciously done!' : 'That was a lovely run.') | t }}</h2><p>{{ (screen() === 'won' ? 'Your jelly fills a quarter of the garden!'  : 'One life. Watch the walls and your growing tail.') | t }}</p>
+                <span class="overlay-symbol">{{ (screen() === 'won' ? '✦' : '♡') | t }}</span><h2>{{ (screen() === 'won' ? 'Level complete' : 'Run complete') | t }}</h2>
                 @if (receipt(); as result) {<div class="earned">{{ '+{0}' | t: [displayedReward()] }}<small>{{ 'Snake Points' | t }}</small></div><p class="saved">{{ 'Saved · Balance {0}' | t: [result.balance] }}@if (result.bonus) { {{ '· Level bonus +{0}' | t: [result.bonus] }}}</p>}
                 <button class="primary" (click)="start()" [disabled]="settingsBusy()">{{ '{0} ↗' | t: [screen() === 'won' ? 'Next challenge' : 'Play again'] }}</button>
               } @else {
-                <span class="overlay-symbol">✦</span><span class="eyebrow">{{ 'SMALL BITES. BIG ADVENTURE.' | t }}</span><h2>{{ 'Ready, little jelly?' | t }}</h2><p>{{ 'Grow to {0} cells — a quarter of the garden.' | t: [target] }}<br>{{ 'No short rounds. Stay off your growing tail.' | t }}</p><button class="primary" (click)="start()" [disabled]="settingsBusy()">{{ 'Let’s play' | t }} <span>↗</span></button><small>{{ 'Arrow keys / WASD · Swipe to steer' | t }}</small>
+                <span class="overlay-symbol">✦</span><h2>{{ 'Snake Hall' | t }}</h2><p>{{ 'Grow to {0} cells — a quarter of the garden.' | t: [target] }}</p><button class="primary" (click)="start()" [disabled]="settingsBusy()">{{ 'Let’s play' | t }} <span>↗</span></button>
               }
             </div>
           </div>
         }
       </div>
       <div class="run-stats"><div><small>{{ 'THIS RUN' | t }}</small><strong>{{ (score()) | t }}<span>{{ 'SP' | t }}</span></strong></div><div class="collect-progress"><small>{{ 'SNAKE LENGTH' | t }} <b>{{ '{0} / {1}' | t: [snakeLength, target] }}</b></small><div class="progress-track"><i [style.width.%]="snakeLength / target * 100"></i></div></div><div><small>{{ 'PERSONAL BEST' | t }}</small><strong>{{ (data()?.progress?.bestScore ?? 0) | t }}</strong></div></div>
-      <div class="under-board"><span>{{ '← ↑ ↓ → to turn · Space to pause' | t }}</span><span>{{ 'Progress saved after each run' | t }}</span></div>
+      
       @if (settingsMessage()) {<p role="status">{{ (settingsMessage()) | t }}</p>}
       <div class="dpad" [attr.aria-label]="'Touch direction controls' | t"><button (pointerdown)="steer('UP'); $event.preventDefault()" (click)="steer('UP')" [attr.aria-label]="'Turn up' | t">↑</button><div><button (pointerdown)="steer('LEFT'); $event.preventDefault()" (click)="steer('LEFT')" [attr.aria-label]="'Turn left' | t">←</button><button (pointerdown)="steer('DOWN'); $event.preventDefault()" (click)="steer('DOWN')" [attr.aria-label]="'Turn down' | t">↓</button><button (pointerdown)="steer('RIGHT'); $event.preventDefault()" (click)="steer('RIGHT')" [attr.aria-label]="'Turn right' | t">→</button></div></div>
     </section>
-    <footer class="collectibles"><span class="eyebrow">{{ 'A WORLD WORTH GOBBLING' | t }}</span><div>@for (item of data()?.settings?.rules?.items ?? []; track item.id) {<span><b>{{ (item.id === 'crystal' ? '◆' : item.id === 'tree' ? '♣' : item.id === 'island' ? '☁' : '⌂') | t }}</b>{{ (item.name) | t }}<small>{{ '+{0} SP' | t: [item.points] }}</small></span>}</div></footer>
-  </main>
-</div>
+<div gameProgress><div><small>{{ 'Snake Points' | t }}</small><strong>{{ data()?.progress?.state?.snakePoints ?? 0 }}</strong></div><div><small>{{ 'PERSONAL BEST' | t }}</small><strong>{{ data()?.progress?.bestScore ?? 0 }}</strong></div><div><small>{{ 'SNAKE LENGTH' | t }}</small><strong>{{ snakeLength }}</strong></div><div><small>{{ 'Pace' | t }}</small><strong>{{ levelNumber }}</strong></div></div>
+<div gameHelp><p><b aria-hidden="true">↑ ← ↓ →</b>{{ 'Arrow keys / WASD · Swipe to steer' | t }}</p><p><b aria-hidden="true">◆</b>{{ 'Collect items. Avoid walls and the tail.' | t }}</p></div>
+</app-game-shell>

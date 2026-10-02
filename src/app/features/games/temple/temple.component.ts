@@ -1,14 +1,16 @@
-import { HallArtComponent } from '../../../shared/components/hall-art/hall-art.component';
+import { GameShellComponent, GamePage } from '../../../shared/components/game-shell/game-shell.component';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Component, ElementRef, HostListener, OnDestroy, afterNextRender, inject, signal, viewChild } from '@angular/core';
 import { slide } from './temple-engine';
-import { RouterLink } from '@angular/router';
 import { Observable, Subscription, take, timeout } from 'rxjs';
 import { TEMPLE_API } from '../../../core/api/temple.api';
 import { GameFacade } from '../../../core/facades/game.facade';
 import { TempleBootstrap, TempleDirection } from '../../../core/models/temple.model';
-@Component({selector:'app-temple',standalone:true,imports: [HallArtComponent, TranslatePipe, RouterLink],templateUrl:'./temple.component.html',styleUrl:'./temple.component.scss'})
+@Component({selector:'app-temple',standalone:true,imports: [GameShellComponent, TranslatePipe],templateUrl:'./temple.component.html',styleUrl:'./temple.component.scss'})
 export class TempleComponent implements OnDestroy {
+  readonly gamePage = signal<GamePage>('play');
+  changePage(page: GamePage): void { this.gamePage.set(page); if (page !== 'play') this.pause(); }
+
   private readonly api=inject(TEMPLE_API);
   private readonly games=inject(GameFacade);
   private readonly board=viewChild<ElementRef<HTMLElement>>('board');
@@ -63,6 +65,7 @@ export class TempleComponent implements OnDestroy {
     this.send(()=>this.api.move(request));
   }
   @HostListener('window:keydown',['$event']) key(event:KeyboardEvent):void {
+    if(this.gamePage() !== 'play')return;
     if((event.target as HTMLElement)?.closest('input,textarea,select,a'))return;
     const directions:Record<string,TempleDirection>={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};
     if(directions[event.code]&&this.active()){event.preventDefault();if(!event.repeat)this.move(directions[event.code]);}
