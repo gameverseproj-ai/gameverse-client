@@ -1,28 +1,26 @@
-@if (compact()) {
-  <button type="button" class="language-trigger" [attr.aria-expanded]="expanded()" [attr.aria-label]="('Language' | t) + ': ' + current().name" (click)="expanded.set(!expanded())">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>
-    <bdi [attr.lang]="current().code">{{ current().name }}</bdi>
-    <span class="chevron" [class.expanded]="expanded()" aria-hidden="true">⌄</span>
-  </button>
-}
-@if (!compact() || expanded()) {
-  <section class="language-picker" [attr.aria-label]="'Language' | t" [attr.aria-busy]="locale.busy()">
-    <div class="language-heading">
-      <span>{{ 'Language' | t }}</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>
-    </div>
-    <div class="language-options" role="group" [attr.aria-label]="'Language' | t">
-      @for (language of languages; track language.code) {
-        <button type="button" class="language-option" [attr.aria-pressed]="language.code === locale.language()" [disabled]="locale.busy()" (click)="select(language.code)">
-          <span class="language-code" aria-hidden="true">{{ language.code }}</span>
-          <bdi class="language-name" [attr.lang]="language.code" [attr.dir]="language.dir">{{ language.name }}</bdi>
-          <span class="selected-mark" aria-hidden="true">✓</span>
-        </button>
-      }
-    </div>
-    @if (locale.busy()) { <div class="language-status" role="status">{{ 'Loading…' | t }}</div> }
-    @if (locale.error()) {
-      <div class="language-error" role="alert">{{ locale.error() | t }} <button type="button" (click)="locale.load()">{{ 'Try again' | t }}</button></div>
+<button type="button" class="language-trigger" role="combobox" aria-haspopup="listbox"
+  [attr.aria-expanded]="expanded()" [attr.aria-controls]="expanded() ? listId : null"
+  [attr.aria-activedescendant]="expanded() ? listId + '-' + active() : null"
+  [attr.aria-label]="'Language' | t" [attr.aria-busy]="locale.busy()" [attr.aria-disabled]="locale.busy()"
+  (click)="toggle()" (keydown)="keydown($event)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>
+  <bdi [attr.lang]="current().code">{{ current().name }}</bdi>
+  <svg class="chevron" [class.expanded]="expanded()" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg>
+</button>
+@if (expanded()) {
+  <div class="language-menu">
+  <div class="language-options" role="listbox" [id]="listId" [attr.aria-label]="'Language' | t">
+    @for (language of languages; track language.code; let i = $index) {
+      <button type="button" role="option" tabindex="-1" class="language-option" [id]="listId + '-' + i"
+        [attr.aria-selected]="language.code === locale.language()" [class.active]="active() === i"
+        (pointerenter)="active.set(i)" (mousedown)="$event.preventDefault()" (click)="select(language.code)">
+        <bdi [attr.lang]="language.code" [attr.dir]="language.dir">{{ language.name }}</bdi>
+        <span class="selected-mark" aria-hidden="true">✓</span>
+      </button>
     }
-  </section>
+  </div>
+  </div>
+}
+@if (locale.error()) {
+  <div class="language-error" role="alert">{{ locale.error() | t }} <button type="button" (click)="locale.load()">{{ 'Try again' | t }}</button></div>
 }
