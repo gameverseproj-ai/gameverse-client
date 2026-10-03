@@ -17,6 +17,7 @@ export interface WorldThemeGround {
   readonly emissiveIntensity?: number;
   readonly size: number;
   readonly gridDivisions: number;
+  readonly gridOpacity?: number;
   readonly gridColor1: number;
   readonly gridColor2: number;
 }
@@ -30,6 +31,7 @@ export interface WorldThemeHemisphereLight {
 export interface WorldTheme {
   readonly id: string;
   readonly worldId: string;
+  readonly sky?: { top: number; middle: number; bottom: number; haze: number; clouds?: boolean };
   readonly clearColor: number;
   readonly fogColor: number;
   readonly fogDensity: number;

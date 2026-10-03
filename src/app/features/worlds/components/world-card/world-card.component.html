@@ -1,7 +1,7 @@
 <a [routerLink]="world().id === 'gelly' ? ['/world'] : ['/worlds', world().id]" class="world-card-link" [attr.data-world]="world().id">
   <div class="world-card__art" aria-hidden="true"><span></span></div>
   <div class="world-card__body">
-    <h2>{{ world().name | t }}</h2>
-    <span class="world-card__action">{{ (world().id === 'gelly' ? 'Enter World' : 'Coming soon') | t }} <span aria-hidden="true">↗</span></span>
+    <h2>{{ (world().id === 'neon-city' ? 'Neon World' : world().name) | t }}</h2>
+    <span class="world-card__action">{{ ((world().id === 'gelly' || world().id === 'neon-city') ? 'Enter World' : 'Coming soon') | t }} <span aria-hidden="true">↗</span></span>
   </div>
 </a>

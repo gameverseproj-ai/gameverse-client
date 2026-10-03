@@ -1,0 +1,28 @@
+@if (compact()) {
+  <button type="button" class="language-trigger" [attr.aria-expanded]="expanded()" [attr.aria-label]="('Language' | t) + ': ' + current().name" (click)="expanded.set(!expanded())">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>
+    <bdi [attr.lang]="current().code">{{ current().name }}</bdi>
+    <span class="chevron" [class.expanded]="expanded()" aria-hidden="true">⌄</span>
+  </button>
+}
+@if (!compact() || expanded()) {
+  <section class="language-picker" [attr.aria-label]="'Language' | t" [attr.aria-busy]="locale.busy()">
+    <div class="language-heading">
+      <span>{{ 'Language' | t }}</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>
+    </div>
+    <div class="language-options" role="group" [attr.aria-label]="'Language' | t">
+      @for (language of languages; track language.code) {
+        <button type="button" class="language-option" [attr.aria-pressed]="language.code === locale.language()" [disabled]="locale.busy()" (click)="select(language.code)">
+          <span class="language-code" aria-hidden="true">{{ language.code }}</span>
+          <bdi class="language-name" [attr.lang]="language.code" [attr.dir]="language.dir">{{ language.name }}</bdi>
+          <span class="selected-mark" aria-hidden="true">✓</span>
+        </button>
+      }
+    </div>
+    @if (locale.busy()) { <div class="language-status" role="status">{{ 'Loading…' | t }}</div> }
+    @if (locale.error()) {
+      <div class="language-error" role="alert">{{ locale.error() | t }} <button type="button" (click)="locale.load()">{{ 'Try again' | t }}</button></div>
+    }
+  </section>
+}

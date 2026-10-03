@@ -1,4 +1,4 @@
-<div class="world-container" [class.mobile-controls]="mobileControls()" #worldContainer
+<div class="world-container" [class.neon-world]="isNeon" [class.mobile-controls]="mobileControls()" #worldContainer
   (pointerdown)="onPointerDown($event)"
   (pointermove)="onPointerMove($event)"
   (pointerup)="onPointerEnd($event)"
@@ -7,7 +7,7 @@
   (contextmenu)="$event.preventDefault()"
 >
   <a class="world-back" routerLink="/worlds" [attr.aria-label]="'Worlds' | t"><span aria-hidden="true">←</span> {{ 'Worlds' | t }}</a>
-  <canvas #canvas class="world-canvas" [attr.aria-label]="'Gelly World, a 3D playground. Use W and S to move, A and D to turn, Space to jump and Q to wave.' | t"></canvas>
+  <canvas #canvas class="world-canvas" [attr.aria-label]="(isNeon ? 'Neon World' : 'Gelly World, a 3D playground. Use W and S to move, A and D to turn, Space to jump and Q to wave.') | t"></canvas>
   @if (enteringPortal()) {
     <div class="entry-feedback" aria-live="polite">
       <span>{{ (entryError() ? 'Could not load your game.' : 'Preparing ' + enteringPortal()!.name + '…') | t }}</span>
@@ -21,10 +21,14 @@
 
   <!-- Interaction prompt — shown when player is near a building -->
   @if (nearbyPortal(); as portal) {
+    @if (portal.available === false) {
+      <div class="interaction-prompt portal-unavailable" role="status"><span aria-hidden="true">◇</span> {{ 'Coming soon' | t }}</div>
+    } @else {
     <button type="button" class="interaction-prompt" (click)="enterPortal()">
       <kbd>{{ 'E' | t }}</kbd>
       <span>{{ 'Enter {0}' | t: [portal.name] }}</span>
     </button>
+    }
   }
 
   <!-- A fixed mobile stick; all other scene touches control the camera. -->

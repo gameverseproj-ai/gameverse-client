@@ -197,7 +197,7 @@ export class GellyWorldScene {
     grid.position.y = 0.02;
     const gridMat = grid.material as THREE.LineBasicMaterial;
     gridMat.transparent = true;
-    gridMat.opacity = 0.015;
+    gridMat.opacity = ground.gridOpacity ?? 0.015;
     this.endlessGround.add(grid);
 
     const ring = new THREE.Mesh(
@@ -278,10 +278,11 @@ export class GellyWorldScene {
       side: THREE.BackSide,
       depthWrite: false,
       uniforms: {
-        topColor:  { value: new THREE.Color(0x2D4DCC) },  // Deep blue zenith — Art Bible
-        midColor:  { value: new THREE.Color(0x3935a0) },  // Violet mid-sky
-        botColor:  { value: new THREE.Color(0xe18bcb) },  // Warm pink horizon
-        hazeColor: { value: new THREE.Color(0xeeafd6) },  // Soft lower haze
+        cloudStrength: { value: this.theme.sky?.clouds === false ? 0 : 1 },
+        topColor:  { value: new THREE.Color(this.theme.sky?.top ?? 0x2D4DCC) },  // Deep blue zenith — Art Bible
+        midColor:  { value: new THREE.Color(this.theme.sky?.middle ?? 0x3935a0) },  // Violet mid-sky
+        botColor:  { value: new THREE.Color(this.theme.sky?.bottom ?? 0xe18bcb) },  // Warm pink horizon
+        hazeColor: { value: new THREE.Color(this.theme.sky?.haze ?? 0xeeafd6) },  // Soft lower haze
       },
       vertexShader: `
         varying vec3 vDirection;
@@ -291,6 +292,7 @@ export class GellyWorldScene {
         }
       `,
       fragmentShader: `
+        uniform float cloudStrength;
         uniform vec3 topColor;
         uniform vec3 midColor;
         uniform vec3 botColor;
@@ -307,7 +309,7 @@ export class GellyWorldScene {
           float cloudLine = .085 + .045 * sin(azimuth * 9.) + .022 * sin(azimuth * 23.);
           float clouds = exp(-pow((direction.y - cloudLine) / .045, 2.));
           clouds *= .5 + .5 * sin(azimuth * 6. + .7);
-          col = mix(col, vec3(.64, .28, .65), clouds * .58);
+          col = mix(col, vec3(.64, .28, .65), clouds * .58 * cloudStrength);
           gl_FragColor = vec4(col, 1.0);
         }
       `,
@@ -427,7 +429,7 @@ export class GellyWorldScene {
       if (dist < minDist) { minDist = dist; nearest = portal; }
     }
 
-    if (nearest && minDist < ENTRY_RADIUS && this.player.position.z >= nearest.position[2] + nearest.scale[2] / 2) {
+    if (nearest && nearest.available !== false && minDist < ENTRY_RADIUS && this.player.position.z >= nearest.position[2] + nearest.scale[2] / 2) {
       this.beginEntry(nearest);
       return;
     }
@@ -504,7 +506,7 @@ export class GellyWorldScene {
   }
 
   private beginEntry(portal: GamePortal): void {
-    if (this.entry) return;
+    if (this.entry || portal.available === false) return;
     const door = new THREE.Vector3(portal.position[0], 1.65, portal.position[2] + portal.scale[2] / 2 + .4);
     // Show the whole animation even when approaching in first person.
     this.cameraController.setMode('third-person');

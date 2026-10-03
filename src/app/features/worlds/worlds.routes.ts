@@ -6,6 +6,7 @@ export const WORLDS_ROUTES: Routes = [
     loadComponent: () =>
       import('./worlds.component').then((m) => m.WorldsComponent),
   },
+  { path: 'neon-city', data: { world: 'neon' }, loadComponent: () => import('../world/gelly-world.component').then(m => m.GellyWorldComponent) },
   { path: 'gelly', redirectTo: '/world', pathMatch: 'full' },
   {
     path: ':id',

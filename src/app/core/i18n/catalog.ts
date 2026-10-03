@@ -1,5 +1,6 @@
 // English source messages and their translations. Parameters use {0}, {1}, etc.
 export const CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
+  "Neon World": { ru: "Неоновый мир", he: "עולם הניאון", ar: "عالم النيون" },
   "Progress": {"ru": "Прогресс", "he": "התקדמות", "ar": "التقدم"},
   "How to play": {"ru": "Правила", "he": "איך משחקים", "ar": "طريقة اللعب"},
   "Paused": {"ru": "Пауза", "he": "מושהה", "ar": "متوقف مؤقتًا"},

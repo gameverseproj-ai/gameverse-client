@@ -11,6 +11,7 @@ const CHANNELS: Record<Instrument, ChannelSpec> = {
   hat:     {gain: .7,  pan: -.22, reverb: .08, delay: 0},
   openhat: {gain: .6,  pan: .25,  reverb: .12, delay: 0},
   crash:   {gain: .8,  pan: 0,    reverb: .3,  delay: 0},
+  riser:   {gain: .5,  pan: 0,    reverb: .4,  delay: 0},
   bass:    {gain: .95, pan: 0,    reverb: .02, delay: 0,   duck: true},
   guitar:  {gain: .8,  pan: -.12, reverb: .12, delay: .08},
   keys:    {gain: .75, pan: .18,  reverb: .18, delay: .1,  duck: true},
@@ -163,6 +164,8 @@ export class MusicPlayer {
     const sources: AudioScheduledSourceNode[] = [];
     const nodes: AudioNode[] = [];
     let stopAt = end + .05;
+    // A note's brightness scales its filter cutoff, so sections can open up.
+    const cutoff = (base: number): number => note.brightness === undefined ? base : base * (.5 + note.brightness);
 
     const envelope = (peak: number, to: number, attack = .005): GainNode => {
       const gain = ctx.createGain();
@@ -215,12 +218,27 @@ export class MusicPlayer {
         stopAt = end + .1;
         break;
       }
+      case 'riser': {
+        // White-noise sweep into the next section: filter and level climb together.
+        const source = ctx.createBufferSource(); source.buffer = this.noiseBuffer(ctx);
+        const filter = ctx.createBiquadFilter(); filter.type = 'bandpass'; filter.Q.value = 1.2;
+        filter.frequency.setValueAtTime(350, start);
+        filter.frequency.exponentialRampToValueAtTime(6500, end);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(.001, start);
+        gain.gain.exponentialRampToValueAtTime(velocity, end - .05);
+        gain.gain.linearRampToValueAtTime(0, end);
+        nodes.push(filter, gain); sources.push(source);
+        source.connect(filter); filter.connect(gain); gain.connect(channel.input);
+        stopAt = end + .02;
+        break;
+      }
       case 'bass': {
         const main = osc('sawtooth', frequency);
         const sub = osc('square', frequency / 2);
         const subGain = ctx.createGain(); subGain.gain.value = .5; nodes.push(subGain);
         const filter = ctx.createBiquadFilter(); filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(this.genre === 'trance' ? 950 : 1050, start);
+        filter.frequency.setValueAtTime(cutoff(this.genre === 'trance' ? 950 : 1050), start);
         filter.frequency.exponentialRampToValueAtTime(160, end);
         nodes.push(filter);
         const gain = envelope(velocity, end);
@@ -233,37 +251,50 @@ export class MusicPlayer {
         break;
       }
       case 'guitar': {
-        const one = osc('sawtooth', frequency, -6), two = osc('sawtooth', frequency, 6);
-        const gain = envelope(velocity, end);
         if (this.genre === 'metal') {
-          // Distorted rhythm guitar; short palm-muted chugs get a darker cab.
-          const pre = ctx.createGain(); pre.gain.value = .8;
-          const shaper = ctx.createWaveShaper(); shaper.curve = this.driveCurve();
-          const low = ctx.createBiquadFilter(); low.type = 'highpass'; low.frequency.value = 95;
-          const cab = ctx.createBiquadFilter(); cab.type = 'lowpass'; cab.frequency.value = note.duration <= .1 ? 1000 : 3400;
-          nodes.push(pre, shaper, low, cab);
-          one.connect(pre); two.connect(pre); pre.connect(shaper); shaper.connect(low); low.connect(cab); cab.connect(gain);
+          // Double-tracked distorted rhythm guitar: two takes panned hard left
+          // and right, each with its own drive chain; palm-muted chugs (short
+          // notes) get a darker cab. This is what makes the wall of sound wide.
+          for (const [side, detune, lag] of [[-.65, -7, 0], [.65, 7, .009]] as const) {
+            const voice = ctx.createOscillator();
+            voice.type = 'sawtooth'; voice.frequency.setValueAtTime(frequency, start); voice.detune.value = detune;
+            sources.push(voice);
+            const pre = ctx.createGain(); pre.gain.value = .8;
+            const shaper = ctx.createWaveShaper(); shaper.curve = this.driveCurve();
+            const low = ctx.createBiquadFilter(); low.type = 'highpass'; low.frequency.value = 95;
+            const cab = ctx.createBiquadFilter(); cab.type = 'lowpass'; cab.frequency.value = cutoff(note.duration <= .1 ? 1000 : 3400);
+            const pan = new StereoPannerNode(ctx, {pan: side});
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0, start + lag);
+            gain.gain.linearRampToValueAtTime(velocity, start + lag + .005);
+            gain.gain.exponentialRampToValueAtTime(.0001, end + lag);
+            nodes.push(pre, shaper, low, cab, pan, gain);
+            voice.connect(pre); pre.connect(shaper); shaper.connect(low); low.connect(cab); cab.connect(gain); gain.connect(pan); pan.connect(channel.input);
+          }
+          stopAt = end + .06;
         } else {
+          const one = osc('sawtooth', frequency, -6), two = osc('sawtooth', frequency, 6);
+          const gain = envelope(velocity, end);
           const filter = ctx.createBiquadFilter(); filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(1900, start);
+          filter.frequency.setValueAtTime(cutoff(1900), start);
           filter.frequency.exponentialRampToValueAtTime(350, end);
           nodes.push(filter);
           one.connect(filter); two.connect(filter); filter.connect(gain);
+          gain.connect(channel.input);
         }
-        gain.connect(channel.input);
         break;
       }
       case 'keys': {
         const main = osc('triangle', frequency), shimmer = osc('sawtooth', frequency, -12);
         const shimmerGain = ctx.createGain(); shimmerGain.gain.value = .35; nodes.push(shimmerGain);
-        const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 2600; nodes.push(filter);
+        const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = cutoff(2600); nodes.push(filter);
         const gain = envelope(velocity, end);
         main.connect(filter); shimmer.connect(shimmerGain); shimmerGain.connect(filter); filter.connect(gain); gain.connect(channel.input);
         break;
       }
       case 'pad': {
         // Supersaw: four detuned saws with a slow swell, heavily reverberated.
-        const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1150; nodes.push(filter);
+        const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = cutoff(1150); nodes.push(filter);
         const gain = envelope(velocity, end, .3);
         for (const cents of [-11, -4, 4, 11]) {
           const voice = osc('sawtooth', frequency, cents);
@@ -277,7 +308,7 @@ export class MusicPlayer {
       case 'lead': {
         const main = osc('sawtooth', frequency), octave = osc('square', frequency, -7);
         const octaveGain = ctx.createGain(); octaveGain.gain.value = .4; nodes.push(octaveGain);
-        const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 3000; nodes.push(filter);
+        const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = cutoff(3000); nodes.push(filter);
         const vibrato = osc('sine', 5.4);
         const depth = ctx.createGain(); depth.gain.value = 7; nodes.push(depth);
         vibrato.connect(depth); depth.connect(main.detune); depth.connect(octave.detune);

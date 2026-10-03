@@ -5,8 +5,10 @@
 .world-card__body { padding: 24px; }
 h2 { font-size: 24px; margin: 0 0 14px; }
 .world-card__action { display: flex; justify-content: space-between; color: #e9b9ee; font-size: 14px; }
-[data-world="neon-city"] .world-card__art { background: radial-gradient(ellipse at 70% 30%,#e935bc70,transparent 60%), linear-gradient(145deg,#111b4e,#451d57); }
-[data-world="neon-city"] .world-card__art span { position: absolute; inset: 25% 15% 0; background: repeating-linear-gradient(0deg,transparent 0 18px,#61e2ff80 19px 21px),repeating-linear-gradient(90deg,#171834 0 35px,#ed5ecb 36px 38px); clip-path: polygon(0 45%,20% 45%,20% 20%,40% 20%,40% 0,65% 0,65% 35%,85% 35%,85% 60%,100% 60%,100% 100%,0 100%); }
+[data-world="neon-city"] .world-card__art { background: radial-gradient(ellipse at 70% 30%,#26dfff35,transparent 60%), linear-gradient(145deg,#0b152f,#234358); }
+[data-world="neon-city"] .world-card__art span { position: absolute; width: 100px; height: 42px; left: 25%; top: 48%; background: linear-gradient(#74f3df 0 15%,#697ab5 16% 55%,#425b8c); clip-path: polygon(0 15%,50% 0,100% 15%,80% 65%,50% 100%,20% 65%); filter: drop-shadow(0 0 12px #72ffff); box-shadow: none; transform: rotate(-5deg); }
+[data-world="neon-city"] .world-card__art::before { content: ''; position: absolute; left: calc(25% + 25px); top: calc(48% - 36px); width: 48px; height: 42px; background: linear-gradient(135deg,#6af4ed 0 40%,#bab4eb 41% 70%,#ffeeac 71% 82%,#bab4eb 83%); clip-path: polygon(50% 0,100% 40%,85% 40%,85% 100%,15% 100%,15% 40%,0 40%); }
+[data-world="neon-city"] .world-card__art::after { content: ''; position: absolute; width: 74px; height: 35px; right: 18%; top: 30%; border-top: 5px solid #83ffe9; background: #728abf; clip-path: polygon(0 0,100% 0,75% 75%,50% 100%,25% 75%); transform: rotate(8deg); }
 [data-world="pixel-realm"] .world-card__art { background: linear-gradient(#4669a5,#c6a1bf); }
 [data-world="pixel-realm"] .world-card__art span { position: absolute; inset: 30% 0 0; background: repeating-linear-gradient(90deg,#426b4f 0 35px,#558450 35px 70px); clip-path: polygon(0 45%,15% 45%,15% 20%,35% 20%,35% 0,55% 0,55% 30%,75% 30%,75% 55%,100% 55%,100% 100%,0 100%); }
 @media(max-width:650px) { .world-card__art { height: 170px; } .world-card__body { padding: 18px 22px; } h2 { font-size: 22px; } }

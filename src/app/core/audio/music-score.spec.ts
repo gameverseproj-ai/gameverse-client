@@ -1,7 +1,7 @@
 import { MusicGenre } from '../models/music.model';
 import { Instrument, LOOP_STEPS, MUSIC_TRACKS, musicStep } from './music-score';
 
-const INSTRUMENTS: Instrument[] = ['kick', 'snare', 'hat', 'openhat', 'crash', 'bass', 'guitar', 'keys', 'pad', 'lead'];
+const INSTRUMENTS: Instrument[] = ['kick', 'snare', 'hat', 'openhat', 'crash', 'riser', 'bass', 'guitar', 'keys', 'pad', 'lead'];
 
 describe('music score', () => {
   const genres = Object.keys(MUSIC_TRACKS) as MusicGenre[];

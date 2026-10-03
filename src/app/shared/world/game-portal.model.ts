@@ -3,6 +3,7 @@ import * as THREE from 'three';
 export interface GamePortal {
   readonly id: string;
   readonly name: string;
+  readonly available?: boolean;
   readonly route: string;
   readonly position: [number, number, number];
   /** [width, height, depth] — used for label placement and proximity radius */

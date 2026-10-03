@@ -174,3 +174,15 @@ a:focus-visible, button:focus-visible { outline: 3px solid #ffd1ef; outline-offs
 .mobile-controls .controls-hint{display:none}.mobile-controls .hero-actions kbd{display:none}
 
 .world-back { position: absolute; z-index: 6; top: max(16px, env(safe-area-inset-top)); left: max(16px, env(safe-area-inset-left)); min-height: 48px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding: 0 16px; border-radius: 24px; border: 1px solid #ffffff35; background: #251d40b8; backdrop-filter: blur(16px); color: #fff; text-decoration: none; font-size: 14px; }
+
+.neon-world {
+  background: #030713;
+  .world-back, .hero-actions button { background: #091a2de0; border-color: #49eaff55; border-radius: 12px; }
+  .hero-actions span { color: #64f7ff; }
+  .camera-modes button[aria-pressed="true"] { background: #145066; border-color: #64f7ff; }
+  .joystick-ring { background: #35efff14; border-color: #35efff88; }
+  .joystick-knob { background: #167f9cbb; box-shadow: 0 0 18px #35efff55; }
+  .interaction-prompt { border-color: #4af4ff88; background: #071727eb; }
+  .portal-unavailable { cursor: default; }
+  a:focus-visible, button:focus-visible { outline-color: #64f7ff; }
+}

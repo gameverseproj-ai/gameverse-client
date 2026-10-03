@@ -1,3 +1,7 @@
+import { NEON_WORLD_THEME } from './neon/neon-world.theme';
+import { NEON_PORTALS } from './neon/neon-portals';
+import { NeonHeroRenderer } from './neon/neon-hero.renderer';
+import { NeonEnvironment } from './neon/neon-environment';
 import { WorldReturnService } from './world-return.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
@@ -37,6 +41,7 @@ export class GellyWorldComponent implements OnDestroy {
   private readonly locale = inject(LanguageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  readonly isNeon = this.route.snapshot.data['world'] === 'neon';
   private readonly returnPoint = inject(WorldReturnService);
   private readonly zone = inject(NgZone);
   private readonly games = inject(GameFacade);
@@ -109,10 +114,10 @@ export class GellyWorldComponent implements OnDestroy {
         this.animationFinished = true;
         this.finishEntry();
       }),
-      GELLY_WORLD_THEME,
-      GELLY_PORTALS,
-      new GellyHeroRenderer(),
-      new GellyEnvironment(GELLY_PORTALS),
+      this.isNeon ? NEON_WORLD_THEME : GELLY_WORLD_THEME,
+      this.isNeon ? NEON_PORTALS : GELLY_PORTALS,
+      this.isNeon ? new NeonHeroRenderer() : new GellyHeroRenderer(),
+      this.isNeon ? new NeonEnvironment() : new GellyEnvironment(GELLY_PORTALS),
       portal => this.zone.run(() => {
         this.returnPoint.remember(portal.id);
         this.enteringPortal.set(portal);
@@ -120,7 +125,7 @@ export class GellyWorldComponent implements OnDestroy {
         this.animationFinished = false;
         this.loadEntryData();
       }),
-      this.route.snapshot.queryParamMap.get('from') ?? this.returnPoint.read(),
+      this.isNeon ? null : this.route.snapshot.queryParamMap.get('from') ?? this.returnPoint.read(),
     );
 
     this.localizeScene();
@@ -138,7 +143,7 @@ export class GellyWorldComponent implements OnDestroy {
 
   loadEntryData(): void {
     const portal = this.enteringPortal();
-    if (!portal || this.navigating) return;
+    if (!portal || portal.available === false || this.navigating) return;
     this.bootstrapRequest?.unsubscribe();
     this.entryError.set(false);
     this.dataReady = false;
