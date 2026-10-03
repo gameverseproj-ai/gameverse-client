@@ -72,12 +72,22 @@ export const CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
     "he": "3 נעימות · ריפים מלאי אנרגיה",
     "ar": "3 مقطوعات · إيقاعات جيتار حيوية"
   },
+  "3 tracks · Hypnotic pulse": {
+    "ru": "3 темы · Гипнотичный пульс",
+    "he": "3 נעימות · פעימה היפנוטית",
+    "ar": "3 مقطوعات · نبض منوّم"
+  },
   "3 tracks · Syncopated grooves": {
     "ru": "3 темы · Синкопированный ритм",
     "he": "3 נעימות · מקצבים מסונקפים",
     "ar": "3 مقطوعات · إيقاعات متداخلة"
   },
-  "6 reps with the left leg, then 6 with the right.": {
+
+  "3 tracks · Thrash riffs": {
+    "ru": "3 темы · Трэш-риффы",
+    "he": "3 נעימות · ריפים של תראש",
+    "ar": "3 مقطوعات · ريفات ثراش"
+  },  "6 reps with the left leg, then 6 with the right.": {
     "ru": "6 повторений левой ногой, затем 6 правой.",
     "he": "6 חזרות ברגל שמאל, ואז 6 בימין.",
     "ar": "6 تكرارات بالساق اليسرى، ثم 6 باليمنى."
@@ -1017,6 +1027,11 @@ export const CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
     "he": "מזגו אריחים והגיעו לאריח 2048 האגדי.",
     "ar": "ادمج البلاطات واصل إلى بلاطة 2048 الأسطورية."
   },
+  "Metal": {
+    "ru": "Метал",
+    "he": "מטאל",
+    "ar": "ميتال"
+  },
   "Mini factory": {
     "ru": "Мини-фабрика",
     "he": "מפעל קטן",
@@ -1891,6 +1906,11 @@ export const CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
     "ru": "Прыжки с поджатыми коленями",
     "he": "קפיצות ברכיים לחזה",
     "ar": "قفزات ضم الركبتين"
+  },
+  "Trance": {
+    "ru": "Транс",
+    "he": "טראנס",
+    "ar": "ترانس"
   },
   "Turn down": {
     "ru": "Повернуть вниз",

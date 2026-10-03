@@ -12,7 +12,7 @@ import { MusicPlayer } from './music-player';
 export class MusicService {
   private readonly router = inject(Router);
   private readonly rotation = new MusicRotation();
-  private readonly tracks = signal<Record<MusicGenre, number>>({rock: this.rotation.next('rock'), pop: this.rotation.next('pop'), funk: this.rotation.next('funk')});
+  private readonly tracks = signal<Record<MusicGenre, number>>({rock: this.rotation.next('rock'), pop: this.rotation.next('pop'), funk: this.rotation.next('funk'), trance: this.rotation.next('trance'), metal: this.rotation.next('metal')});
   readonly currentTrack = computed(() => MUSIC_TRACKS[this.preferences().genre][this.tracks()[this.preferences().genre]]);
   private readonly api = inject(PLAYER_API);
   private readonly zone = inject(NgZone);

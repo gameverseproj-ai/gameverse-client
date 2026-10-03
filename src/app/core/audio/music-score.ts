@@ -5,6 +5,8 @@ export const MUSIC_TRACKS: Record<MusicGenre, readonly { title: string; bpm: num
   rock: [{title: 'Neon Run', bpm: 116}, {title: 'Velvet Voltage', bpm: 124}, {title: 'Afterglow Drive', bpm: 108}],
   pop: [{title: 'Candy Skyline', bpm: 112}, {title: 'Satellite Hearts', bpm: 120}, {title: 'Daydream Arcade', bpm: 102}],
   funk: [{title: 'Jelly Strut', bpm: 104}, {title: 'Pocket Rocket', bpm: 112}, {title: 'Midnight Bounce', bpm: 98}],
+  trance: [{title: 'Ion Horizon', bpm: 140}, {title: 'Aurora Pulse', bpm: 138}, {title: 'Zenith Rush', bpm: 142}],
+  metal: [{title: 'Iron Stampede', bpm: 168}, {title: 'Grave Thunder', bpm: 176}, {title: 'Molten Chariot', bpm: 160}],
 };
 
 /** Original eight-bar instrumental arrangements, repeated by the global player. */
@@ -46,6 +48,52 @@ export function musicStep(genre: MusicGenre, step: number, track = 0): MusicNote
     ][variant];
     const note = melody[(beat + (bar % 2) * 8) % 16];
     if (note !== null) add('lead', root + note, .19, .1);
+  } else if (genre === 'trance') {
+    // Four-on-the-floor, a rolling offbeat bassline and a 16th-note arpeggio;
+    // an anthem lead enters halfway through, as the build would in a club mix.
+    const root = [
+      [45, 45, 41, 41, 43, 43, 48, 48],
+      [43, 43, 46, 46, 41, 41, 45, 45],
+      [41, 41, 45, 45, 48, 48, 43, 43],
+    ][variant][bar];
+    if (beat % 4 === 0) add('kick', 36, .18, .6);
+    if (beat % 4 === 2) add('hat', 0, .09, .16);
+    else if (beat % 2 === 0) add('hat', 0, .03, .08);
+    if (beat === 4 || beat === 12) add('snare', 38, .1, .18);
+    if (beat % 2 === 1) add('bass', root - 12, .1, .42);
+    const arp = [[0, 7, 12, 7, 3, 7, 12, 15], [0, 3, 7, 10, 12, 10, 7, 3], [0, 12, 7, 12, 3, 12, 7, 15]][variant];
+    add('guitar', root + 12 + arp[(beat + bar * 2) % 8], .09, .07);
+    if (beat === 0) [0, 3, 7].forEach((interval, i) => add('keys', root + 12 + interval, 3.2, .05, i * .015));
+    const anthem = [[12, 15, 19, 15], [15, 12, 10, 7], [19, 15, 12, 15]][variant];
+    if (bar >= 4 && beat % 4 === 0) add('lead', root + 12 + anthem[Math.floor(beat / 4)], .55, .1);
+  } else if (genre === 'metal') {
+    // Thrash: double-kick gallop, palm-muted chromatic riffs in bass/guitar
+    // unison with power-chord stabs, and a pentatonic run over the last bars.
+    const root = [
+      [40, 40, 40, 43, 40, 40, 46, 45],
+      [38, 38, 41, 38, 44, 43, 38, 38],
+      [40, 40, 43, 40, 45, 40, 46, 40],
+    ][variant][bar];
+    const gallop = [
+      [0, 1, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15],
+      [0, 2, 3, 4, 6, 7, 8, 10, 11, 12, 14, 15],
+      [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14],
+    ][variant];
+    if (gallop.includes(beat)) add('kick', 36, .09, .5);
+    if (beat === 4 || beat === 12) add('snare', 38, .14, .45);
+    if (beat % 2 === 0) add('hat', 0, .03, .1);
+    const riffs: Record<number, number>[] = [
+      {0:0, 2:0, 3:0, 5:3, 6:0, 8:0, 10:6, 11:5, 13:0, 14:3},
+      {0:0, 1:0, 3:1, 4:0, 6:0, 7:3, 9:0, 10:1, 12:0, 14:5, 15:6},
+      {0:0, 2:0, 4:3, 5:0, 7:5, 8:0, 10:0, 11:6, 13:3, 14:0},
+    ];
+    const fret = riffs[variant][beat];
+    if (fret !== undefined) {
+      add('bass', root - 12 + fret, .08, .5);
+      [0, 7].forEach((interval, i) => add('guitar', root + fret + interval, beat === 14 ? .2 : .09, .1, i * .005));
+    }
+    const shred = [[12, 15, 17, 19, 22, 19, 17, 15], [15, 12, 15, 17, 15, 12, 10, 12], [12, 17, 15, 20, 17, 22, 19, 24]][variant];
+    if (bar >= 6 && beat % 2 === 1) add('lead', root + shred[((beat - 1) / 2 + (bar % 2) * 4) % 8], .11, .09);
   } else {
     const root = [[40, 40, 40, 45, 40, 45, 43, 45], [43, 48, 43, 46, 48, 43, 41, 43], [38, 38, 43, 45, 38, 41, 43, 45]][variant][bar];
     const swing = beat % 2 ? .025 : 0;

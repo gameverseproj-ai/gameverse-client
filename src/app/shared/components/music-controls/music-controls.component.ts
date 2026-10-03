@@ -13,6 +13,8 @@ export class MusicControlsComponent {
     {id: 'rock', name: 'Rock', detail: '3 tracks · Driving riffs', icon: 'ϟ'},
     {id: 'pop', name: 'Pop', detail: '3 tracks · Bright melodies', icon: '✦'},
     {id: 'funk', name: 'Funk', detail: '3 tracks · Syncopated grooves', icon: '≋'},
+    {id: 'trance', name: 'Trance', detail: '3 tracks · Hypnotic pulse', icon: '∿'},
+    {id: 'metal', name: 'Metal', detail: '3 tracks · Thrash riffs', icon: '♆'},
   ];
   changeVolume(event: Event): void { this.music.volume(Number((event.target as HTMLInputElement).value) / 100); }
 }
