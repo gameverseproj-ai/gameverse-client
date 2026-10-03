@@ -1,5 +1,5 @@
 import { MusicGenre } from '../models/music.model';
-export type Instrument = 'kick' | 'snare' | 'hat' | 'bass' | 'guitar' | 'keys' | 'lead';
+export type Instrument = 'kick' | 'snare' | 'hat' | 'openhat' | 'crash' | 'bass' | 'guitar' | 'keys' | 'pad' | 'lead';
 export interface MusicNote { instrument: Instrument; midi: number; duration: number; velocity: number; delay?: number }
 export const MUSIC_TRACKS: Record<MusicGenre, readonly { title: string; bpm: number }[]> = {
   rock: [{title: 'Neon Run', bpm: 116}, {title: 'Velvet Voltage', bpm: 124}, {title: 'Afterglow Drive', bpm: 108}],
@@ -9,9 +9,45 @@ export const MUSIC_TRACKS: Record<MusicGenre, readonly { title: string; bpm: num
   metal: [{title: 'Iron Stampede', bpm: 168}, {title: 'Grave Thunder', bpm: 176}, {title: 'Molten Chariot', bpm: 160}],
 };
 
-/** Original eight-bar instrumental arrangements, repeated by the global player. */
+/**
+ * A tune is 32 bars: four 8-bar sections — intro, groove, breakdown, full —
+ * so it develops instead of looping one texture forever.
+ */
+export const LOOP_STEPS = 512;
+
+/**
+ * What each section silences or softens (velocity multipliers; 0 = tacet,
+ * absent = 1). The 8-bar core pattern stays the same; the arrangement breathes.
+ */
+const SECTION_MIX: Record<MusicGenre, readonly Partial<Record<Instrument, number>>[]> = {
+  rock:   [{lead: 0, pad: 0}, {}, {guitar: .45, lead: .8}, {}],
+  pop:    [{lead: 0, pad: .8}, {}, {kick: 0, bass: .75}, {}],
+  funk:   [{keys: 0}, {}, {kick: .75, hat: .85}, {}],
+  trance: [{pad: 0, lead: 0, snare: 0, openhat: 0}, {lead: 0}, {kick: 0, bass: 0, hat: 0, openhat: 0, guitar: .8}, {}],
+  metal:  [{lead: 0, openhat: 0}, {}, {guitar: .8, lead: 0, kick: .85}, {}],
+};
+
+/** Original 32-bar instrumental arrangements, repeated by the global player. */
 export function musicStep(genre: MusicGenre, step: number, track = 0): MusicNote[] {
-  const variant = ((track % 3) + 3) % 3;
+  const section = Math.floor(step / 128) % 4;
+  const local = step % 128;
+  const bar = Math.floor(local / 16), beat = local % 16;
+  const mix = SECTION_MIX[genre][section];
+  const notes: MusicNote[] = [];
+  for (const note of corePattern(genre, local, ((track % 3) + 3) % 3)) {
+    const level = mix[note.instrument] ?? 1;
+    if (level > 0) notes.push(level === 1 ? note : {...note, velocity: Math.min(1, note.velocity * level)});
+  }
+  // Section seams: a crash opens each section, a rising snare fill closes it.
+  if (local === 0) notes.push({instrument: 'crash', midi: 0, duration: 1.7, velocity: section === 3 ? .2 : .13});
+  if (bar === 7 && [10, 12, 13, 14, 15].includes(beat)) {
+    notes.push({instrument: 'snare', midi: 38, duration: .09, velocity: .08 + (beat - 10) * .045});
+  }
+  return notes;
+}
+
+/** The 8-bar core texture of a genre; sections shape it in {@link musicStep}. */
+function corePattern(genre: MusicGenre, step: number, variant: number): MusicNote[] {
   const beat = step % 16, bar = Math.floor(step / 16) % 8;
   const notes: MusicNote[] = [];
   const add = (instrument: Instrument, midi: number, duration: number, velocity: number, delay = 0) => notes.push({instrument, midi, duration, velocity, delay});
@@ -29,6 +65,7 @@ export function musicStep(genre: MusicGenre, step: number, track = 0): MusicNote
       add('bass', root - 12, .19, .38);
       [0, 7, 12].forEach((interval, i) => add('guitar', root + interval, beat === 14 ? .23 : .15, .085, i * .007));
     }
+    if (beat === 0) [0, 7].forEach((interval, i) => add('pad', root + 12 + interval, 3.3, .04, i * .02));
     const hook = [[24, 27, 31, 34], [31, 29, 27, 24], [24, 31, 36, 34]][variant];
     if ((bar >= 4 || variant !== 0) && beat % 4 === (variant === 1 ? 1 : 2)) {
       add('lead', root + hook[(Math.floor(beat / 4) + bar % 2) % 4], variant === 2 ? .32 : .2, .09);
@@ -41,6 +78,7 @@ export function musicStep(genre: MusicGenre, step: number, track = 0): MusicNote
     if (beat === 4 || beat === 12) add('snare', 38, .12, .3);
     if (beat % 2 === 0) add('hat', 0, .035, .10);
     if (beat === 0 || beat === 8) [0, third, 7, 12].forEach((interval, i) => add('keys', root + interval, .85, .085, i * .012));
+    if (beat === 0) [0, third, 7].forEach((interval, i) => add('pad', root + interval, 3.4, .045, i * .015));
     const melody = [
       [12, null, 12 + third, null, 19, 12 + third, null, 14, 12, null, 7, null, 9, null, 7, null],
       [19, 19, null, 16, null, 14, 12, null, 14, null, 19, 21, null, 19, 16, null],
@@ -49,23 +87,23 @@ export function musicStep(genre: MusicGenre, step: number, track = 0): MusicNote
     const note = melody[(beat + (bar % 2) * 8) % 16];
     if (note !== null) add('lead', root + note, .19, .1);
   } else if (genre === 'trance') {
-    // Four-on-the-floor, a rolling offbeat bassline and a 16th-note arpeggio;
-    // an anthem lead enters halfway through, as the build would in a club mix.
+    // Four-on-the-floor, a rolling offbeat bassline, a 16th arpeggio, a wide
+    // pad under it all and an anthem lead; the mixer pumps pads off each kick.
     const root = [
       [45, 45, 41, 41, 43, 43, 48, 48],
       [43, 43, 46, 46, 41, 41, 45, 45],
       [41, 41, 45, 45, 48, 48, 43, 43],
     ][variant][bar];
-    if (beat % 4 === 0) add('kick', 36, .18, .6);
-    if (beat % 4 === 2) add('hat', 0, .09, .16);
-    else if (beat % 2 === 0) add('hat', 0, .03, .08);
+    if (beat % 4 === 0) add('kick', 36, .18, .62);
+    if (beat % 4 === 2) add('openhat', 0, .16, .14);
+    else if (beat % 2 === 0) add('hat', 0, .03, .07);
     if (beat === 4 || beat === 12) add('snare', 38, .1, .18);
     if (beat % 2 === 1) add('bass', root - 12, .1, .42);
     const arp = [[0, 7, 12, 7, 3, 7, 12, 15], [0, 3, 7, 10, 12, 10, 7, 3], [0, 12, 7, 12, 3, 12, 7, 15]][variant];
     add('guitar', root + 12 + arp[(beat + bar * 2) % 8], .09, .07);
-    if (beat === 0) [0, 3, 7].forEach((interval, i) => add('keys', root + 12 + interval, 3.2, .05, i * .015));
+    if (beat === 0) [0, 3, 7, 12].forEach((interval, i) => add('pad', root + 12 + interval, 3.3, .055, i * .01));
     const anthem = [[12, 15, 19, 15], [15, 12, 10, 7], [19, 15, 12, 15]][variant];
-    if (bar >= 4 && beat % 4 === 0) add('lead', root + 12 + anthem[Math.floor(beat / 4)], .55, .1);
+    if (beat % 4 === 0) add('lead', root + 12 + anthem[Math.floor(beat / 4)], .5, .1);
   } else if (genre === 'metal') {
     // Thrash: double-kick gallop, palm-muted chromatic riffs in bass/guitar
     // unison with power-chord stabs, and a pentatonic run over the last bars.
@@ -81,7 +119,8 @@ export function musicStep(genre: MusicGenre, step: number, track = 0): MusicNote
     ][variant];
     if (gallop.includes(beat)) add('kick', 36, .09, .5);
     if (beat === 4 || beat === 12) add('snare', 38, .14, .45);
-    if (beat % 2 === 0) add('hat', 0, .03, .1);
+    if (beat % 4 === 2) add('openhat', 0, .12, .11);
+    else if (beat % 2 === 0) add('hat', 0, .03, .1);
     const riffs: Record<number, number>[] = [
       {0:0, 2:0, 3:0, 5:3, 6:0, 8:0, 10:6, 11:5, 13:0, 14:3},
       {0:0, 1:0, 3:1, 4:0, 6:0, 7:3, 9:0, 10:1, 12:0, 14:5, 15:6},
@@ -100,7 +139,8 @@ export function musicStep(genre: MusicGenre, step: number, track = 0): MusicNote
     if ([0, 3, 8, 11].includes(beat)) add('kick', 36, .16, .55, swing);
     if (beat === 4 || beat === 12) add('snare', 38, .12, .36);
     if (beat === 7 || beat === 15) add('snare', 38, .065, .08, swing);
-    add('hat', 0, beat === 14 ? .1 : .028, beat % 2 ? .07 : .14, swing);
+    if (beat === 14) add('openhat', 0, .18, .12, swing);
+    else add('hat', 0, .028, beat % 2 ? .07 : .14, swing);
     const riffs: Record<number, number>[] = [
       {0:0, 3:12, 6:7, 7:10, 10:0, 11:12, 14:7},
       {0:0, 2:7, 5:12, 7:14, 8:12, 11:10, 13:7, 15:3},
@@ -110,7 +150,5 @@ export function musicStep(genre: MusicGenre, step: number, track = 0): MusicNote
     if (riff[beat] !== undefined) add('bass', root - 12 + riff[beat], .12, .45, swing);
     if ([[2, 5, 10, 13], [1, 6, 9, 14], [2, 7, 11, 14]][variant].includes(beat)) [12, 15, 19, 22].forEach(interval => add('keys', root + interval, .075, .1, swing));
   }
-  // An occasional turnaround makes the last bar lead back into the theme.
-  if (bar === 7 && beat >= 14) add('snare', 38, .065, .13 + (beat - 14) * .03);
   return notes;
 }
