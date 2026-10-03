@@ -1,4 +1,5 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
+import { AuthService } from './core/services/auth.service';
 import { AUTH_API } from './core/api/auth.api';
 import {
   provideRouter,
@@ -33,6 +34,7 @@ import { HttpPowerApi } from './core/api/http/http-power.api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideAppInitializer(() => inject(AuthService).init()),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
     provideClientHydration(withEventReplay()),

@@ -19,7 +19,7 @@
     </div><button class="preview-card hold" (click)="action('hold')" [disabled]="!holdReady() || screen() !== 'playing'" [attr.aria-label]="'Hold piece' | t"><small>{{ 'HOLD · C' | t }}</small>@if(held();as type){<div class="mini" [style.--columns]="width(type)" [attr.aria-label]="('Held piece ' + type) | t">@for(cell of preview(type);track $index){<i [style.background]="cell ? colors[type] : 'transparent'" [class.block]="cell"></i>}</div>}@else{<span>◇</span>}</button></aside>
    </div>
    <div class="progress"><small>{{ 'NEXT LEVEL' | t }} <b>{{ '{0} / {1} lines' | t: [progress, target] }}</b></small><div><i [style.width.%]="progress / target * 100"></i></div></div>
-   
+
    <div class="touch-controls" [attr.aria-label]="'Touch controls' | t">
     @for(control of controls;track control.action){<button [attr.aria-label]="(control.label) | t" [disabled]="screen() !== 'playing'" (pointerdown)="pointerDown($event,control.action)" (pointerup)="pointerEnd($event)" (pointercancel)="pointerEnd($event)" (lostpointercapture)="pointerEnd($event)" (click)="buttonClick($event,control.action)">{{ (control.icon) | t }}<small>{{ (control.short) | t }}</small></button>}
    </div>

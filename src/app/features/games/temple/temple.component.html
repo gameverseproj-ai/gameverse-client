@@ -2,7 +2,7 @@
 <section gamePlay class="play" [attr.aria-label]="'2048 Temple game' | t">
       <div class="board-heading"><div><h2>{{ 'Level {0}' | t: [level?.id ?? 1] }}</h2></div><div class="score"><small>{{ 'SCORE' | t }}</small><b>{{ (run?.score ?? 0) | t }}</b></div><button (click)="sound.set(!sound())" [attr.aria-pressed]="sound()" [attr.aria-label]="'Sound effects' | t">{{ (sound() ? '♫' : '♪') | t }}</button><button (click)="pause()" [disabled]="!active()" [attr.aria-label]="'Pause game' | t">Ⅱ</button></div>
       <div #board class="board" tabindex="0" role="group" [attr.aria-label]="'2048 board. Arrow keys or WASD to move. Swipe on touch screens.' | t" [style.--size]="level?.gridSize ?? 4"
-        (pointerdown)="pointerDown($event)" (pointerup)="pointerEnd($event)" (pointercancel)="pointerEnd($event)" (lostpointercapture)="pointerEnd($event)">
+        (pointerdown)="pointerDown($event)" (pointermove)="pointerMove($event)" (pointerup)="pointerEnd($event)" (pointercancel)="pointerEnd($event)" (lostpointercapture)="pointerEnd($event)">
         @for (value of tiles; track $index; let cellIndex = $index) {
           <div class="cell" [attr.aria-label]="(value || 'Empty') | t">
             @if(value){
@@ -23,9 +23,9 @@
         }
       </div>
       <div class="target"><small>{{ 'NEXT WONDER' | t }} <b>{{ (level?.targetTile ?? 128) | t }}</b></small><div><i [style.width.%]="progress"></i></div></div>
-      
+
       <div class="directions" [attr.aria-label]="'Direction controls' | t"><button [attr.aria-label]="'Move left' | t" (click)="move('left')" [disabled]="!active()">←</button><button [attr.aria-label]="'Move up' | t" (click)="move('up')" [disabled]="!active()">↑</button><button [attr.aria-label]="'Move down' | t" (click)="move('down')" [disabled]="!active()">↓</button><button [attr.aria-label]="'Move right' | t" (click)="move('right')" [disabled]="!active()">→</button></div>
-      
+
     </section>
 <div gameProgress><div><small>{{ 'Temple Points' | t }}</small><strong>{{ data()?.progress?.state?.templePoints ?? 0 }}</strong></div><div><small>{{ 'PERSONAL BEST' | t }}</small><strong>{{ data()?.progress?.bestScore ?? 0 }}</strong></div><div><small>{{ 'Level' | t }}</small><strong>{{ level?.id ?? 1 }}</strong></div><div><small>{{ 'Target' | t }}</small><strong>{{ level?.targetTile ?? 128 }}</strong></div></div>
 <div gameHelp><p><b aria-hidden="true">↑ ← ↓ →</b>{{ 'Arrow keys / WASD · Swipe to merge · Esc to pause' | t }}</p><p><b aria-hidden="true">2 + 2 → 4</b>{{ 'Merge equal tiles to reach the target.' | t }}</p></div>

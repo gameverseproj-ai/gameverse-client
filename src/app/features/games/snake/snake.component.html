@@ -28,7 +28,7 @@
         }
       </div>
       <div class="run-stats"><div><small>{{ 'THIS RUN' | t }}</small><strong>{{ (score()) | t }}<span>{{ 'SP' | t }}</span></strong></div><div class="collect-progress"><small>{{ 'SNAKE LENGTH' | t }} <b>{{ '{0} / {1}' | t: [snakeLength, target] }}</b></small><div class="progress-track"><i [style.width.%]="snakeLength / target * 100"></i></div></div><div><small>{{ 'PERSONAL BEST' | t }}</small><strong>{{ (data()?.progress?.bestScore ?? 0) | t }}</strong></div></div>
-      
+
       @if (settingsMessage()) {<p role="status">{{ (settingsMessage()) | t }}</p>}
       <div class="dpad" [attr.aria-label]="'Touch direction controls' | t"><button (pointerdown)="steer('UP'); $event.preventDefault()" (click)="steer('UP')" [attr.aria-label]="'Turn up' | t">↑</button><div><button (pointerdown)="steer('LEFT'); $event.preventDefault()" (click)="steer('LEFT')" [attr.aria-label]="'Turn left' | t">←</button><button (pointerdown)="steer('DOWN'); $event.preventDefault()" (click)="steer('DOWN')" [attr.aria-label]="'Turn down' | t">↓</button><button (pointerdown)="steer('RIGHT'); $event.preventDefault()" (click)="steer('RIGHT')" [attr.aria-label]="'Turn right' | t">→</button></div></div>
     </section>

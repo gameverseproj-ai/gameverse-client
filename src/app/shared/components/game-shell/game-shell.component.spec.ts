@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { LanguageService } from '../../../core/i18n/language.service';
 import { GamePage, GameShellComponent } from './game-shell.component';
 
 @Component({ standalone: true, imports: [GameShellComponent], template: `
@@ -13,7 +13,7 @@ class TestGameComponent { page: GamePage = 'play'; }
 
 describe('Game page navigation', () => {
   beforeEach(() => TestBed.configureTestingModule({
-    providers: [provideHttpClient(), provideRouter([{ path: 'games/snake', component: TestGameComponent }])],
+    providers: [{ provide: LanguageService, useValue: { t: (text: string) => text } }, provideRouter([{ path: 'games/snake', component: TestGameComponent }])],
   }));
 
   it('keeps the board alive and inert while another page is shown, and supports returning', async () => {

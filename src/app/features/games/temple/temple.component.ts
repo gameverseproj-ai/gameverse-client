@@ -21,48 +21,58 @@ export class TempleComponent implements OnDestroy {
   readonly sound=signal(true);
   readonly merged=signal<number[]>([]);
   readonly spawned=signal<number[]>([]);
-  private pendingDirection:TempleDirection|null=null;
+  readonly previewBoard = signal<number[] | null>(null);
+  private presentationVersion = 0;
   private animations:Animation[]=[];
   private disposed=false;
   private reducedMotion=false;
   private request?:Subscription;
   private operation?:()=>Observable<TempleBootstrap>;
-  private queued:TempleDirection|null=null;
-  private gesture:{id:number;x:number;y:number}|null=null;
+  private queued:TempleDirection[]=[];
+  private gesture:{id:number;x:number;y:number;handled:boolean}|null=null;
   private audio?:AudioContext;
   constructor(){afterNextRender(()=>{this.reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;this.load();});}
   get run(){return this.data()?.progress.state.run??null;}
   get level(){return this.run?.level??this.data()?.settings.rules.levels.find(l=>l.id===this.data()?.progress.state.currentLevel);}
-  get tiles(){return this.run?.board??Array<number>((this.level?.gridSize??4)**2).fill(0);}
+  get tiles(){return this.previewBoard()??this.run?.board??Array<number>((this.level?.gridSize??4)**2).fill(0);}
   get progress(){return Math.min(100,Math.max(...this.tiles)/(this.level?.targetTile??128)*100);}
-  private send(operation:()=>Observable<TempleBootstrap>):void {
+  private send(operation:()=>Observable<TempleBootstrap>, presentation:Promise<void> = Promise.resolve()):void {
     this.operation=operation;this.busy.set(true);this.error.set('');this.request?.unsubscribe();
     this.request=operation().pipe(timeout(10000),take(1)).subscribe({next:async data=>{
       // Presentation failures must never prevent committing an accepted result.
-      try { await this.animateMove(data); } catch { this.animations.forEach(a=>a.cancel());this.animations=[]; }
+      try { await presentation; } catch { this.animations.forEach(a=>a.cancel());this.animations=[]; }
       if(this.disposed)return;
       const wasPlaying=this.run?.status==='playing';
-      this.data.set(data);this.games.bootstrap.set(data);this.busy.set(false);
+      const preview=this.previewBoard();
+      this.spawned.set(preview&&data.progress.state.run ? data.progress.state.run.board.map((value,i)=>value&&!preview[i]?i:-1).filter(i=>i>=0) : []);
+      this.previewBoard.set(null);this.data.set(data);this.games.bootstrap.set(data);this.busy.set(false);
       if(wasPlaying&&this.run?.status==='won')this.celebrate();
-      if(this.run?.status!=='playing'){this.active.set(false);this.queued=null;}
-      const queued=this.queued;this.queued=null;
+      if(this.run?.status!=='playing'){this.active.set(false);this.queued=[];}
+      const queued=this.queued.shift();
       if(queued&&this.active())this.move(queued);
-    },error:()=>{this.busy.set(false);this.queued=null;this.error.set('Your last request could not be confirmed. Retry to recover your saved game.');}});
+    },error:()=>{this.cancelPresentation();this.busy.set(false);this.queued=[];this.error.set('Your last request could not be confirmed. Retry to recover your saved game.');}});
   }
-  load():void {this.pendingDirection=null;this.active.set(false);this.send(()=>this.api.getBootstrap());}
+  load():void {this.cancelPresentation();this.active.set(false);this.send(()=>this.api.getBootstrap());}
   retry():void {if(this.operation&&!this.busy())this.send(this.operation);}
   start():void {
     if(this.busy()||this.error())return;
     try{this.audio??=new AudioContext();void this.audio.resume().catch(()=>{});}catch{/* Optional reward sound. */}
-    this.pendingDirection=null;this.merged.set([]);this.spawned.set([]);this.active.set(true);const id=crypto.randomUUID();this.send(()=>this.api.startRun(id));
+    this.cancelPresentation();this.merged.set([]);this.spawned.set([]);this.active.set(true);const id=crypto.randomUUID();this.send(()=>this.api.startRun(id));
     this.board()?.nativeElement.focus({preventScroll:true});
   }
   move(direction:TempleDirection):void {
     if(!this.active()||this.error()||this.run?.status!=='playing')return;
-    if(this.busy()){this.queued??=direction;return;}
+    if(this.busy()){this.queued.push(direction);return;}
     const request={requestId:crypto.randomUUID(),runId:this.run.id,revision:this.run.revision,direction};
-    this.pendingDirection=direction;
-    this.send(()=>this.api.move(request));
+    const result = slide(this.run.board, this.run.level.gridSize, direction);
+    if (!result.changed) {
+      const next = this.queued.shift();
+      if (next) this.move(next);
+      return;
+    }
+    // Begin feedback immediately, while the authoritative move is in flight.
+    const presentation = this.animateSlide(result);
+    this.send(()=>this.api.move(request), presentation);
   }
   @HostListener('window:keydown',['$event']) key(event:KeyboardEvent):void {
     if(this.gamePage() !== 'play')return;
@@ -71,26 +81,38 @@ export class TempleComponent implements OnDestroy {
     if(directions[event.code]&&this.active()){event.preventDefault();if(!event.repeat)this.move(directions[event.code]);}
     if(event.code==='Escape')this.pause();
   }
-  @HostListener('window:blur') pause():void {this.active.set(false);this.queued=null;this.gesture=null;}
+  @HostListener('window:blur') pause():void {this.active.set(false);this.queued=[];this.gesture=null;}
   @HostListener('document:visibilitychange') visibility():void {if(document.hidden)this.pause();}
   pointerDown(event:PointerEvent):void {
     if(!this.active()||this.gesture||event.button!==0)return;
-    event.preventDefault();this.gesture={id:event.pointerId,x:event.clientX,y:event.clientY};
+    event.preventDefault();this.gesture={id:event.pointerId,x:event.clientX,y:event.clientY,handled:false};
     (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+  }
+  pointerMove(event:PointerEvent):void {
+    const gesture=this.gesture;
+    if(!gesture || gesture.id!==event.pointerId || gesture.handled)return;
+    const dx=event.clientX-gesture.x,dy=event.clientY-gesture.y;
+    if(Math.max(Math.abs(dx),Math.abs(dy))<12)return;
+    gesture.handled=true;
+    event.preventDefault();
+    this.move(Math.abs(dx)>Math.abs(dy)?dx>0?'right':'left':dy>0?'down':'up');
   }
   pointerEnd(event:PointerEvent):void {
     if(this.gesture?.id!==event.pointerId)return;
-    const dx=event.clientX-this.gesture.x,dy=event.clientY-this.gesture.y;this.gesture=null;
-    if(event.type==='pointerup'&&Math.max(Math.abs(dx),Math.abs(dy))>=18)this.move(Math.abs(dx)>Math.abs(dy)?dx>0?'right':'left':dy>0?'down':'up');
-    const element=event.currentTarget as HTMLElement;if(element.hasPointerCapture(event.pointerId))element.releasePointerCapture(event.pointerId);
+    if(event.type==='pointerup')this.pointerMove(event);
+    this.gesture=null;
+    const element=event.currentTarget as HTMLElement;
+    if(element.hasPointerCapture(event.pointerId))element.releasePointerCapture(event.pointerId);
   }
-  private async animateMove(data:TempleBootstrap):Promise<void> {
-    const before=this.run,after=data.progress.state.run,direction=this.pendingDirection;
+  private cancelPresentation():void {
+    this.presentationVersion++;
+    this.animations.forEach(animation=>animation.cancel());
+    this.animations=[];
+    this.previewBoard.set(null);
+  }
+  private async animateSlide(result:ReturnType<typeof slide>):Promise<void> {
+    const version=++this.presentationVersion;
     this.merged.set([]);this.spawned.set([]);
-    if(!before||!after||before.id!==after.id||after.revision<=before.revision||!direction)return;
-    const result=slide(before.board,before.level.gridSize,direction);
-    this.pendingDirection=null;
-    if(!result.changed)return;
     this.tone([220,300],.035,.09);
     const cells=this.board()?.nativeElement.querySelectorAll<HTMLElement>('.cell');
     if(!this.reducedMotion&&cells){
@@ -98,14 +120,14 @@ export class TempleComponent implements OnDestroy {
         const tile=cells[m.from]?.querySelector<HTMLElement>('.tile');
         if(!tile||!cells[m.to])return [];
         const from=cells[m.from].getBoundingClientRect(),to=cells[m.to].getBoundingClientRect();
-        return [tile.animate([{transform:'translate(0,0)'},{transform:`translate(${to.left-from.left}px,${to.top-from.top}px)`}],{duration:180,easing:'cubic-bezier(.2,.75,.3,1)',fill:'forwards'})];
+        return [tile.animate([{transform:'translate(0,0)'},{transform:`translate(${to.left-from.left}px,${to.top-from.top}px)`}],{duration:90,easing:'cubic-bezier(.2,.75,.3,1)',fill:'forwards'})];
       });
       await Promise.all(this.animations.map(a=>a.finished.catch(()=>{})));
-      this.animations.forEach(a=>a.cancel());this.animations=[];
     }
-    if(this.disposed)return;
+    if(this.disposed||version!==this.presentationVersion)return;
+    this.previewBoard.set(result.board);
+    this.animations.forEach(a=>a.cancel());this.animations=[];
     this.merged.set(result.merges);
-    this.spawned.set(after.board.map((value,i)=>value&&!result.board[i]?i:-1).filter(i=>i>=0));
     if(result.merges.length)this.tone([523,784,1047],.065,.22);
   }
   private tone(notes:number[],spacing:number,duration:number):void {

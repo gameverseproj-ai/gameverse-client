@@ -1,5 +1,6 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { finalize, switchMap, of, take, timeout } from 'rxjs';
+import { isPlatformBrowser } from '@angular/common';
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { catchError, finalize, switchMap, of, take, tap, timeout } from 'rxjs';
 import { AUTH_API } from '../api/auth.api';
 import { AuthResponse, ClientMode, ProviderCredential, clientMode } from '../models/auth.model';
 import { LanguageService } from '../i18n/language.service';
@@ -13,25 +14,45 @@ export class AuthService {
   readonly busy = signal(false);
   readonly error = signal('');
   readonly dismissed = signal(false);
-  init(): void {
-    if (this.busy() || this.session()) return;
+  private readonly platformId = inject(PLATFORM_ID);
+  private initialization?: Promise<void>;
+
+  /** Startup must finish restoring an account (or a guest) before navigation. */
+  init(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) return Promise.resolve();
+    return this.initialization ??= new Promise<void>(resolve => this.restore(resolve));
+  }
+
+  private restore(done: () => void): void {
     const webApp = (window as Window & { Telegram?: { WebApp?: { initData?: string; ready?: () => void } } }).Telegram?.WebApp;
     webApp?.ready?.();
     const telegram = !!webApp?.initData || new URLSearchParams(window.location.hash.slice(1)).has('tgWebAppData');
     this.mode.set(clientMode(telegram, Math.min(screen.width, screen.height), navigator.maxTouchPoints > 0));
     try { this.dismissed.set(localStorage.getItem('gameverse.auth.prompt-dismissed.v1') === 'true'); } catch { /* Playing remains available without storage. */ }
     this.busy.set(true); this.error.set('');
-    this.api.me().pipe(switchMap(session => session ? of(session) : this.api.anonymous(this.locale.language())), take(1), timeout(10000), finalize(() => this.busy.set(false))).subscribe({
-      next: session => {
-        this.session.set(session);
-        // A Mini App launch carries the user's signed initData, so upgrade the
-        // fresh anonymous session to their Telegram account with no extra tap.
-        // Deferred so the init request has settled (busy cleared) before attach.
-        if (session?.anonymous && this.telegramInitData()) setTimeout(() => this.attachTelegram(), 0);
-      },
+    this.api.me().pipe(
+      switchMap(session => session ? of(session) : this.api.anonymous(this.locale.language())),
+      tap(session => this.session.set(session)),
+      switchMap(session => {
+        const initData = this.telegramInitData();
+        if (!session?.anonymous || !initData) return of(session);
+        // Finish the signed Mini App login before loading worlds and preferences.
+        return this.api.attach({ kind: 'telegram', body: { initData } }).pipe(
+          catchError(() => {
+            this.error.set('Sign-in is unavailable. You can keep playing.');
+            return of(session);
+          }),
+        );
+      }),
+      take(1),
+      timeout(10000),
+      finalize(() => { this.busy.set(false); done(); }),
+    ).subscribe({
+      next: session => this.session.set(session),
       error: () => this.error.set('Sign-in is unavailable. You can keep playing.'),
     });
   }
+
   dismiss(): void {
     this.dismissed.set(true);
     try { localStorage.setItem('gameverse.auth.prompt-dismissed.v1','true'); } catch { /* Optional preference. */ }

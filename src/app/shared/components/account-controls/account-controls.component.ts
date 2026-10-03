@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, afterNextRender, computed, effect, inject, input, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, computed, effect, inject, input, signal, viewChild } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { GoogleSignInService } from '../../../core/services/google-signin.service';
 import { TelegramSignInService } from '../../../core/services/telegram-signin.service';
@@ -22,7 +22,6 @@ export class AccountControlsComponent {
   // the moment it enters the DOM.
   private readonly googleHost = viewChild<ElementRef<HTMLElement>>('googleHost');
   constructor() {
-    afterNextRender(() => this.auth.init());
     effect(() => {
       const host = this.googleHost()?.nativeElement;
       if (host && !host.childElementCount) this.google.renderButton(host, idToken => this.auth.attachGoogle(idToken));
