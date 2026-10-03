@@ -1,6 +1,7 @@
 <section class="worlds">
   <header class="worlds__header">
     <h1>{{ 'Worlds' | t }}</h1>
+    <a class="worlds__collections" routerLink="/collections">🃏 {{ 'Collections' | t }}</a>
   </header>
 
   @if (worldFacade.loading()) {

@@ -1,0 +1,36 @@
+:host { display: block; min-height: 100dvh; background: radial-gradient(ellipse at 80% 0, #4a2a5e, transparent 60%), #141020; color: #fff; }
+
+.collections { max-width: 1180px; margin: auto; padding: max(40px, env(safe-area-inset-top)) 24px 48px; }
+
+.collections__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; padding-inline-end: 60px; }
+h1 { margin: 0; font-size: clamp(28px, 5vw, 42px); }
+.collections__header p { margin: 6px 0 0; color: #cdbde2; }
+.coins { font-size: 16px; border: 1px solid #ffffff2d; background: #251d40b8; border-radius: 18px; padding: 8px 14px; white-space: nowrap; }
+
+.collections__shelf { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+.collections__shelf button {
+  font: inherit; color: #fff; cursor: pointer; padding: 8px 14px;
+  border-radius: 14px; border: 1px solid #ffffff2d; background: #221b36;
+}
+.collections__shelf button[aria-selected="true"] { border-color: #edb4ff; background: #38254e; }
+.collections__shelf button.locked { color: #9d92b5; filter: saturate(.4); }
+
+.collections__meta h2 { margin: 0 0 4px; font-size: 26px; font-family: 'Playfair Display', Georgia, serif; font-weight: 600; letter-spacing: .04em; }
+.description { margin: 0; color: #cdbde2; }
+.progress { margin: 10px 0 0; color: #e9b9ee; }
+.progress b { margin-inline-end: 8px; }
+
+.collections__grid {
+  margin-top: 22px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 22px;
+}
+
+.status { color: #cdbde2; }
+.error { color: #ffc5ce; }
+.retry { font: inherit; color: #fff; cursor: pointer; padding: 8px 16px; border-radius: 14px; border: 1px solid #ffffff35; background: #ffffff14; }
+
+
+@media (max-width: 650px) {
+  .collections { padding-top: 28px; }
+  .collections__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+}

@@ -17,6 +17,7 @@ import { PLAYER_API }   from './core/api/player.api';
 import { WORLD_API }    from './core/api/world.api';
 import { GAME_API }     from './core/api/game.api';
 import { CURRENCY_API } from './core/api/currency.api';
+import { COLLECTION_API } from './core/api/collection.api';
 import { TETRIS_API } from './core/api/tetris.api';
 import { TEMPLE_API } from './core/api/temple.api';
 import { SNAKE_API } from './core/api/snake.api';
@@ -27,6 +28,7 @@ import { HttpPlayerApi } from './core/api/http/http-player.api';
 import { HttpWorldApi } from './core/api/http/http-world.api';
 import { HttpGameApi } from './core/api/http/http-game.api';
 import { HttpCurrencyApi } from './core/api/http/http-currency.api';
+import { HttpCollectionApi } from './core/api/http/http-collection.api';
 import { HttpTetrisApi } from './core/api/http/http-tetris.api';
 import { HttpTempleApi } from './core/api/http/http-temple.api';
 import { HttpSnakeApi } from './core/api/http/http-snake.api';
@@ -51,6 +53,7 @@ export const appConfig: ApplicationConfig = {
     { provide: TEMPLE_API, useExisting: HttpTempleApi },
     { provide: SNAKE_API,    useExisting: HttpSnakeApi },
     { provide: CURRENCY_API, useExisting: HttpCurrencyApi },
+    { provide: COLLECTION_API, useExisting: HttpCollectionApi },
     // The gym screen injects the class directly, so the class token is aliased
     // rather than the screen being changed.
     { provide: MockPowerApi, useExisting: HttpPowerApi },

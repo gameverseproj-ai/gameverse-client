@@ -21,6 +21,7 @@ export class NavComponent {
     { path: '/home', label: 'Home' },
     { path: '/worlds', label: 'Worlds' },
     { path: '/games', label: 'Games' },
+    { path: '/collections', label: 'Collections' },
     { path: '/profile', label: 'Profile' },
   ]);
 

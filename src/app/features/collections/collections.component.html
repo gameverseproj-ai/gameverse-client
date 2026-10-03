@@ -1,0 +1,50 @@
+<section class="collections" [attr.aria-label]="'Collections' | t">
+  <header class="collections__header">
+    <div>
+      <h1>{{ 'Collections' | t }}</h1>
+      <p>{{ 'Cards reveal themselves as you play.' | t }}</p>
+    </div>
+    <span class="coins" aria-live="polite" [attr.aria-label]="'Your coins' | t">🪙 {{ facade.coins() ?? '…' }}</span>
+  </header>
+
+  @if (facade.collections().length > 1) {
+    <div class="collections__shelf" role="tablist" [attr.aria-label]="'Collections' | t">
+      @for (collection of facade.collections(); track collection.id) {
+        <button type="button" role="tab"
+          [attr.aria-selected]="facade.detail()?.id === collection.id"
+          [class.locked]="collection.state === 'locked'"
+          (click)="facade.loadDetail(collection.id)">
+          @if (collection.state === 'locked') { <span aria-hidden="true">🔒</span> {{ 'Locked' | t }} }
+          @else { {{ collection.name }} @if (collection.state === 'completed') { <span aria-hidden="true">✓</span> } }
+        </button>
+      }
+    </div>
+  }
+
+  @if (facade.detail(); as album) {
+    <div class="collections__meta">
+      <h2>{{ album.name }}</h2>
+      <p class="description">{{ album.description }}</p>
+      @if (summaryOf(album.id); as summary) {
+        <p class="progress" aria-live="polite">
+          <b>{{ '{0} / {1}' | t: [summary.revealedCards, summary.totalCards] }}</b>
+          @if (summary.state === 'completed') { {{ 'Collection complete!' | t }} }
+          @else if (album.nextCardIn !== null) { {{ 'Play {0} more games to reveal the next card.' | t: [album.nextCardIn] }} }
+        </p>
+      }
+    </div>
+
+    <div class="collections__grid">
+      @for (card of album.cards; track card.position) {
+        <app-collection-card [card]="card" [price]="album.factPriceCoins" [collectionId]="album.id" [collectionName]="album.name" />
+      }
+    </div>
+  } @else if (facade.loading()) {
+    <p class="status" role="status">{{ 'Loading…' | t }}</p>
+  }
+
+  @if (facade.error()) {
+    <p class="error" role="alert">{{ facade.error() | t }}</p>
+    <button type="button" class="retry" (click)="facade.loadCollections()">{{ 'Try again' | t }}</button>
+  }
+</section>

@@ -1,0 +1,10 @@
+{
+  "/api/**": {
+    "target": "https://gameverse-core.onrender.com",
+    "secure": true,
+    "changeOrigin": true,
+    "headers": {
+      "Origin": "https://gameverse-client-mu.vercel.app"
+    }
+  }
+}

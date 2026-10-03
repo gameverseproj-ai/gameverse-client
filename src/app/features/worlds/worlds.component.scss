@@ -1,6 +1,8 @@
 :host { display: block; min-height: 100dvh; background: radial-gradient(ellipse at 20% 0,#3e235d,transparent 65%),#141020; color: #fff; }
 .worlds { max-width: 1180px; margin: auto; padding: max(40px, env(safe-area-inset-top)) 24px 40px; }
-.worlds__header { margin-bottom: 32px; padding-inline-end: 60px; }
+.worlds__header { margin-bottom: 32px; padding-inline-end: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.worlds__collections { color: #fff; text-decoration: none; border: 1px solid #ffffff2d; background: #251d40b8; border-radius: 18px; padding: 10px 16px; white-space: nowrap; }
+.worlds__collections:hover { border-color: #edb4ff; }
 h1 { margin: 0; font-size: clamp(28px,5vw,42px); }
 .worlds__grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 24px; }
 .worlds__error { color: #ffc5ce; }

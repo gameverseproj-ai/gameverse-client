@@ -1,0 +1,54 @@
+@if (card().revealed) {
+  <div class="card3d" role="button" tabindex="0"
+    [class.to-back]="side() === 'back'" [class.to-front]="side() === 'front'"
+    [attr.aria-label]="card().name" [attr.aria-pressed]="side() === 'back'"
+    (click)="flip()" (keydown.enter)="flip()" (keydown.space)="$event.preventDefault(); flip()">
+    <div class="card-inner">
+
+      <div class="face front">
+        <header class="nameplate">
+          <span class="deco" aria-hidden="true"></span>
+          <h3>{{ card().name }}</h3>
+          <span class="deco right" aria-hidden="true"></span>
+        </header>
+        <div class="window">
+          @if (!artBroken()) {
+            <img [src]="artSrc()" [alt]="card().name" draggable="false" (error)="artBroken.set(true)" />
+          } @else {
+            <span class="art-fallback" aria-hidden="true" [style.--card-hue]="card().position * 36"></span>
+          }
+          <span class="corner tl" aria-hidden="true"></span><span class="corner tr" aria-hidden="true"></span>
+          <span class="corner bl" aria-hidden="true"></span><span class="corner br" aria-hidden="true"></span>
+        </div>
+        <footer class="caption">
+          <strong>{{ collectionName() }}</strong>
+          <small>№{{ card().position }}</small>
+        </footer>
+      </div>
+
+      <div class="face back">
+        <div class="panel">
+          <div class="ribbon">
+            <h3>{{ collectionName() }}: {{ card().name }}</h3>
+            <small>{{ 'Fun facts' | t }}</small>
+          </div>
+          <ol (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+            @for (fact of card().facts ?? []; track fact.position) {
+              <li><app-scratch-fact [fact]="fact" [cardPosition]="card().position" [price]="price()" /></li>
+            }
+          </ol>
+        </div>
+      </div>
+
+    </div>
+  </div>
+} @else {
+  <div class="card3d locked" [attr.aria-label]="'Hidden card' | t">
+    <div class="face shirt">
+      <div class="panel">
+        <span class="lattice" aria-hidden="true"></span>
+        <span class="emblem" aria-hidden="true">⚜</span>
+      </div>
+    </div>
+  </div>
+}

@@ -19,6 +19,11 @@ export const routes: Routes = [
       import('./features/games/games.routes').then((m) => m.GAMES_ROUTES),
   },
   {
+    path: 'collections',
+    loadChildren: () =>
+      import('./features/collections/collections.routes').then((m) => m.COLLECTIONS_ROUTES),
+  },
+  {
     path: 'profile',
     loadChildren: () =>
       import('./features/profile/profile.routes').then((m) => m.PROFILE_ROUTES),

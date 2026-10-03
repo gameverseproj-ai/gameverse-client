@@ -7,6 +7,7 @@
   (contextmenu)="$event.preventDefault()"
 >
   <a class="world-back" routerLink="/worlds" [attr.aria-label]="'Worlds' | t"><span aria-hidden="true">←</span> {{ 'Worlds' | t }}</a>
+  <a class="world-back world-album" routerLink="/collections" [attr.aria-label]="'Collections' | t"><span aria-hidden="true">🃏</span> {{ 'Collections' | t }}</a>
   <canvas #canvas class="world-canvas" [attr.aria-label]="(isNeon ? 'Neon World' : 'Gelly World, a 3D playground. Use W and S to move, A and D to turn, Space to jump and Q to wave.') | t"></canvas>
   @if (enteringPortal()) {
     <div class="entry-feedback" aria-live="polite">
