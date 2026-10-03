@@ -5,6 +5,7 @@ import { AuthApi } from '../auth.api';
 import { AuthResponse, ProviderCredential, authEndpoint } from '../../models/auth.model';
 import { Language } from '../../models/language.model';
 import { API_BASE_URL } from './api-config';
+import { DeviceIdStore } from './device-id.store';
 import { SessionStore } from './session.store';
 import { SessionGate } from './session.gate';
 
@@ -18,6 +19,7 @@ export class HttpAuthApi implements AuthApi {
   private readonly http = inject(HttpClient);
   private readonly base = inject(API_BASE_URL);
   private readonly session = inject(SessionStore);
+  private readonly device = inject(DeviceIdStore);
   private readonly gate = inject(SessionGate);
 
   /**
@@ -38,7 +40,7 @@ export class HttpAuthApi implements AuthApi {
   me(): Observable<AuthResponse | null> {
     if (!this.session.token()) return of(null);
     return this.http.get<AuthResponse>(`${this.base}/api/auth/me`).pipe(
-      tap(session => this.session.save(session)),
+      tap(session => this.saveAndSettleDevice(session)),
       map(session => session as AuthResponse | null),
       catchError(() => {
         this.session.clear();
@@ -51,6 +53,16 @@ export class HttpAuthApi implements AuthApi {
   attach(credential: ProviderCredential): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.base}${authEndpoint(credential, true)}`, credential.body)
-      .pipe(tap(session => this.session.save(session)));
+      .pipe(tap(session => this.saveAndSettleDevice(session)));
+  }
+
+  /**
+   * The device ID serves guests only. Once the session in hand is a signed-in
+   * account the ID is forgotten, mirroring the server retiring the binding on
+   * conversion: a later tokenless start begins a fresh guest, never this account.
+   */
+  private saveAndSettleDevice(session: AuthResponse): void {
+    this.session.save(session);
+    if (!session.anonymous) this.device.clear();
   }
 }
