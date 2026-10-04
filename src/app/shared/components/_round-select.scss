@@ -1,0 +1,26 @@
+@mixin control($name) {
+:host { display: block; position: relative; width: fit-content; color: #f6f1ff; font-family: inherit; }
+button { font: inherit; cursor: pointer; color: inherit; -webkit-tap-highlight-color: transparent; }
+.#{$name}-trigger { display: flex; align-items: center; gap: 10px; min-height: 44px; min-width: 156px; padding: 10px 16px; border: 1px solid #c9b6ef40; border-radius: 24px; background: linear-gradient(135deg,#433353,#292137); box-shadow: inset 0 1px #ffffff0b; font-size: 14px; }
+.#{$name}-trigger:hover { border-color: #d9baff80; }
+.#{$name}-trigger:focus-visible { outline: 2px solid #e8c1ff; outline-offset: 3px; }
+.#{$name}-trigger[aria-disabled='true'] { opacity: .6; cursor: wait; }
+.#{$name}-trigger svg { width: 18px; height: 18px; flex: 0 0 auto; color: #cdbce2; }
+.#{$name}-trigger .chevron { width: 14px; height: 14px; margin-inline-start: auto; transition: transform .15s; }
+.chevron.expanded { transform: rotate(180deg); }
+.#{$name}-options { margin-top: 6px; min-width: 166px; padding: 5px; border: 1px solid #d2b8f238; border-radius: 20px; background: #2a2138; box-shadow: 0 10px 24px #110a2433; }
+.#{$name}-option { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 42px; padding: 9px 13px; border: 0; border-radius: 14px; background: transparent; text-align: start; font-size: 14px; }
+.#{$name}-option.active { background: #cba4ed1c; }
+.#{$name}-option[aria-selected='true'] { color: #edceff; }
+.selected-mark { visibility: hidden; font-size: 13px; }
+.#{$name}-option[aria-selected='true'] .selected-mark { visibility: visible; }
+.#{$name}-error { max-width: 250px; margin-top: 8px; font-size: 12px; line-height: 1.5; color: #ffbcbf; }
+.#{$name}-error button { padding: 6px 10px; border: 1px solid #ffbcbf55; border-radius: 12px; background: transparent; }
+:host(.compact) .#{$name}-trigger { min-width: 0; padding: 9px 12px; font-size: 13px; }
+
+@media (prefers-reduced-motion:reduce) { .chevron { transition: none; } }
+
+:host(.compact) .#{$name}-menu { position: absolute; z-index: 120; inset-inline-end: 0; margin-top: 6px; min-width: 200px; border: 1px solid #d2b8f238; border-radius: 20px; background: #2a2138; box-shadow: 0 10px 24px #110a2433; }
+:host(.compact) .#{$name}-options { position: static; margin: 0; border: 0; box-shadow: none; }
+
+}
