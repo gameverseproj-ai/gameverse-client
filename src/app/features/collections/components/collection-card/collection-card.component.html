@@ -11,16 +11,19 @@
           <h3>{{ card().name }}</h3>
           <span class="deco right" aria-hidden="true"></span>
         </header>
-        <div class="window">
-          @if (!artBroken()) {
-            <img [src]="artSrc()" [alt]="card().name" draggable="false" (error)="artBroken.set(true)" />
-          } @else {
-            <span class="art-fallback" aria-hidden="true" [style.--card-hue]="card().position * 36"></span>
-          }
+        <div class="mount">
           <span class="corner tl" aria-hidden="true"></span><span class="corner tr" aria-hidden="true"></span>
           <span class="corner bl" aria-hidden="true"></span><span class="corner br" aria-hidden="true"></span>
+          <div class="window">
+            @if (!artBroken()) {
+              <img [src]="artSrc()" [alt]="card().name" draggable="false" (error)="artBroken.set(true)" />
+            } @else {
+              <span class="art-fallback" aria-hidden="true" [style.--card-hue]="card().position * 36"></span>
+            }
+          </div>
         </div>
         <footer class="caption">
+          <span class="divider" aria-hidden="true"><i></i>⚜<i></i></span>
           <strong>{{ collectionName() }}</strong>
           <small>№{{ card().position }}</small>
         </footer>
@@ -28,9 +31,8 @@
 
       <div class="face back">
         <div class="panel">
-          <div class="ribbon">
-            <h3>{{ collectionName() }}: {{ card().name }}</h3>
-            <small>{{ 'Fun facts' | t }}</small>
+          <div class="ribbon-line">
+            <h3><span>№{{ card().position }}</span> {{ card().name }}</h3>
           </div>
           <ol (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
             @for (fact of card().facts ?? []; track fact.position) {

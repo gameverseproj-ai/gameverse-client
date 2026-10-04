@@ -1,13 +1,28 @@
 :host { display: block; min-height: 100dvh; background: radial-gradient(ellipse at 80% 0, #4a2a5e, transparent 60%), #141020; color: #fff; }
 
-.collections { max-width: 1180px; margin: auto; padding: max(40px, env(safe-area-inset-top)) 24px 48px; }
+.collections { max-width: 1180px; margin: auto; padding: max(16px, env(safe-area-inset-top)) 20px 48px; }
 
-.collections__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; padding-inline-end: 60px; }
-h1 { margin: 0; font-size: clamp(28px, 5vw, 42px); }
-.collections__header p { margin: 6px 0 0; color: #cdbde2; }
-.coins { font-size: 16px; border: 1px solid #ffffff2d; background: #251d40b8; border-radius: 18px; padding: 8px 14px; white-space: nowrap; }
+.collections__top {
+  display: flex; align-items: center; gap: 14px;
+  padding-inline-end: 60px; // room for the floating account icon
+  margin-bottom: 6px;
+}
+.back {
+  display: flex; align-items: center; justify-content: center;
+  min-width: 48px; min-height: 48px; border-radius: 24px;
+  border: 1px solid #ffffff35; background: #251d40b8; backdrop-filter: blur(16px);
+  color: #fff; text-decoration: none; font-size: 18px;
+}
+.back:hover { border-color: #edb4ff; }
+.titles { flex: 1; min-width: 0; }
+.titles small { display: block; font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: #b9a4d6; }
+.titles h1 {
+  margin: 0; font-family: 'Playfair Display', Georgia, serif; font-weight: 600;
+  font-size: clamp(22px, 4vw, 32px); letter-spacing: .03em; line-height: 1.15;
+}
+.coins { font-size: 15px; border: 1px solid #ffffff2d; background: #251d40b8; border-radius: 18px; padding: 7px 13px; white-space: nowrap; }
 
-.collections__shelf { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+.collections__shelf { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 4px; }
 .collections__shelf button {
   font: inherit; color: #fff; cursor: pointer; padding: 8px 14px;
   border-radius: 14px; border: 1px solid #ffffff2d; background: #221b36;
@@ -15,13 +30,11 @@ h1 { margin: 0; font-size: clamp(28px, 5vw, 42px); }
 .collections__shelf button[aria-selected="true"] { border-color: #edb4ff; background: #38254e; }
 .collections__shelf button.locked { color: #9d92b5; filter: saturate(.4); }
 
-.collections__meta h2 { margin: 0 0 4px; font-size: 26px; font-family: 'Playfair Display', Georgia, serif; font-weight: 600; letter-spacing: .04em; }
-.description { margin: 0; color: #cdbde2; }
-.progress { margin: 10px 0 0; color: #e9b9ee; }
+.progress { margin: 6px 0 0; color: #e9b9ee; font-size: 14px; }
 .progress b { margin-inline-end: 8px; }
 
 .collections__grid {
-  margin-top: 22px;
+  margin-top: 18px;
   display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 22px;
 }
 
@@ -29,8 +42,7 @@ h1 { margin: 0; font-size: clamp(28px, 5vw, 42px); }
 .error { color: #ffc5ce; }
 .retry { font: inherit; color: #fff; cursor: pointer; padding: 8px 16px; border-radius: 14px; border: 1px solid #ffffff35; background: #ffffff14; }
 
-
 @media (max-width: 650px) {
-  .collections { padding-top: 28px; }
-  .collections__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .collections { padding-top: max(12px, env(safe-area-inset-top)); }
+  .collections__grid { grid-template-columns: 1fr; gap: 16px; max-width: 420px; margin-inline: auto; }
 }

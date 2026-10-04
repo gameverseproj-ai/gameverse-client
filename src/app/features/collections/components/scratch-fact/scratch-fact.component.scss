@@ -1,11 +1,19 @@
-:host { display: block; }
+:host { display: flex; flex-direction: column; }
 
 .fact-text { margin: 0; font-family: 'PT Serif', Georgia, serif; font-size: 12px; line-height: 1.42; color: #efe2c6; }
 .fact-text b { color: #f7edd6; margin-inline-end: 2px; }
 
-.scratch { position: relative; border-radius: 6px; overflow: hidden; min-height: 42px; background: #00000026; border: 1px solid #efe2c62e; }
+.scratch { position: relative; border-radius: 6px; overflow: hidden; min-height: 42px; flex: 1; background: #00000026; border: 1px solid #efe2c62e; }
+.fact-text:not(.under) { flex: 1; display: flex; align-items: center; }
 .under { padding: 7px 9px; min-height: 30px; box-sizing: border-box; }
-.placeholder { color: #efe2c622; letter-spacing: 2px; user-select: none; }
+.pseudo {
+  color: #efe2c6c9; filter: blur(3.5px); user-select: none;
+  font-family: 'PT Serif', Georgia, serif;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.pseudo.settling { animation: settle 1.1s ease-in-out infinite alternate; }
+@keyframes settle { from { filter: blur(3.5px); opacity: .8; } to { filter: blur(2.4px); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .pseudo.settling { animation: none; } }
 
 .foil {
   border-radius: 6px;

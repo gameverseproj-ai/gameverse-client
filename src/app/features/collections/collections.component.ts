@@ -1,4 +1,5 @@
 import { Component, afterNextRender, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { CollectionsFacade } from '../../core/facades/collections.facade';
 import { CollectionCardComponent } from './components/collection-card/collection-card.component';
@@ -10,7 +11,7 @@ import { CollectionCardComponent } from './components/collection-card/collection
 @Component({
   selector: 'app-collections',
   standalone: true,
-  imports: [TranslatePipe, CollectionCardComponent],
+  imports: [TranslatePipe, RouterLink, CollectionCardComponent],
   templateUrl: './collections.component.html',
   styleUrl: './collections.component.scss',
 })

@@ -4,8 +4,9 @@
   <div class="scratch" [class.done]="phase() === 'done'">
     <p class="fact-text under" [attr.aria-hidden]="phase() !== 'done'">
       @if (phase() === 'done') { <b>{{ fact().position }}.</b> {{ fact().text }} }
-      @else if (phase() === 'buying') { {{ 'Loading…' | t }} }
-      @else { <span class="placeholder" aria-hidden="true">●●●●●●●●●●●●●●●</span> }
+      @else {
+        <span class="pseudo" [class.settling]="phase() === 'buying'" aria-hidden="true"><b>{{ fact().position }}.</b> Un secret de Paris se cache sous la feuille d'or, patience…</span>
+      }
     </p>
     @if (phase() !== 'done') {
       <canvas #foil width="320" height="56" class="foil"

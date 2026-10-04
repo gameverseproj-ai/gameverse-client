@@ -55,7 +55,7 @@ $cream: #efe2c6;
 }
 
 // ── front: title plate, framed photograph, caption ──
-.front { padding: 12px 12px 10px; gap: 10px; }
+.front { padding: 11px 11px 7px; gap: 7px; }
 
 .nameplate {
   position: relative; background: $plate; color: $paper-hi;
@@ -78,35 +78,42 @@ $cream: #efe2c6;
 }
 .deco.right { left: auto; right: 7px; clip-path: polygon(100% 0, 0 50%, 100% 100%); }
 
+// the photograph sits on a paper mat inside a double rule
+.mount { position: relative; flex: 1; min-height: 0; padding: 10px; }
 .window {
-  position: relative; flex: 1; min-height: 0;
-  border: 1px solid $sepia; outline: 1px solid #6b573b66; outline-offset: 2.5px;
+  position: relative; width: 100%; height: 100%; box-sizing: border-box; overflow: hidden;
+  border: 1px solid $sepia; outline: 1px solid #6b573b55; outline-offset: 2.5px;
   background: #d8cbae;
 }
-.window img, .art-fallback { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; user-select: none; }
+.window img, .art-fallback {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; user-select: none;
+}
 .art-fallback {
   background:
     radial-gradient(circle at 30% 25%, hsl(var(--card-hue) 45% 60% / .7), transparent 55%),
     radial-gradient(circle at 75% 70%, hsl(calc(var(--card-hue) + 50) 40% 50% / .5), transparent 50%),
     #cdbd9d;
 }
-// engraved corner curls on the photograph mount
+// wrought-iron scrollwork on the mat, one curl per corner — the Parisian touch
 .corner {
-  position: absolute; width: 16px; height: 16px; pointer-events: none;
-  border: 1.4px solid #efe5cdcc; border-radius: 0 0 100% 0;
-  border-top: none; border-left: none;
+  position: absolute; width: 22px; height: 22px; pointer-events: none; z-index: 2;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26' fill='none' stroke='%236b573b' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M2 24 C2 11 11 2 24 2'/%3E%3Cpath d='M2 17 C2 8.7 8.7 2 17 2'/%3E%3Cpath d='M9.5 24 c0 -6.5 2.5 -9.5 6.5 -11.5'/%3E%3Ccircle cx='4.6' cy='21.4' r='1.5' fill='%236b573b' stroke='none'/%3E%3C/svg%3E") center / contain no-repeat;
 }
-.corner.tl { top: 3px; left: 3px; }
-.corner.tr { top: 3px; right: 3px; rotate: 90deg; }
-.corner.br { bottom: 3px; right: 3px; rotate: 180deg; }
-.corner.bl { bottom: 3px; left: 3px; rotate: 270deg; }
+.corner.tl { top: 0; left: 0; }
+.corner.tr { top: 0; right: 0; rotate: 90deg; }
+.corner.br { bottom: 0; right: 0; rotate: 180deg; }
+.corner.bl { bottom: 0; left: 0; rotate: 270deg; }
 
-.caption { text-align: center; padding: 2px 0 3px; display: flex; flex-direction: column; gap: 1px; }
+.caption { text-align: center; padding: 0 10px 4px; display: flex; flex-direction: column; gap: 1px; }
+.divider { display: flex; align-items: center; gap: 8px; color: #6b573baa; font-size: 9px; margin-bottom: 2px; }
+.divider i { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #6b573b66); }
+.divider i + i { background: linear-gradient(90deg, #6b573b66, transparent); } // mirrored hairline
 .caption strong {
   font-family: 'Playfair Display', Georgia, serif; font-weight: 600;
   font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: $ink;
 }
-.caption small { font-family: 'PT Serif', Georgia, serif; font-size: 11px; letter-spacing: .18em; color: $sepia; }
+.caption small { font-family: 'PT Serif', Georgia, serif; font-size: 10.5px; letter-spacing: .18em; color: $sepia; }
 
 // ── back: the burgundy fact panel on the same stock ──
 .back { transform: rotateY(180deg); padding: 10px; }
@@ -121,18 +128,19 @@ $cream: #efe2c6;
   padding: 12px 12px 10px;
 }
 
-.ribbon {
-  align-self: center; text-align: center; max-width: 94%;
+// one compact ribbon line, everything else belongs to the facts
+.ribbon-line {
+  align-self: center; max-width: 96%;
   background: $cream; color: #4a2a1a;
-  padding: 5px 16px 6px; border-radius: 3px;
+  padding: 4px 14px; border-radius: 3px;
   clip-path: polygon(0 0, 100% 0, 97% 50%, 100% 100%, 0 100%, 3% 50%);
-  box-shadow: 0 2px 6px #0005;
 }
-.ribbon h3 {
+.ribbon-line h3 {
   margin: 0; font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
-  font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; line-height: 1.2;
+  font-size: 11px; letter-spacing: .05em; text-transform: uppercase; line-height: 1.25;
+  text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.ribbon small { font-family: 'PT Serif', Georgia, serif; font-size: 8.5px; letter-spacing: .22em; text-transform: uppercase; color: #7a5a3a; }
+.ribbon-line h3 span { color: #7a5a3a; margin-inline-end: 4px; }
 
 .back ol {
   list-style: none; margin: 0; padding: 0 2px;
@@ -140,6 +148,9 @@ $cream: #efe2c6;
   flex: 1; min-height: 0; overflow-y: auto; cursor: auto;
   scrollbar-width: thin; scrollbar-color: #efe2c655 transparent;
 }
+// facts share the whole back evenly; nothing is wasted on empty velvet
+.back ol li { flex: 1; min-height: 44px; display: flex; flex-direction: column; }
+.back ol li app-scratch-fact { flex: 1; display: flex; flex-direction: column; }
 
 // ── face-down card: burgundy shirt with lattice and fleur-de-lis ──
 .shirt { padding: 10px; }

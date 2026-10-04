@@ -1,8 +1,9 @@
 <section class="collections" [attr.aria-label]="'Collections' | t">
-  <header class="collections__header">
-    <div>
-      <h1>{{ 'Collections' | t }}</h1>
-      <p>{{ 'Cards reveal themselves as you play.' | t }}</p>
+  <header class="collections__top">
+    <a class="back" routerLink="/worlds" [attr.aria-label]="'Worlds' | t"><span aria-hidden="true">←</span></a>
+    <div class="titles">
+      <small>{{ 'Collections' | t }}</small>
+      <h1>{{ facade.detail()?.name ?? ('Collections' | t) }}</h1>
     </div>
     <span class="coins" aria-live="polite" [attr.aria-label]="'Your coins' | t">🪙 {{ facade.coins() ?? '…' }}</span>
   </header>
@@ -22,17 +23,13 @@
   }
 
   @if (facade.detail(); as album) {
-    <div class="collections__meta">
-      <h2>{{ album.name }}</h2>
-      <p class="description">{{ album.description }}</p>
-      @if (summaryOf(album.id); as summary) {
-        <p class="progress" aria-live="polite">
-          <b>{{ '{0} / {1}' | t: [summary.revealedCards, summary.totalCards] }}</b>
-          @if (summary.state === 'completed') { {{ 'Collection complete!' | t }} }
-          @else if (album.nextCardIn !== null) { {{ 'Play {0} more games to reveal the next card.' | t: [album.nextCardIn] }} }
-        </p>
-      }
-    </div>
+    @if (summaryOf(album.id); as summary) {
+      <p class="progress" aria-live="polite">
+        <b>{{ '{0} / {1}' | t: [summary.revealedCards, summary.totalCards] }}</b>
+        @if (summary.state === 'completed') { {{ 'Collection complete!' | t }} }
+        @else if (album.nextCardIn !== null) { {{ 'Play {0} more games to reveal the next card.' | t: [album.nextCardIn] }} }
+      </p>
+    }
 
     <div class="collections__grid">
       @for (card of album.cards; track card.position) {
