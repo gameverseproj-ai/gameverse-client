@@ -1,5 +1,7 @@
-import { MusicGenre } from '../models/music.model';
+import { MusicGenre as RecordedGenre } from '../models/music.model';
 import { Instrument, LOOP_STEPS, MUSIC_TRACKS, musicStep } from './music-score';
+
+type MusicGenre = Exclude<RecordedGenre, 'lounge'>;
 
 const INSTRUMENTS: Instrument[] = ['kick', 'snare', 'hat', 'openhat', 'crash', 'riser', 'bass', 'guitar', 'keys', 'pad', 'lead'];
 

@@ -4,7 +4,7 @@ import { Subject, of } from 'rxjs';
 import { PLAYER_API } from '../api/player.api';
 import { MUSIC_PLAYER } from './music-player';
 import { MusicService } from './music.service';
-import { MusicPreferences } from '../models/music.model';
+import { MusicPreferences, validMusic } from '../models/music.model';
 import { MusicRotation } from './music-rotation';
 import { MUSIC_TRACKS } from './music-library';
 
@@ -53,6 +53,17 @@ describe('recorded music', () => {
     service.choose('rock'); const first=service.currentTrack();
     player.onEnded(); expect(service.currentTrack()).not.toBe(first);
     const second=service.currentTrack(); service.choose('rock'); expect(service.currentTrack()).not.toBe(second);
+  });
+  it('supports lounge playback and saved preferences', () => {
+    service.choose('lounge');
+    expect(player.play.calls.mostRecent().args[0]).toBe('lounge');
+    expect(api.saveMusicPreferences.calls.mostRecent().args[0].genre).toBe('lounge');
+    expect(validMusic({enabled:true, genre:'lounge', volume:.35})).toBeTrue();
+  });
+  it('replaces all six previous trance recordings', () => {
+    const old=['the-lift','cut-trance','blippy-trance','trance-adventure','bouncer','awake'];
+    expect(MUSIC_TRACKS.trance.length).toBe(6);
+    for (const track of MUSIC_TRACKS.trance) expect(old.some(slug => track.src === '/assets/music/'+slug+'.mp3')).toBeFalse();
   });
   it('plays every recording before repeating within a genre', () => {
     const rotation=new MusicRotation(() => .4);

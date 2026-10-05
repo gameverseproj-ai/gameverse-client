@@ -135,46 +135,46 @@ export const MUSIC_TRACKS: Record<MusicGenre, readonly MusicTrack[]> = {
   ],
   "trance": [
     {
-      "title": "The Lift",
-      "artist": "Kevin MacLeod",
-      "src": "/assets/music/the-lift.mp3",
-      "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1500066",
+      "title": "Mercury",
+      "artist": "Shane Ivers",
+      "src": "/assets/music/mercury.mp3",
+      "source": "https://www.silvermansound.com/free-music/mercury",
       "license": "https://creativecommons.org/licenses/by/4.0/"
     },
     {
-      "title": "Cut Trance",
-      "artist": "Kevin MacLeod",
-      "src": "/assets/music/cut-trance.mp3",
-      "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100273",
+      "title": "Nightchaser",
+      "artist": "Shane Ivers",
+      "src": "/assets/music/nightchaser.mp3",
+      "source": "https://www.silvermansound.com/free-music/nightchaser",
       "license": "https://creativecommons.org/licenses/by/4.0/"
     },
     {
-      "title": "Blippy Trance",
-      "artist": "Kevin MacLeod",
-      "src": "/assets/music/blippy-trance.mp3",
-      "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1900055",
+      "title": "Big Trance",
+      "artist": "Kris Klavenes",
+      "src": "/assets/music/big-trance.mp3",
+      "source": "https://opengameart.org/content/big-trance-by-kris-klavenes-for-game",
       "license": "https://creativecommons.org/licenses/by/4.0/"
     },
     {
-      "title": "Trance Adventure",
+      "title": "Trance Battle",
       "artist": "MintoDog",
-      "src": "/assets/music/trance-adventure.mp3",
-      "source": "https://opengameart.org/content/trance-adventure",
+      "src": "/assets/music/trance-battle.mp3",
+      "source": "https://opengameart.org/content/trance-battle",
       "license": "https://creativecommons.org/publicdomain/zero/1.0/"
     },
     {
-      "title": "Bouncer",
-      "artist": "Of Far Different Nature",
-      "src": "/assets/music/bouncer.mp3",
-      "source": "https://opengameart.org/content/bouncer-0",
+      "title": "Trance Boss Battle",
+      "artist": "MintoDog",
+      "src": "/assets/music/trance-boss-battle.mp3",
+      "source": "https://opengameart.org/content/trance-boss-battle",
       "license": "https://creativecommons.org/publicdomain/zero/1.0/"
     },
     {
-      "title": "Awake!",
-      "artist": "cynicmusic",
-      "src": "/assets/music/awake.mp3",
-      "source": "https://opengameart.org/content/awake-megawall-10",
-      "license": "https://creativecommons.org/publicdomain/zero/1.0/"
+      "title": "Silver",
+      "artist": "SOUND AIRYLUVS by ISAo",
+      "src": "/assets/music/silver.mp3",
+      "source": "https://opengameart.org/content/progressive-trance-edm-silver",
+      "license": "https://opengameart.org/content/oga-by-30-faq"
     }
   ],
   "metal": [
@@ -219,6 +219,50 @@ export const MUSIC_TRACKS: Record<MusicGenre, readonly MusicTrack[]> = {
       "src": "/assets/music/heavy-battle-2.mp3",
       "source": "https://opengameart.org/content/heavy-battle-2",
       "license": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  ],
+  "lounge": [
+    {
+      "title": "Bossa Antigua",
+      "artist": "Kevin MacLeod",
+      "src": "/assets/music/bossa-antigua.mp3",
+      "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1700069",
+      "license": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    {
+      "title": "BossaBossa",
+      "artist": "Kevin MacLeod",
+      "src": "/assets/music/bossabossa.mp3",
+      "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600055",
+      "license": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    {
+      "title": "Suave Standpipe",
+      "artist": "Kevin MacLeod",
+      "src": "/assets/music/suave-standpipe.mp3",
+      "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1500078",
+      "license": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    {
+      "title": "Local Forecast - Slower",
+      "artist": "Kevin MacLeod",
+      "src": "/assets/music/local-forecast-slower.mp3",
+      "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300011",
+      "license": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    {
+      "title": "Daybreak",
+      "artist": "Kevin MacLeod",
+      "src": "/assets/music/daybreak.mp3",
+      "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100266",
+      "license": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    {
+      "title": "Sincerely",
+      "artist": "Kevin MacLeod",
+      "src": "/assets/music/sincerely.mp3",
+      "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1900016",
+      "license": "https://creativecommons.org/licenses/by/4.0/"
     }
   ]
 };

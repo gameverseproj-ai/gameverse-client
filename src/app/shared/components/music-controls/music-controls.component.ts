@@ -14,7 +14,7 @@ export class MusicControlsComponent {
   readonly genres: {id: MusicGenre | 'off'; name: string}[] = [
     {id: 'rock', name: 'Rock'}, {id: 'pop', name: 'Pop'},
     {id: 'funk', name: 'Funk'}, {id: 'trance', name: 'Trance'},
-    {id: 'metal', name: 'Metal'}, {id: 'off', name: 'Music off'},
+    {id: 'metal', name: 'Metal'}, {id: 'lounge', name: 'Lounge'}, {id: 'off', name: 'Music off'},
   ];
   readonly selected = computed(() => this.music.preferences().enabled ? this.music.preferences().genre : 'off');
   readonly current = computed(() => this.genres.find(genre => genre.id === this.selected())!);

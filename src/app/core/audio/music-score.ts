@@ -1,4 +1,6 @@
-import { MusicGenre } from '../models/music.model';
+import { MusicGenre as RecordedGenre } from '../models/music.model';
+type MusicGenre = Exclude<RecordedGenre, 'lounge'>;
+
 export type Instrument = 'kick' | 'snare' | 'hat' | 'openhat' | 'crash' | 'riser' | 'bass' | 'guitar' | 'keys' | 'pad' | 'lead';
 /** {@code brightness} (0..1) opens or closes the voice's filter; default is the instrument's own. */
 export interface MusicNote { instrument: Instrument; midi: number; duration: number; velocity: number; delay?: number; brightness?: number }
