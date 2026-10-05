@@ -9,3 +9,8 @@
 :host(.in-nav) { margin-inline-end: 12px; }
 
 :host(.compact) .volume { margin: 0; padding: 6px 16px 12px; }
+
+.now-playing { display:flex; align-items:center; gap:8px; margin-top:8px; font-size:12px; color:#ddcfea; }
+.now-playing span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; min-width:0; }
+.now-playing button { flex:none; width:40px; height:40px; border-radius:50%; border:1px solid #d2b8f238; background:#433353; color:inherit; cursor:pointer; }
+.credits { display:inline-block; color:#b9a6ce; font-size:11px; margin-top:6px; }

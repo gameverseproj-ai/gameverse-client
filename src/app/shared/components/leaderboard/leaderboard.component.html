@@ -1,0 +1,26 @@
+<div class="leaderboard">
+  <header><div><h2>{{ 'Leaderboard' | t }}</h2><span>{{ 'This week' | t }}</span></div><button type="button" class="refresh" [disabled]="loading()" (click)="reload()" [attr.aria-label]="'Refresh' | t">↻</button></header>
+  @if (loading()) { <div class="state" role="status">{{ 'Loading leaderboard…' | t }}</div> }
+  @else if (failed()) { <div class="state" role="alert"><p>{{ 'Could not load leaderboard.' | t }}</p><button type="button" (click)="reload()">{{ 'Try again' | t }}</button></div> }
+  @if (board(); as data) {
+    @if (!data.enabled) { <div class="state">{{ 'Leaderboard is currently unavailable.' | t }}</div> }
+    @else {
+      <div class="period"><span>{{ (data.scoring === 'TOTAL_POINTS' ? 'Total points' : 'Best run') | t }} · {{ '{0} players' | t: [number(data.players)] }}</span><span>{{ (data.period.settled ? 'Results finalized' : 'Ends {0}') | t: [endDate(data.period.endsAt)] }}</span></div>
+      <div class="table-head" aria-hidden="true"><span>#</span><span>{{ 'Player' | t }}</span><span>{{ 'Score' | t }}</span></div>
+      <div class="standings" #list role="list" [attr.aria-label]="'Leaderboard' | t">
+        @for (row of rows(); track row.playerId) {
+          <div class="row" role="listitem" [class.you]="row.you" [class.podium]="row.rank <= 3">
+            <span class="rank">{{ number(row.rank) }}</span>
+            <div class="player"><strong>{{ row.you ? ('You' | t) : row.username || ('Player' | t) }}</strong><small [attr.title]="'Potential reward' | t">{{ reward(row.prize) }}</small></div>
+            <strong class="score">{{ number(row.score) }}</strong>
+          </div>
+        } @empty { <div class="state">{{ 'No scores yet this week.' | t }}</div> }
+      </div>
+      <nav class="pagination" [attr.aria-label]="'Leaderboard pages' | t"><button type="button" [disabled]="page() === 0" (click)="move(-1)" [attr.aria-label]="'Previous page' | t">‹</button><span>{{ number(page() + 1) }} / {{ number(pages()) }} · {{ 'Top {0}' | t: [number(data.standings.length)] }}</span><button type="button" [disabled]="page() + 1 >= pages()" (click)="move(1)" [attr.aria-label]="'Next page' | t">›</button></nav>
+      <footer>
+        @if (data.you; as own) { <div class="own"><span>{{ 'You' | t }} · #{{ number(own.rank) }}</span><strong>{{ number(own.score) }}</strong></div><small>{{ (data.period.settled ? 'Reward' : 'Potential reward') | t }}: {{ reward(own.prize) }}</small> }
+        @else { <span>{{ 'Finish a scored run to join the leaderboard.' | t }}</span> }
+      </footer>
+    }
+  }
+</div>

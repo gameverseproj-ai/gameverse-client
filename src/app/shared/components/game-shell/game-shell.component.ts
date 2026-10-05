@@ -1,11 +1,12 @@
+import { LeaderboardComponent } from '../leaderboard/leaderboard.component';
 import { Component, afterNextRender, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
-export type GamePage = 'play' | 'progress' | 'help';
+export type GamePage = 'play' | 'progress' | 'help' | 'leaderboard';
 
 @Component({
-  selector: 'app-game-shell', standalone: true, imports: [RouterLink, TranslatePipe],
+  selector: 'app-game-shell', standalone: true, imports: [RouterLink, TranslatePipe, LeaderboardComponent],
   templateUrl: './game-shell.component.html', styleUrl: './game-shell.component.scss',
 })
 export class GameShellComponent {
@@ -19,7 +20,7 @@ export class GameShellComponent {
     afterNextRender(() => this.pageChange.emit(this.page()));
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe(params => {
       const value = params.get('page');
-      const page = value === 'progress' || value === 'help' ? value : 'play';
+      const page = value === 'progress' || value === 'help' || value === 'leaderboard' ? value : 'play';
       this.page.set(page);
       this.pageChange.emit(page);
     });

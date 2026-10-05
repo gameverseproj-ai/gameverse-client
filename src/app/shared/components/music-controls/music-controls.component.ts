@@ -18,7 +18,7 @@ export class MusicControlsComponent {
   ];
   readonly selected = computed(() => this.music.preferences().enabled ? this.music.preferences().genre : 'off');
   readonly current = computed(() => this.genres.find(genre => genre.id === this.selected())!);
-  readonly busy = computed(() => this.music.loading() || this.music.saving());
+  readonly busy = computed(() => this.music.loading());
   readonly expanded = signal(false);
   readonly active = signal(0);
   private static nextId = 0;

@@ -15,3 +15,5 @@ h2 { margin: 0; font-size: clamp(20px,4vw,32px); }
 .return { width: auto; padding: 0 22px; font-size: 14px; color: var(--game-accent); }
 @media(max-width:420px) { header { gap: 6px; padding-inline-start: 10px; padding-inline-end: 70px; } nav { gap: 2px; } button,.exit { width: 40px; } h1 { font-size: 13px; } }
 @media(max-height:500px) { header { min-height: 52px; padding-block: 2px; } .secondary { gap: 10px; padding: 10px; } }
+
+@media(max-width:480px) { header { flex-wrap:wrap; gap:2px 8px; } h1 { flex:1; } nav { flex-basis:100%; justify-content:center; margin:0; } nav button { height:36px; } }

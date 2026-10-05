@@ -1,5 +1,5 @@
 import { MusicGenre } from '../models/music.model';
-import { MUSIC_TRACKS } from './music-score';
+import { MUSIC_TRACKS } from './music-library';
 
 /** A shuffle bag per genre: hear every tune before reshuffling, without repeats. */
 export class MusicRotation {

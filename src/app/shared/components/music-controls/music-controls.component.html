@@ -27,8 +27,14 @@
   <label class="volume">{{ 'Volume' | t }}<input type="range" min="0" max="100" step="5" [value]="music.preferences().volume * 100" [disabled]="busy()" (change)="changeVolume($event)"></label>
 }
 @if (music.preferences().enabled && !music.ready()) {
-  <button class="start" type="button" (click)="music.unlock()">{{ 'Play music' | t }}</button>
+  <button class="start" type="button" (click)="music.startPlayback()">{{ 'Play music' | t }}</button>
 }
 @if (music.error()) {
-  <div class="music-error" role="alert">{{ music.error() | t }} <button type="button" (click)="music.load()">{{ 'Reload settings' | t }}</button></div>
+  <div class="music-error" role="alert">{{ music.error() | t }} <button type="button" (click)="music.retry()">{{ 'Retry' | t }}</button></div>
 }
+
+@if (music.preferences().enabled && (!compact || expanded())) {
+  <div class="now-playing"><span [title]="music.currentTrack().artist">{{ music.currentTrack().title }}</span><button type="button" (click)="music.nextTrack()" [attr.aria-label]="'Next track' | t">⏭</button></div>
+}
+@if (!compact || expanded()) { <a class="credits" href="/assets/music/credits.html" target="_blank" rel="noopener">{{ 'Music credits' | t }}</a> }
+@if (music.playbackError()) { <div class="music-error" role="alert">{{ music.playbackError() | t }}</div> }

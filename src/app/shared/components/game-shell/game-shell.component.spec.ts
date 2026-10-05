@@ -1,3 +1,5 @@
+import { of } from 'rxjs';
+import { HttpLeaderboardApi } from '../../../core/api/http/http-leaderboard.api';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -13,7 +15,7 @@ class TestGameComponent { page: GamePage = 'play'; }
 
 describe('Game page navigation', () => {
   beforeEach(() => TestBed.configureTestingModule({
-    providers: [{ provide: LanguageService, useValue: { t: (text: string) => text } }, provideRouter([{ path: 'games/snake', component: TestGameComponent }])],
+    providers: [{ provide: HttpLeaderboardApi, useValue: { get: () => of({enabled: false}) } },{ provide: LanguageService, useValue: { t: (text: string) => text } }, provideRouter([{ path: 'games/snake', component: TestGameComponent }])],
   }));
 
   it('keeps the board alive and inert while another page is shown, and supports returning', async () => {
@@ -43,4 +45,20 @@ describe('Game page navigation', () => {
     expect(root.querySelector('[gamePlay]')!.closest('[hidden]')).toBeNull();
     expect(root.querySelector('a.exit')!.getAttribute('href')).toBe('/world?from=snake');
   });
+  it('opens the leaderboard without losing the game and restores play on return', async () => {
+    const harness = await RouterTestingHarness.create();
+    const host = await harness.navigateByUrl('/games/snake', TestGameComponent);
+    const canvas = harness.routeNativeElement!.querySelector('canvas');
+    await TestBed.inject(Router).navigateByUrl('/games/snake?page=leaderboard');
+    harness.detectChanges();
+    expect(host.page).toBe('leaderboard');
+    expect(harness.routeNativeElement!.querySelector('app-leaderboard')).not.toBeNull();
+    expect(canvas!.closest('[inert]')).not.toBeNull();
+    await TestBed.inject(Router).navigateByUrl('/games/snake');
+    harness.detectChanges();
+    expect(host.page).toBe('play');
+    expect(harness.routeNativeElement!.querySelector('canvas')).toBe(canvas);
+    expect(harness.routeNativeElement!.querySelector('app-leaderboard')).toBeNull();
+  });
+
 });
