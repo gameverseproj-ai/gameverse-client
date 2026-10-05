@@ -9,11 +9,31 @@ header { display: flex; align-items: center; gap: 12px; justify-content: space-b
 h2 { font-size: 20px; margin: 0; }
 p { line-height: 1.5; font-size: 14px; }
 .demo { color: #ffe0a6; }
-.providers { display: grid; gap: 10px; }
-.providers button:first-child { background: #ffe0a6; color: #34234d; font-weight: 700; }
+.providers { display: grid; gap: 10px; justify-items: stretch; }
+.providers.telegram-first .telegram { order: -1; }
+/* Both provider buttons share one pill: 44px tall, icon + label, max 400px (Google's iframe limit). */
+.provider, .provider-face {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; max-width: 400px; min-height: 44px; height: 44px; padding: 0 16px; box-sizing: border-box;
+  border-radius: 22px; font: inherit; font-size: 15px; font-weight: 600; letter-spacing: .01em;
+}
+.provider { position: relative; margin: 0 auto; }
+.provider svg { flex: none; }
+.provider.google { background: #fff; color: #1f1f1f; border: 1px solid #dadce0; transition: background .15s, box-shadow .15s; }
+.provider.google:hover, .provider.google:focus-within { background: #f1f3f4; box-shadow: 0 1px 6px #0003; }
+.provider.google:focus-within { outline: 3px solid #ffde98; outline-offset: 3px; }
+.provider.google.busy { opacity: .6; pointer-events: none; }
+.provider-face { position: absolute; inset: 0; padding: 0 16px; }
+/* Google's real button: transparent, stretched over the face, still the click target. */
+.provider-host {
+  position: absolute; inset: 0; opacity: 0; overflow: hidden;
+  display: flex; justify-content: center; align-items: center;
+  transform: scaleY(1.1); /* Google renders 40px tall; stretch to the 44px pill so no edge is dead. */
+}
+.provider.telegram { background: #29A9EB; color: #fff; border: 1px solid #29A9EB; }
+.provider.telegram:hover { background: #1f94d2; }
 .skip { width: 100%; margin-top: 10px; background: transparent; }
 @media (max-height: 500px) { .account-panel { max-height: 65dvh; } }
-.provider-host { min-height: 44px; display: flex; justify-content: center; align-items: center; }
 
 :host(.world-mode) {
   top: max(16px, env(safe-area-inset-top));

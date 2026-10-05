@@ -8,7 +8,7 @@ import { isPlatformBrowser } from '@angular/common';
  */
 export const GOOGLE_CLIENT_ID = new InjectionToken<string>('GOOGLE_CLIENT_ID', {
   providedIn: 'root',
-  factory: () => '741688211312-j23j6eu652e0sv4ka30tkbo2gi42hu94.apps.googleusercontent.com',
+  factory: () => '640339932585-u7ton82difkje46bjlipj4a8qlgke8lt.apps.googleusercontent.com',
 });
 
 type GoogleId = {
@@ -16,10 +16,17 @@ type GoogleId = {
   renderButton(parent: HTMLElement, options: Record<string, unknown>): void;
 };
 
+/** Identity Services clamps the button width to this range (px). */
+const MIN_WIDTH = 200;
+const MAX_WIDTH = 400;
+
 /**
  * Loads Google Identity Services once and renders its official sign-in button.
  * The button is Google's own iframe: it opens the account chooser and hands
- * back a real ID token, which is the only credential be-core accepts.
+ * back a real ID token, which is the only credential be-core accepts. The
+ * caller lays a styled face underneath and keeps the iframe transparent on
+ * top, so the click still lands on Google's button while the panel keeps its
+ * own look and the app's language.
  */
 @Injectable({ providedIn: 'root' })
 export class GoogleSignInService {
@@ -28,13 +35,17 @@ export class GoogleSignInService {
   private script?: Promise<GoogleId>;
   private onCredential: (idToken: string) => void = () => {};
 
-  /** Renders the button into {@code host}; {@code callback} receives the ID token. */
-  renderButton(host: HTMLElement, callback: (idToken: string) => void): void {
+  /**
+   * Renders the button into {@code host}, sized to it and labelled in
+   * {@code locale}; {@code callback} receives the ID token.
+   */
+  renderButton(host: HTMLElement, locale: string, callback: (idToken: string) => void): void {
     if (!this.browser) return;
     this.onCredential = callback;
     this.load().then(id => {
       host.replaceChildren();
-      id.renderButton(host, { type: 'standard', theme: 'outline', size: 'large', text: 'signin_with', width: 250 });
+      const width = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, Math.round(host.clientWidth) || MAX_WIDTH));
+      id.renderButton(host, { type: 'standard', theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill', width, locale });
     }).catch(() => { /* The dialog's own error line reports sign-in trouble. */ });
   }
 

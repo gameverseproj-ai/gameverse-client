@@ -4,16 +4,21 @@
       <header><h2 id="account-title">{{ (auth.session()?.anonymous ? 'Save your game progress' : 'Your account') | t }}</h2><button type="button" (click)="close()" [attr.aria-label]="'Close' | t">×</button></header>
       @if (auth.session()?.anonymous) {
         <p>{{ 'Keep playing as a guest, or connect Google or Telegram to keep your progress across devices.' | t }}</p>
-        <div class="providers">
-          @if (auth.mode() === 'telegram') {
-            <button type="button" [disabled]="auth.busy()" (click)="telegramLogin()">{{ 'Sign in with Telegram' | t }}</button>
+        <div class="providers" [class.telegram-first]="auth.mode() === 'telegram'">
+          <!-- Google's own iframe button sits transparent over this styled face: the click reaches Google, the look stays ours. -->
+          <div class="provider google" [class.busy]="auth.busy()">
+            <span class="provider-face" aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.7 1.2 9.2 3.6l6.9-6.9C35.9 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l8 6.2C12.5 13.7 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.1 5.3-4.6 7l7.3 5.6c4.3-3.9 7-9.7 7-17.1z"/><path fill="#FBBC05" d="M10.6 28.6A14.5 14.5 0 0 1 9.8 24c0-1.6.3-3.2.8-4.6l-8-6.2A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l8-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.6c-2.1 1.4-4.9 2.3-8.6 2.3-6.2 0-11.5-4.2-13.4-9.9l-8 6.2C6.5 42.6 14.6 48 24 48z"/></svg>
+              <span>{{ 'Sign in with Google' | t }}</span>
+            </span>
             <div #googleHost class="provider-host"></div>
-          } @else {
-            <div #googleHost class="provider-host"></div>
-            <button type="button" [disabled]="auth.busy()" (click)="telegramLogin()">{{ 'Sign in with Telegram' | t }}</button>
-          }
+          </div>
+          <button type="button" class="provider telegram" [disabled]="auth.busy()" (click)="telegramLogin()">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#fff"/><path fill="#29A9EB" d="M5.4 11.6l11.4-4.4c.5-.2 1 .1.8.9l-1.9 9.1c-.1.7-.6.8-1.1.5l-3-2.2-1.4 1.4c-.2.2-.3.3-.6.3l.2-3 5.5-5c.2-.2 0-.3-.3-.1l-6.8 4.3-2.9-.9c-.6-.2-.6-.7.1-.9z"/></svg>
+            <span>{{ 'Sign in with Telegram' | t }}</span>
+          </button>
         </div>
-        <button type="button" class="skip" (click)="close()">{{ 'Continue without signing in' | t }}</button>
+        @if (!worldMode()) { <button type="button" class="skip" (click)="close()">{{ 'Continue without signing in' | t }}</button> }
       } @else if (auth.session()) {
         <p>{{ 'Account connected. Your player and progress are saved to it.' | t }}</p>
         <strong>{{ auth.session()!.identities.join(' · ') }}</strong>

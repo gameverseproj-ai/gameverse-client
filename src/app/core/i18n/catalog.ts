@@ -111,6 +111,7 @@ export const CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
 "Try Telegram sign-in": {"ru":"Попробовать вход через Telegram","he":"נסו כניסה עם Telegram","ar":"جرّب الدخول عبر Telegram"},
 "Keep playing as a guest, or connect Google or Telegram to keep your progress across devices.": {"ru":"Играйте гостем или подключите Google либо Telegram, чтобы прогресс сохранялся на всех устройствах.","he":"המשיכו לשחק כאורחים או חברו Google או Telegram כדי לשמור את ההתקדמות בכל המכשירים.","ar":"تابع اللعب كضيف أو اربط Google أو Telegram للاحتفاظ بتقدمك على جميع الأجهزة."},
 "Sign in with Telegram": {"ru":"Войти через Telegram","he":"כניסה עם Telegram","ar":"الدخول عبر Telegram"},
+"Sign in with Google": {"ru":"Войти через Google","he":"כניסה עם Google","ar":"الدخول عبر Google"},
 "Account connected. Your player and progress are saved to it.": {"ru":"Аккаунт подключён. Ваш игрок и прогресс сохраняются в нём.","he":"החשבון חובר. השחקן וההתקדמות נשמרים בו.","ar":"تم ربط الحساب. يُحفظ فيه لاعبك وتقدمك."},
 "Try Google sign-in": {"ru":"Попробовать вход через Google","he":"נסו כניסה עם Google","ar":"جرّب الدخول عبر Google"},
 "Continue without signing in": {"ru":"Продолжить без входа","he":"המשך ללא כניסה","ar":"المتابعة دون تسجيل الدخول"},
