@@ -1,11 +1,12 @@
 @if (card().revealed) {
-  <div class="card3d" role="button" tabindex="0"
+  <div class="card3d" (pointermove)="tilt($event)" (pointerleave)="resetTilt($event)" (pointercancel)="resetTilt($event)" role="button" tabindex="0"
     [class.to-back]="side() === 'back'" [class.to-front]="side() === 'front'"
     [attr.aria-label]="card().name" [attr.aria-pressed]="side() === 'back'"
     (click)="flip()" (keydown.enter)="flip()" (keydown.space)="$event.preventDefault(); flip()">
     <div class="card-inner">
 
-      <div class="face front">
+      <div class="face front" [attr.inert]="side() === 'back' ? '' : null">
+        <span class="edition" aria-hidden="true">✦ {{ collectionName() }} · {{ card().position.toString().padStart(2, '0') }}</span>
         <header class="nameplate">
           <span class="deco" aria-hidden="true"></span>
           <h3>{{ card().name }}</h3>
@@ -25,11 +26,11 @@
         <footer class="caption">
           <span class="divider" aria-hidden="true"><i></i>⚜<i></i></span>
           <strong>{{ collectionName() }}</strong>
-          <small>№{{ card().position }}</small>
+          <small>{{ 'Tap to turn' | t }} <span aria-hidden="true">↻</span></small>
         </footer>
       </div>
 
-      <div class="face back">
+      <div class="face back" [attr.inert]="side() !== 'back' ? '' : null">
         <div class="panel">
           <div class="ribbon-line">
             <h3><span>№{{ card().position }}</span> {{ card().name }}</h3>
@@ -49,7 +50,9 @@
     <div class="face shirt">
       <div class="panel">
         <span class="lattice" aria-hidden="true"></span>
-        <span class="emblem" aria-hidden="true">⚜</span>
+        <span class="emblem" aria-hidden="true"><i class="gem"></i></span>
+        <span class="sealed-label">{{ collectionName() }}</span>
+        <span class="sealed-number">{{ card().position.toString().padStart(2, '0') }}</span>
       </div>
     </div>
   </div>

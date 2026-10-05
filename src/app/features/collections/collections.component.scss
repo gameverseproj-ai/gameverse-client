@@ -34,8 +34,8 @@
 .progress b { margin-inline-end: 8px; }
 
 .collections__grid {
-  margin-top: 18px;
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 22px;
+  margin-top: 32px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 34px;
 }
 
 .status { color: #cdbde2; }
@@ -44,5 +44,9 @@
 
 @media (max-width: 650px) {
   .collections { padding-top: max(12px, env(safe-area-inset-top)); }
-  .collections__grid { grid-template-columns: 1fr; gap: 16px; max-width: 420px; margin-inline: auto; }
+  .collections__grid { grid-template-columns: 1fr; gap: 32px; max-width: 360px; margin-inline: auto; }
 }
+
+.collections__grid { padding: 0 8px 24px; }
+.progress { padding: 16px 0; border-bottom: 1px solid #e9c7872b; color: #d7cbe5; }
+.progress b { color: #f5d89d; font-size: 18px; }
