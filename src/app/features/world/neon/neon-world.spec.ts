@@ -6,7 +6,7 @@ import { NeonEnvironment } from './neon-environment';
 
 // Exercise entry behavior without constructing a WebGL renderer.
 describe('Neon world prototype', () => {
-  it('does not auto-enter the reserved game when the hero reaches its door', () => {
+  it('enters Tennis Island when the hero reaches its door', () => {
     const portal = NEON_PORTALS[0];
     const scene = Object.create(GellyWorldScene.prototype) as any;
     Object.assign(scene, {
@@ -15,16 +15,13 @@ describe('Neon world prototype', () => {
     });
     scene.beginEntry = jasmine.createSpy('beginEntry');
     scene.checkProximity();
-    expect(scene.beginEntry).not.toHaveBeenCalled();
+    expect(scene.beginEntry).toHaveBeenCalledWith(portal);
   });
 
-  it('ignores interaction with the reserved entrance', () => {
-    const scene = Object.create(GellyWorldScene.prototype) as any;
-    Object.assign(scene, { entry: null, nearbyPortal: NEON_PORTALS[0], onEntryStart: jasmine.createSpy('onEntryStart') });
-    // An available entrance would touch the camera and player here.
-    expect(() => scene.interact()).not.toThrow();
-    expect(scene.onEntryStart).not.toHaveBeenCalled();
-    expect(scene.entry).toBeNull();
+  it('exposes the mock tennis route as an available entrance', () => {
+    expect(NEON_PORTALS[0].available).toBeTrue();
+    expect(NEON_PORTALS[0].route).toBe('/games/tennis');
+    expect(NEON_PORTALS[0].id).toBe('tennis');
   });
 
   it('builds and disposes the robot and city, with stable animated transforms', () => {

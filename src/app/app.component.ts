@@ -35,6 +35,6 @@ export class AppComponent {
 
   readonly isWorld = computed(() => /^\/world(?:s)?(?:\/|$)/.test(this.currentUrl().split(/[?#]/)[0]));
   readonly showNav = computed(() => !this.isWorld()
-    && !/^\/games\/(snake|2048|tetris|power)(?:\/|$)/.test(this.currentUrl().split(/[?#]/)[0])
+    && !/^\/games\/(snake|2048|tetris|power|tennis)(?:\/|$)/.test(this.currentUrl().split(/[?#]/)[0])
     && !/^\/collections(?:\/|$)/.test(this.currentUrl().split(/[?#]/)[0]));
 }

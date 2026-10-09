@@ -1,0 +1,265 @@
+<section class="island" [class.playing]="page() === 'play'">
+  <canvas
+    #court
+    [attr.aria-label]="'Tennis court' | t"
+    (pointerdown)="touch($event)"
+    (pointermove)="aim($event)"
+  ></canvas>
+  <header>
+    @if (page() === "club") {
+      <a
+        routerLink="/worlds/neon-city"
+        [queryParams]="{ from: 'tennis' }"
+        [attr.aria-label]="'Neon World' | t"
+        >←</a
+      >
+    } @else {
+      <button
+        (click)="back()"
+        [disabled]="busy()"
+        [attr.aria-label]="'Back to club' | t"
+      >
+        ←
+      </button>
+    }
+    <div class="brand">
+      <small>NEON WORLD</small><strong>Tennis Island<span>✦</span></strong>
+    </div>
+    <span class="demo">{{ "Local demo" | t }}</span>
+  </header>
+  @if (page() === "club") {
+    <div class="club">
+      <div class="intro">
+        <span class="eyebrow">THE NEON RACQUET CLUB</span>
+        <h1>{{ "Own the court." | t }}</h1>
+        <p>{{ "Find your rhythm. Make your mark." | t }}</p>
+      </div>
+      <div class="club-panel">
+        <div
+          class="sports"
+          role="group"
+          [attr.aria-label]="'Choose a sport' | t"
+        >
+          @for (item of sports; track item.id) {
+            <button
+              [class.selected]="sport() === item.id"
+              [attr.aria-pressed]="sport() === item.id"
+              (click)="selectSport(item.id)"
+            >
+              <span>{{ item.icon }}</span
+              >{{ item.name | t }}
+              @if (item.id !== "tennis") {
+                <small>{{ "Coming soon" | t }}</small>
+              }
+            </button>
+          }
+        </div>
+        @if (sport() === "tennis") {
+          <button class="primary" (click)="start()" [disabled]="!profile()">
+            {{ "Play practice match" | t }} <span>↗</span>
+          </button>
+          <button class="secondary" (click)="page.set('friends')">
+            {{ "Play with a friend" | t }} <span>＋</span>
+          </button>
+        } @else {
+          <p class="soon">{{ "This court is being built." | t }}</p>
+        }
+        <nav>
+          <button (click)="openGym()">◈ {{ "Gym" | t }}</button
+          ><button (click)="page.set('gear')">✧ {{ "Rackets" | t }}</button
+          ><button (click)="page.set('cup')">♜ {{ "Championship" | t }}</button>
+        </nav>
+      </div>
+    </div>
+  }
+  @if (page() === "play") {
+    <div class="score">
+      <div>
+        <small>{{ "You" | t }}</small
+        ><b>{{ state()?.score ?? 0 }}</b>
+      </div>
+      <span>:</span>
+      <div>
+        <small>{{ "Demo rival" | t }}</small
+        ><b>{{ state()?.rivalScore ?? 0 }}</b>
+      </div>
+      <button (click)="paused.set(!paused())" [attr.aria-label]="'Pause' | t">
+        {{ paused() ? "▶" : "Ⅱ" }}
+      </button>
+    </div>
+    @if (state()?.phase === "finished") {
+      <div class="match-overlay">
+        <span>✦</span>
+        <h2>
+          {{ ((state()?.score ?? 0) >= 5 ? "Match won" : "Good match") | t }}
+        </h2>
+        <p>{{ state()?.score }} — {{ state()?.rivalScore }}</p>
+        <button class="primary" (click)="start()">{{ "Play again" | t }}</button
+        ><button (click)="back()">{{ "Back to club" | t }}</button>
+      </div>
+    } @else if (paused()) {
+      <div class="match-overlay">
+        <h2>{{ "Paused" | t }}</h2>
+        <button class="primary" (click)="paused.set(false)">
+          {{ "Continue" | t }}</button
+        ><button (click)="back()">{{ "Back to club" | t }}</button>
+      </div>
+    }
+    <footer class="controls">
+      <div class="energy">
+        <span>{{ "Energy" | t }}</span
+        ><meter min="0" max="100" [value]="state()?.stamina ?? 100"></meter
+        ><small>{{ "First to 5 · Arcade practice" | t }}</small>
+      </div>
+      <div class="shots">
+        <button
+          [attr.aria-label]="'Aim left' | t"
+          (click)="hit(-0.8, -1)"
+          [disabled]="paused()"
+        >
+          ↖</button
+        ><button class="primary" (click)="hit()" [disabled]="paused()">
+          {{ (state()?.phase === "serve" ? "Serve" : "Hit") | t }}</button
+        ><button
+          [attr.aria-label]="'Aim right' | t"
+          (click)="hit(0.8, 1)"
+          [disabled]="paused()"
+        >
+          ↗
+        </button>
+      </div>
+      <p>{{ "Move: drag or ← → · Hit: Space / button" | t }}</p>
+    </footer>
+  }
+  @if (page() === "friends") {
+    <div class="sheet">
+      <span class="eyebrow">COURT 01</span>
+      <h2>{{ "Your court. Your company." | t }}</h2>
+      <p>
+        {{
+          "Invitations are a local preview. Online play needs the server." | t
+        }}
+      </p>
+      @if (room(); as r) {
+        <div class="waiting">
+          <span class="pulse"></span>
+          <h3>{{ "Waiting for a player" | t }}</h3>
+          @if (r.invitedUsername) {
+            <p>&#64;{{ r.invitedUsername }}</p>
+          }
+          <small>{{ "No real invitation has been sent." | t }}</small>
+        </div>
+        <button class="primary" (click)="copyInvite()">
+          {{ (copied() ? "Copied" : "Copy invitation link") | t }}</button
+        ><button (click)="cancel()" [disabled]="busy()">
+          {{ "Close court" | t }}
+        </button>
+      } @else {
+        <label
+          >{{ "Username" | t
+          }}<input
+            [value]="username"
+            (input)="setUsername($event)"
+            maxlength="32"
+            autocomplete="off"
+            placeholder="player_name" /></label
+        ><button
+          class="primary"
+          (click)="openRoom(true)"
+          [disabled]="busy() || !username.trim()"
+        >
+          {{ "Create invitation" | t }}</button
+        ><button
+          class="secondary"
+          (click)="openRoom(false)"
+          [disabled]="busy()"
+        >
+          {{ "Open a court" | t }}
+        </button>
+      }
+    </div>
+  }
+  @if (page() === "gym") {
+    <div class="sheet">
+      <span class="eyebrow">TRAINING LAB</span>
+      <h2>{{ "Build your swing." | t }}</h2>
+      <div class="training-orb" [style.--progress]="drill() / drillReps()">◈</div>
+      <p>{{ "20 steady presses. One stronger swing." | t }}</p>
+      <strong>{{ drill() }} / {{ drillReps() }}</strong
+      ><button
+        class="primary"
+        (click)="rep()"
+        [disabled]="busy() || drillDone() || !training()"
+      >
+        {{ (drillDone() ? "Training complete" : "Train") | t }}
+      </button>
+      <div class="stats">
+        <span
+          >{{ "Power" | t }} <b>{{ profile()?.power }} / 10</b></span
+        ><span
+          >{{ "Endurance" | t }} <b>{{ profile()?.endurance }} / 10</b></span
+        >
+      </div>
+      <small>{{ "Endurance grows through active practice." | t }}</small>
+    </div>
+  }
+  @if (page() === "gear") {
+    <div class="sheet gear">
+      <span class="eyebrow">THE PRO SHOP</span>
+      <h2>{{ "Find your signature." | t }}</h2>
+      <p>{{ profile()?.coins }} {{ "demo coins" | t }}</p>
+      <div class="rackets">
+        @for (r of rackets; track r.id) {
+          <button
+            [class.equipped]="profile()?.racket === r.id"
+            (click)="equip(r.id)"
+            [disabled]="
+              busy() ||
+              (!profile()?.owned?.includes(r.id) &&
+                (profile()?.coins ?? 0) < r.price)
+            "
+          >
+            <span
+              class="racket-art"
+              [class.prism]="r.id === 'spin'"
+              [class.volt]="r.id === 'power'"
+            ></span
+            ><strong>{{ r.name }}</strong
+            ><small>{{
+              (r.id === "spin"
+                ? "Spin control"
+                : r.id === "power"
+                  ? "Stronger shots"
+                  : "Balanced"
+              ) | t
+            }}</small
+            ><b>{{
+              profile()?.racket === r.id
+                ? ("Equipped" | t)
+                : profile()?.owned?.includes(r.id)
+                  ? ("Equip" | t)
+                  : r.price
+            }}</b>
+          </button>
+        }
+      </div>
+    </div>
+  }
+  @if (page() === "cup") {
+    <div class="sheet">
+      <span class="eyebrow">ISLAND CHAMPIONSHIP</span>
+      <div class="trophy">♜</div>
+      <h2>{{ "A place in the spotlight." | t }}</h2>
+      <p>{{ "Win a trophy. Leave your name in island history." | t }}</p>
+      <span class="coming">{{
+        "Championships open with online play." | t
+      }}</span
+      ><small>{{ "No championship is running in this demo." | t }}</small>
+    </div>
+  }
+  @if (error()) {
+    <div class="error" role="alert">
+      {{ error() | t }}<button (click)="error.set('')">×</button>
+    </div>
+  }
+</section>

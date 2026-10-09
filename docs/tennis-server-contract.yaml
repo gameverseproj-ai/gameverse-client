@@ -1,0 +1,88 @@
+# Tennis Island: proposed server contract, version 0.1.
+# No backend implementation or real multiplayer is included in this client slice.
+# Current adapter: TENNIS_API -> MockTennisApi. Production adapter must use existing bearer auth.
+# Currency here is mock-only and separate from the real GameVerse wallet.
+basePath: /api/tennis
+version: 0.1
+identity: existing GameVerse bearer session; derive userId on server, never accept it from client
+sports: [tennis, ping-pong, squash, badminton]
+http:
+  GET /bootstrap:
+    response: "{ enabledSports, profile, rackets, activeChampionship, realtimeUrl }"
+  GET /profile:
+    response: "{ endurance: 1..10, power: 1..10, coins, racket, owned: [racketId], activeSeconds }"
+  POST /rooms:
+    body: "{ sport, visibility: public|private, invitedUsername?: string, idempotencyKey }"
+    response: "{ id, sport, status: waiting|ready|playing|closed, inviteUrl, expiresAt, players }"
+    errors:
+      [
+        400 invalid sport or username,
+        404 player not found,
+        409 already in room,
+        429 rate limit,
+      ]
+  GET /rooms:
+    query: "{ sport, cursor? }"
+    response: "{ items, nextCursor }"
+  GET /rooms/{id}:
+    response: "{ id, sport, status, players, matchId?, expiresAt }"
+  POST /rooms/{id}/join:
+    body: "{ inviteToken?, idempotencyKey }"
+    response: "{ room, matchId? }"
+  DELETE /rooms/{id}:
+    behavior: owner closes waiting room; participant leaves; idempotent
+  POST /invitations:
+    body: "{ roomId, username, idempotencyKey }"
+    response: "{ id, status: pending, expiresAt, inviteUrl }"
+    behavior: invitation delivered by server; link can lead through auth before joining
+  POST /rackets/{id}/purchase:
+    body: "{ idempotencyKey }"
+    response: "{ profile, walletTransactionId }"
+    behavior: atomic server-side price validation and wallet deduction
+  PUT /profile/racket:
+    body: "{ racketId }"
+    response: profile
+  POST /training/sessions:
+    body: "{ exerciseId, idempotencyKey }"
+    response: "{ id, challenge, startedAt, expiresAt }"
+  POST /training/sessions/{id}/complete:
+    body: "{ events: [{ sequence, elapsedMs, action }], idempotencyKey }"
+    response: "{ profile, earnedPower }"
+    behavior: validate challenge timing and caps; never accept arbitrary power increments
+  GET /championships/current:
+    response: "{ id, sport, startsAt, endsAt, status, rules, prize, registrationOpen } or null"
+  POST /championships/{id}/registration:
+    body: "{ idempotencyKey }"
+    response: "{ registrationId, status }"
+  GET /championships/{id}/standings:
+    response: "{ standings, bracket, champion? }"
+  GET /profile/trophies:
+    response: "{ items: [{ championshipId, sport, season, wonAt, trophyAssetUrl }] }"
+realtime:
+  transport: authenticated WSS; session ticket issued by authenticated HTTP, no bearer in URL
+  path: /api/tennis/realtime
+  client:
+    room.subscribe: "{ roomId }"
+    match.ready: "{ matchId }"
+    match.input: "{ matchId, sequence, clientTick, moveX: -1..1, moveZ: -1..1, swing: none|flat|topspin|slice, aimX: -1..1 }"
+    match.resync: "{ matchId, lastServerTick }"
+    match.leave: "{ matchId }"
+  server:
+    room.updated: "{ room, serverTime }"
+    match.started: "{ matchId, players, sport, rules, serverTick }"
+    match.snapshot: "{ serverTick, lastProcessedSequence, ball: {position,velocity}, players: [{id,position,stamina}], score, phase }"
+    match.point: "{ serverTick, winnerId, score, reason }"
+    match.finished: "{ matchId, winnerId, score, profile, rewards, trophy? }"
+    match.suspended: "{ reason, reconnectDeadline }"
+    error: "{ code, message, retryable }"
+  rate: client inputs up to 30Hz; snapshots 20Hz; render interpolated at display refresh rate
+  authority: server owns physics, hit validation, fatigue, score, active-time progression and championship results
+  reconnect: resubscribe and request snapshot; define grace window and forfeit server-side
+mock_limits:
+  - Practice uses local arcade rules: first to five points, side-wall rebounds, demo opponent.
+  - Other three sports are visibly unavailable, not disguised as tennis with different labels.
+  - Mock rooms do not connect browsers. No invitation is actually delivered.
+  - Invite links currently open the club; redemption requires the future server adapter.
+  - Training and racket purchases modify a separate local demo profile only.
+  - No client submitted score or duration may grant real progress in production.
+  - Championship panel is a preview and grants no trophy or champion title.

@@ -21,6 +21,8 @@ import { COLLECTION_API } from './core/api/collection.api';
 import { TETRIS_API } from './core/api/tetris.api';
 import { TEMPLE_API } from './core/api/temple.api';
 import { SNAKE_API } from './core/api/snake.api';
+import { TENNIS_API } from './features/games/tennis/tennis.api';
+import { HttpTennisApi } from './core/api/http/http-tennis.api';
 import { MockPowerApi } from './core/api/mock/mock-power.api';
 import { serverApiInterceptor } from './core/api/http/server-api.interceptor';
 import { HttpAuthApi } from './core/api/http/http-auth.api';
@@ -54,6 +56,7 @@ export const appConfig: ApplicationConfig = {
     { provide: SNAKE_API,    useExisting: HttpSnakeApi },
     { provide: CURRENCY_API, useExisting: HttpCurrencyApi },
     { provide: COLLECTION_API, useExisting: HttpCollectionApi },
+    { provide: TENNIS_API, useExisting: HttpTennisApi },
     // The gym screen injects the class directly, so the class token is aliased
     // rather than the screen being changed.
     { provide: MockPowerApi, useExisting: HttpPowerApi },

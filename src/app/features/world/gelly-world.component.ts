@@ -125,7 +125,7 @@ export class GellyWorldComponent implements OnDestroy {
         this.animationFinished = false;
         this.loadEntryData();
       }),
-      this.isNeon ? null : this.route.snapshot.queryParamMap.get('from') ?? this.returnPoint.read(),
+      this.route.snapshot.queryParamMap.get('from') ?? this.returnPoint.read(),
     );
 
     this.localizeScene();
@@ -147,6 +147,7 @@ export class GellyWorldComponent implements OnDestroy {
     this.bootstrapRequest?.unsubscribe();
     this.entryError.set(false);
     this.dataReady = false;
+    if (portal.id === 'tennis') { this.dataReady = true; this.finishEntry(); return; }
     this.bootstrapRequest = this.games.loadBootstrap(portal.id).subscribe({
       next: () => { this.dataReady = true; this.finishEntry(); },
       error: () => this.entryError.set(true),
@@ -159,7 +160,11 @@ export class GellyWorldComponent implements OnDestroy {
     this.navigating = true;
     // Keep the world history entry tied to the latest door, including when
     // the player uses browser Back after visiting several different games.
-    this.router.navigate(['/world'], { queryParams: { from: portal.id }, replaceUrl: true })
+    const returnUrl = this.router.createUrlTree([this.isNeon ? '/worlds/neon-city' : '/world'], { queryParams: { from: portal.id } });
+    const prepared = this.router.url === this.router.serializeUrl(returnUrl)
+      ? Promise.resolve(true)
+      : this.router.navigateByUrl(returnUrl, { replaceUrl: true });
+    prepared
       .then(success => success ? this.router.navigate([portal.route]) : false).then(success => {
       if (!success && !this.disposed) { this.navigating = false; this.entryError.set(true); }
     }).catch(() => {
