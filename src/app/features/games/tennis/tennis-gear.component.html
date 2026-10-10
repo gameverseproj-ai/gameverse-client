@@ -1,0 +1,40 @@
+<div class="sheet gear">
+  <span class="eyebrow">THE PRO SHOP</span>
+  <h2>{{ "Find your signature." | t }}</h2>
+  <p>{{ profile()?.coins }} {{ (mock() ? "demo coins" : "coins") | t }}</p>
+  <div class="rackets">
+    @for (r of rackets; track r.id) {
+      <button
+        [class.equipped]="profile()?.racket === r.id"
+        (click)="equip.emit(r.id)"
+        [disabled]="
+          busy() ||
+          (!profile()?.owned?.includes(r.id) &&
+            (profile()?.coins ?? 0) < r.price)
+        "
+      >
+        <span
+          class="racket-art"
+          [class.prism]="r.id === 'spin'"
+          [class.volt]="r.id === 'power'"
+        ></span
+        ><strong>{{ r.name }}</strong
+        ><small>{{
+          (r.id === "spin"
+            ? "Spin control"
+            : r.id === "power"
+              ? "Stronger shots"
+              : "Balanced"
+          ) | t
+        }}</small
+        ><b>{{
+          profile()?.racket === r.id
+            ? ("Equipped" | t)
+            : profile()?.owned?.includes(r.id)
+              ? ("Equip" | t)
+              : r.price
+        }}</b>
+      </button>
+    }
+  </div>
+</div>

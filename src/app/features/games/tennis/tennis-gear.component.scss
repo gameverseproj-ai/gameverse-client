@@ -1,0 +1,81 @@
+@use "tennis-ui";
+@include tennis-ui.panel;
+:host {
+  display: contents;
+}
+.gear {
+  width: min(650px, calc(100% - 32px));
+}
+.rackets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.rackets button {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 8px;
+}
+.rackets .equipped {
+  border-color: #d4f391;
+}
+.rackets small {
+  min-height: 28px;
+}
+.racket-art {
+  position: relative;
+  height: 70px;
+  width: 48px;
+  border: 5px solid #b7e8ed;
+  border-radius: 50%;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 6px, #cae2ed44 6px 7px),
+    repeating-linear-gradient(90deg, transparent 0 6px, #cae2ed44 6px 7px);
+  transform: rotate(-25deg);
+  box-shadow:
+    2px 3px 0 #3a577a,
+    0 8px 18px #0005;
+  margin: 4px 0 40px;
+}
+.racket-art::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: calc(50% - 4px);
+  width: 8px;
+  height: 40px;
+  background: linear-gradient(90deg, #41657b, #d6e9ee, #476275);
+  border-radius: 4px;
+}
+.prism {
+  border-color: #d8a3ff;
+  box-shadow:
+    2px 3px 0 #8051ac,
+    0 0 24px #b880ff44;
+}
+.volt {
+  border-color: #e2f68a;
+  box-shadow:
+    2px 3px 0 #768c3e,
+    0 0 24px #d5ff7944;
+}
+@media (max-width: 650px) {
+  .rackets {
+    gap: 6px;
+  }
+  .rackets strong {
+    font-size: 12px;
+  }
+  .rackets small {
+    font-size: 9px;
+  }
+  .racket-art {
+    width: 35px;
+    height: 52px;
+  }
+  .gear {
+    padding: 20px 12px;
+  }
+}

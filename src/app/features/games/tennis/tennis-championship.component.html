@@ -1,0 +1,111 @@
+<div class="sheet cup">
+  <span class="eyebrow">ISLAND CHAMPIONSHIP</span>
+  @if (championship(); as c) {
+    @if (standings()?.champion; as champ) {
+      <div class="trophy">♜</div>
+      <h2>{{ champ.username }}</h2>
+      <p>{{ "Champion of season" | t }} {{ c.season }}</p>
+    } @else {
+      <h2>{{ c.prize.title }}</h2>
+      <p>
+        {{
+          (c.status === "registration"
+            ? "Registration closes"
+            : c.status === "running"
+              ? "Bracket in play since"
+              : "Season ended"
+          ) | t
+        }}
+        {{
+          when(
+            c.status === "registration" ? c.registrationClosesAt : c.startsAt
+          )
+        }}
+      </p>
+    }
+    <div class="stats">
+      <span
+        >{{ "Players" | t }}
+        <b>{{ c.participants }} / {{ c.rules.maxPlayers }}</b></span
+      ><span
+        >{{ "Prize" | t }}
+        <b
+          >{{ c.prize.coins }} ◎ · {{ c.prize.gems }} ◆ · {{ c.prize.xp }} XP</b
+        ></span
+      ><span
+        >{{ "Format" | t }}
+        <b
+          >{{ "Single elimination" | t }} · {{ "first to" | t }}
+          {{ c.rules.pointsToWin }}</b
+        ></span
+      >
+    </div>
+    @if (c.registrationOpen && !c.registered) {
+      <button class="primary" (click)="register.emit()" [disabled]="busy()">
+        {{ "Register" | t }} <span>↗</span>
+      </button>
+    } @else if (c.registered && c.status === "registration") {
+      <span class="coming">{{
+        "You are registered. The bracket is drawn when registration closes." | t
+      }}</span>
+    }
+    @if (myBracketMatch(); as m) {
+      <button class="primary" (click)="playBracket.emit(m)" [disabled]="busy()">
+        {{ "Play your match" | t }} <span>↗</span></button
+      ><small>{{ "Play before" | t }} {{ when(m.deadlineAt) }}</small>
+    }
+    @if (standings(); as s) {
+      @if (s.bracket.rounds.length) {
+        <div class="bracket">
+          @for (round of s.bracket.rounds; track round.round) {
+            <div class="round">
+              <small>{{ round.name | t }}</small>
+              @for (m of round.matches; track m.id) {
+                <div
+                  class="tie"
+                  [class.done]="!!m.winnerId"
+                  [class.mine]="m.playerAId === me() || m.playerBId === me()"
+                >
+                  <span [class.won]="m.winnerId === m.playerAId">{{
+                    standingName(m.playerAId)
+                  }}</span>
+                  <span [class.won]="m.winnerId === m.playerBId">{{
+                    standingName(m.playerBId)
+                  }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+      @if (s.standings.length) {
+        <div class="standings">
+          @for (row of s.standings; track row.playerId) {
+            <div
+              class="row"
+              [class.mine]="row.playerId === me()"
+              [class.out]="row.status === 'eliminated'"
+            >
+              <small>{{ row.seed ?? "·" }}</small
+              ><span>{{ row.username }}</span
+              ><b>{{ row.wins }}–{{ row.losses }}</b>
+            </div>
+          }
+        </div>
+      } @else {
+        <small>{{ "Nobody has registered yet. Be the first." | t }}</small>
+      }
+    }
+    @if (trophies().length) {
+      <div class="shelf">
+        <small>{{ "Your trophies" | t }}</small>
+        @for (t of trophies(); track t.championshipId) {
+          <span class="cup-badge">♜ {{ t.season }}</span>
+        }
+      </div>
+    }
+    <button (click)="refresh.emit()" [disabled]="busy()">
+      {{ "Refresh" | t }}
+    </button>
+  }
+</div>

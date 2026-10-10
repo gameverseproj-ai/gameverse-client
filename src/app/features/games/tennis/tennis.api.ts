@@ -21,6 +21,60 @@ export interface TennisRoom {
   matchId?: string;
   /** Usernames on the court, owner first. */
   players?: string[];
+  /** Court members with their server IDs, owner first. */
+  members?: { id: string; username: string }[];
+  /** Server status; the mock only ever waits. */
+  serverStatus?: 'waiting' | 'ready' | 'playing' | 'closed';
+}
+/** A live-ops season; null when no event is on, in which case the club shows nothing. */
+export interface TennisChampionship {
+  id: string;
+  sport: TennisSport;
+  season: string;
+  registrationClosesAt: string;
+  startsAt: string;
+  endsAt: string;
+  status: 'registration' | 'running' | 'finished' | 'cancelled';
+  rules: { format: string; pointsToWin: number; minPlayers: number; maxPlayers: number; roundDurationMinutes: number };
+  prize: { title: string; coins: number; gems: number; xp: number; trophyAssetUrl: string };
+  registrationOpen: boolean;
+  registered: boolean;
+  participants: number;
+}
+export interface TennisStanding {
+  playerId: string;
+  username: string;
+  avatarUrl: string;
+  seed: number | null;
+  wins: number;
+  losses: number;
+  status: 'registered' | 'eliminated' | 'champion';
+}
+export interface TennisBracketMatch {
+  id: string;
+  slot: number;
+  playerAId: string | null;
+  playerBId: string | null;
+  winnerId: string | null;
+  roomId: string | null;
+  status: 'pending' | 'finished' | 'walkover' | 'bye';
+  deadlineAt: string | null;
+}
+export interface TennisStandings {
+  standings: TennisStanding[];
+  bracket: { rounds: { round: number; name: string; matches: TennisBracketMatch[] }[] };
+  champion: TennisStanding | null;
+}
+export interface TennisTrophy {
+  championshipId: string;
+  sport: TennisSport;
+  season: string;
+  wonAt: string;
+  trophyAssetUrl: string;
+}
+export interface TennisRealtimeTicket {
+  ticket: string;
+  realtimeUrl: string;
 }
 export interface TennisTrainingChallenge {
   id: string;
@@ -38,6 +92,25 @@ export interface TennisApi {
   createRoom(sport: TennisSport, username?: string): Promise<TennisRoom>;
   /** Joins the court behind an invitation link; absent on the mock. */
   joinByInvite?(token: string): Promise<TennisRoom>;
+  /** The court the player is already on, so a reload resumes it; absent on the mock. */
+  currentRoom?(): Promise<TennisRoom | null>;
+  /** Open public courts waiting for an opponent; absent on the mock. */
+  listRooms?(sport: TennisSport): Promise<TennisRoom[]>;
+  /** Takes the second seat on a public court; absent on the mock. */
+  joinRoom?(id: string): Promise<TennisRoom>;
+  /** One-time ticket for the realtime socket; absent on the mock. */
+  realtimeTicket?(): Promise<TennisRealtimeTicket>;
+  /** Turns the ticket response into a socket URL; absent on the mock. */
+  realtimeUrl?(realtimeUrl: string, ticket: string): string;
+  /** The signed-in player's server ID, to find oneself in a bracket; absent on the mock. */
+  playerId?(): string | null;
+  /** The season on now, or null when no event is running; absent on the mock. */
+  championship?(): Promise<TennisChampionship | null>;
+  registerForChampionship?(id: string): Promise<void>;
+  standings?(id: string): Promise<TennisStandings>;
+  trophies?(): Promise<TennisTrophy[]>;
+  /** A court by ID, e.g. the bracket court a player is seated at; absent on the mock. */
+  getRoom?(id: string): Promise<TennisRoom>;
   cancelRoom(id: string): Promise<void>;
   equip(racket: RacketId): Promise<TennisProfile>;
   /** Opens a gym challenge; the rep log is checked by `train`. */

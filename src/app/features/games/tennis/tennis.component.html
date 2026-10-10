@@ -1,4 +1,7 @@
-<section class="island" [class.playing]="page() === 'play'">
+<section
+  class="island"
+  [class.playing]="page() === 'play' || page() === 'online'"
+>
   <canvas
     #court
     [attr.aria-label]="'Tennis court' | t"
@@ -25,7 +28,7 @@
     <div class="brand">
       <small>NEON WORLD</small><strong>Tennis Island<span>✦</span></strong>
     </div>
-    <span class="demo">{{ "Local demo" | t }}</span>
+    <span class="demo">{{ (api.mock ? "Local demo" : "Online") | t }}</span>
   </header>
   @if (page() === "club") {
     <div class="club">
@@ -58,8 +61,9 @@
           <button class="primary" (click)="start()" [disabled]="!profile()">
             {{ "Play practice match" | t }} <span>↗</span>
           </button>
-          <button class="secondary" (click)="page.set('friends')">
-            {{ "Play with a friend" | t }} <span>＋</span>
+          <button class="secondary" (click)="openFriends()">
+            {{ (onlineEnabled ? "Play online" : "Play with a friend") | t }}
+            <span>＋</span>
           </button>
         } @else {
           <p class="soon">{{ "This court is being built." | t }}</p>
@@ -67,7 +71,9 @@
         <nav>
           <button (click)="openGym()">◈ {{ "Gym" | t }}</button
           ><button (click)="page.set('gear')">✧ {{ "Rackets" | t }}</button
-          ><button (click)="page.set('cup')">♜ {{ "Championship" | t }}</button>
+          >@if (championship()) {
+            <button (click)="openCup()">♜ {{ "Championship" | t }}</button>
+          }
         </nav>
       </div>
     </div>
@@ -131,29 +137,142 @@
       <p>{{ "Move: drag or ← → · Hit: Space / button" | t }}</p>
     </footer>
   }
+  @if (page() === "online") {
+    <div class="score">
+      <div>
+        <small>{{ "You" | t }}</small
+        ><b>{{ state()?.score ?? 0 }}</b>
+      </div>
+      <span>:</span>
+      <div>
+        <small>{{ opponentName() }}</small
+        ><b>{{ state()?.rivalScore ?? 0 }}</b>
+      </div>
+      <span class="link" [class.off]="link() !== 'open'">
+        {{ (link() === "open" ? "Live" : "Reconnecting…") | t }}
+      </span>
+    </div>
+    @if (toast()) {
+      <div class="toast" role="status">{{ toast() | t }}</div>
+    }
+    @if (onlineStatus() === "finished") {
+      <div class="match-overlay">
+        <span>✦</span>
+        <h2>{{ (rewards()?.won ? "Match won" : "Good match") | t }}</h2>
+        <p>{{ state()?.score }} — {{ state()?.rivalScore }}</p>
+        @if (rewards(); as r) {
+          <div class="stats">
+            <span
+              >{{ "Coins" | t }} <b>+{{ r.coins }}</b></span
+            ><span
+              >XP <b>+{{ r.xp }}</b></span
+            ><span
+              >{{ "Court time" | t }} <b>{{ r.activeSeconds }}s</b></span
+            ><span
+              >{{ "Endurance" | t }}
+              <b>{{ r.enduranceAfter }} / 10</b></span
+            >
+          </div>
+        }
+        <button class="primary" (click)="back()">
+          {{ "Back to club" | t }}
+        </button>
+      </div>
+    } @else if (onlineStatus() === "suspended") {
+      <div class="match-overlay">
+        <span class="pulse"></span>
+        <h2>{{ "Opponent reconnecting" | t }}</h2>
+        <p>{{ "The match resumes when they are back, or you win by forfeit." | t }}</p>
+        <button (click)="back()">{{ "Leave match" | t }}</button>
+      </div>
+    }
+    <footer class="controls">
+      <div class="energy">
+        <span>{{ "Energy" | t }}</span
+        ><meter min="0" max="100" [value]="state()?.stamina ?? 100"></meter
+        ><small>{{
+          (state()?.phase === "serve"
+            ? serving()
+              ? "Your serve"
+              : "Opponent serves"
+            : "First to 5 · Online"
+          ) | t
+        }}</small>
+      </div>
+      <div class="shots">
+        <button [attr.aria-label]="'Aim left' | t" (click)="hit(-0.8, -1)">
+          ↖</button
+        ><button
+          class="primary"
+          (click)="hit()"
+          [disabled]="state()?.phase === 'serve' && !serving()"
+        >
+          {{ (state()?.phase === "serve" ? "Serve" : "Hit") | t }}</button
+        ><button [attr.aria-label]="'Aim right' | t" (click)="hit(0.8, 1)">
+          ↗
+        </button>
+      </div>
+      <p>{{ "Move: drag or ← → · Hit: Space / button" | t }}</p>
+    </footer>
+  }
   @if (page() === "friends") {
     <div class="sheet">
       <span class="eyebrow">COURT 01</span>
       <h2>{{ "Your court. Your company." | t }}</h2>
-      <p>
-        {{
-          "Invitations are a local preview. Online play needs the server." | t
-        }}
-      </p>
+      @if (!onlineEnabled) {
+        <p>
+          {{
+            "Invitations are a local preview. Online play needs the server." | t
+          }}
+        </p>
+      }
       @if (room(); as r) {
-        <div class="waiting">
-          <span class="pulse"></span>
-          <h3>{{ "Waiting for a player" | t }}</h3>
-          @if (r.invitedUsername) {
-            <p>&#64;{{ r.invitedUsername }}</p>
-          }
-          <small>{{ "No real invitation has been sent." | t }}</small>
-        </div>
-        <button class="primary" (click)="copyInvite()">
-          {{ (copied() ? "Copied" : "Copy invitation link") | t }}</button
-        ><button (click)="cancel()" [disabled]="busy()">
-          {{ "Close court" | t }}
-        </button>
+        @if (roomReady()) {
+          <div class="waiting">
+            <span class="pulse"></span>
+            <h3>{{ "Opponent is here" | t }}</h3>
+            <p>{{ r.players?.join(" · ") }}</p>
+            <small>{{
+              (readySent()
+                ? opponentReady()
+                  ? "Starting…"
+                  : "Waiting for your opponent to press Play"
+                : opponentReady()
+                  ? "Your opponent is ready"
+                  : "Press Play when you are at the court"
+              ) | t
+            }}</small>
+          </div>
+          <button
+            class="primary"
+            (click)="ready()"
+            [disabled]="busy() || readySent()"
+          >
+            {{ (readySent() ? "Waiting…" : "Play") | t }} <span>↗</span></button
+          ><button (click)="cancel()" [disabled]="busy()">
+            {{ "Leave court" | t }}
+          </button>
+        } @else {
+          <div class="waiting">
+            <span class="pulse"></span>
+            <h3>{{ "Waiting for a player" | t }}</h3>
+            @if (r.invitedUsername) {
+              <p>&#64;{{ r.invitedUsername }}</p>
+            }
+            @if (!onlineEnabled) {
+              <small>{{ "No real invitation has been sent." | t }}</small>
+            } @else if (r.inviteUrl) {
+              <small>{{ "Share the link or wait for a player to join." | t }}</small>
+            } @else {
+              <small>{{ "Your court is listed for anyone to join." | t }}</small>
+            }
+          </div>
+          <button class="primary" (click)="copyInvite()">
+            {{ (copied() ? "Copied" : "Copy invitation link") | t }}</button
+          ><button (click)="cancel()" [disabled]="busy()">
+            {{ "Close court" | t }}
+          </button>
+        }
       } @else {
         <label
           >{{ "Username" | t
@@ -176,6 +295,24 @@
         >
           {{ "Open a court" | t }}
         </button>
+        @if (onlineEnabled) {
+          <div class="courts">
+            <div class="courts-head">
+              <small>{{ "Open courts" | t }}</small
+              ><button (click)="refreshCourts()" [disabled]="busy()">
+                {{ "Refresh" | t }}
+              </button>
+            </div>
+            @for (c of courts(); track c.id) {
+              <button class="court" (click)="joinCourt(c.id)" [disabled]="busy()">
+                <span>{{ c.players?.[0] }}</span
+                ><b>{{ "Join" | t }} →</b>
+              </button>
+            } @empty {
+              <small>{{ "No open courts right now. Open one above." | t }}</small>
+            }
+          </div>
+        }
       }
     </div>
   }
@@ -204,58 +341,12 @@
     </div>
   }
   @if (page() === "gear") {
-    <div class="sheet gear">
-      <span class="eyebrow">THE PRO SHOP</span>
-      <h2>{{ "Find your signature." | t }}</h2>
-      <p>{{ profile()?.coins }} {{ "demo coins" | t }}</p>
-      <div class="rackets">
-        @for (r of rackets; track r.id) {
-          <button
-            [class.equipped]="profile()?.racket === r.id"
-            (click)="equip(r.id)"
-            [disabled]="
-              busy() ||
-              (!profile()?.owned?.includes(r.id) &&
-                (profile()?.coins ?? 0) < r.price)
-            "
-          >
-            <span
-              class="racket-art"
-              [class.prism]="r.id === 'spin'"
-              [class.volt]="r.id === 'power'"
-            ></span
-            ><strong>{{ r.name }}</strong
-            ><small>{{
-              (r.id === "spin"
-                ? "Spin control"
-                : r.id === "power"
-                  ? "Stronger shots"
-                  : "Balanced"
-              ) | t
-            }}</small
-            ><b>{{
-              profile()?.racket === r.id
-                ? ("Equipped" | t)
-                : profile()?.owned?.includes(r.id)
-                  ? ("Equip" | t)
-                  : r.price
-            }}</b>
-          </button>
-        }
-      </div>
-    </div>
+    <app-tennis-gear [profile]="profile()" [mock]="api.mock" [busy]="busy()" (equip)="equip($event)" />
   }
-  @if (page() === "cup") {
-    <div class="sheet">
-      <span class="eyebrow">ISLAND CHAMPIONSHIP</span>
-      <div class="trophy">♜</div>
-      <h2>{{ "A place in the spotlight." | t }}</h2>
-      <p>{{ "Win a trophy. Leave your name in island history." | t }}</p>
-      <span class="coming">{{
-        "Championships open with online play." | t
-      }}</span
-      ><small>{{ "No championship is running in this demo." | t }}</small>
-    </div>
+  @if (page() === "cup" && championship()) {
+    <app-tennis-championship [championship]="championship()" [standings]="standings()"
+      [trophies]="trophies()" [me]="me" [busy]="busy()"
+      (register)="register()" (refresh)="refreshCup()" (playBracket)="playBracket($event)" />
   }
   @if (error()) {
     <div class="error" role="alert">

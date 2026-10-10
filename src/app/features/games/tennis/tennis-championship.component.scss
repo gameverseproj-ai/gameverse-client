@@ -1,0 +1,101 @@
+@use "tennis-ui";
+@include tennis-ui.panel;
+:host {
+  display: contents;
+}
+.trophy {
+  font-size: 100px;
+  line-height: 1.1;
+  color: #eed68b;
+  text-shadow:
+    0 4px #81623b,
+    0 0 45px #fad68966;
+}
+.coming {
+  padding: 14px;
+  border: 1px solid #e5cb7f44;
+  border-radius: 12px;
+  color: #e5d69d;
+  font-size: 12px;
+}
+.cup {
+  width: min(560px, calc(100% - 32px));
+  max-height: calc(100dvh - 120px);
+  overflow-y: auto;
+}
+.bracket {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  text-align: left;
+  padding-bottom: 4px;
+}
+.round {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 8px;
+  min-width: 150px;
+}
+.tie {
+  border: 1px solid #a8cde82b;
+  border-radius: 10px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+.tie.mine {
+  border-color: #cef28b88;
+}
+.tie.done span:not(.won) {
+  color: #7f94a8;
+}
+.tie .won {
+  color: #ddffad;
+  font-weight: 700;
+}
+.standings {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+.standings .row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+.standings .row small {
+  width: 18px;
+  color: #8fa7bb;
+}
+.standings .row span {
+  flex: 1;
+}
+.standings .row b {
+  color: #cdf593;
+}
+.standings .mine {
+  background: #cef28b14;
+}
+.standings .out {
+  opacity: 0.55;
+}
+.shelf {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.cup-badge {
+  padding: 6px 10px;
+  border-radius: 20px;
+  border: 1px solid #e5cb7f66;
+  color: #eed68b;
+  font-size: 12px;
+}

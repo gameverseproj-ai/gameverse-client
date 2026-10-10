@@ -1,0 +1,123 @@
+@mixin panel {
+  button {
+    font: inherit;
+    border: 1px solid #c2e6ff29;
+    background: #193049;
+    color: #eaf6ff;
+    border-radius: 14px;
+    cursor: pointer;
+    padding: 13px 18px;
+    transition:
+      background 0.2s,
+      transform 0.2s;
+  }
+  button:hover:not(:disabled) {
+    background: #294866;
+    transform: translateY(-2px);
+  }
+  button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible {
+    outline: 2px solid #b4fae7;
+    outline-offset: 4px;
+  }
+  .primary {
+    background: #cef28b;
+    color: #13251f;
+    border: 0;
+    font-weight: 750;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .primary:hover:not(:disabled) {
+    background: #e1ffa4;
+  }
+  .sheet,
+  .match-overlay {
+    position: absolute;
+    z-index: 4;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -45%);
+    width: min(440px, calc(100% - 40px));
+    max-height: calc(100dvh - 130px);
+    overflow: auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 32px;
+    border: 1px solid #9ce9ed33;
+    border-radius: 28px;
+    background: linear-gradient(145deg, #193549f5, #102137f5);
+    box-shadow: 0 30px 100px #0007;
+    text-align: center;
+    backdrop-filter: blur(18px);
+  }
+  .sheet h2,
+  .match-overlay h2 {
+    font-size: 30px;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin: 0;
+  }
+  .sheet p {
+    font-size: 13px;
+    color: #b2c9d8;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .sheet small {
+    font-size: 11px;
+    color: #aac0d0;
+  }
+  .sheet label {
+    text-align: left;
+    font-size: 12px;
+    color: #bfd7e5;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .stats {
+    display: flex;
+    justify-content: space-around;
+    gap: 12px;
+    font-size: 12px;
+  }
+  .stats span {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .stats b {
+    color: #cdf593;
+  }
+  @media (max-width: 650px) {
+    .sheet {
+      padding: 24px;
+      gap: 14px;
+    }
+  }
+  @media (max-height: 650px) {
+    .sheet {
+      max-height: calc(100dvh - 110px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    button {
+      transition: none;
+    }
+  }
+  .eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: #7de0d8;
+    font-weight: 700;
+  }
+}

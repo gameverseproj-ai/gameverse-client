@@ -1,3 +1,5 @@
+import { TennisGearComponent } from './tennis-gear.component';
+import { TennisChampionshipComponent } from './tennis-championship.component';
 import {
   Component,
   ElementRef,
@@ -11,9 +13,12 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import {
   TENNIS_API,
-  RACKETS,
   RacketId,
+  TennisBracketMatch,
+  TennisChampionship,
   TennisProfile,
+  TennisStandings,
+  TennisTrophy,
   TennisRepEvent,
   TennisRoom,
   TennisSport,
@@ -21,11 +26,27 @@ import {
 } from './tennis.api';
 import { TennisMatch, MatchState } from './tennis-match';
 import { TennisScene } from './tennis-scene';
+import {
+  MatchRewards,
+  RealtimeRoom,
+  RealtimeStatus,
+  ServerMessage,
+  TennisRealtime,
+} from './tennis-realtime';
+import { OnlineMatch } from './tennis-online';
+
+/** Where a networked match stands, as shown on the online court. */
+export type OnlineStatus =
+  | 'connecting'
+  | 'waiting-opponent'
+  | 'playing'
+  | 'suspended'
+  | 'finished';
 
 @Component({
   selector: 'app-tennis',
   standalone: true,
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe, TennisGearComponent, TennisChampionshipComponent],
   templateUrl: './tennis.component.html',
   styleUrl: './tennis.component.scss',
 })
@@ -35,11 +56,12 @@ export class TennisComponent {
   private zone = inject(NgZone);
   private route = inject(ActivatedRoute);
   readonly profile = signal<TennisProfile | null>(null);
-  readonly page = signal<'club' | 'play' | 'friends' | 'gym' | 'gear' | 'cup'>(
-    'club',
-  );
+  readonly page = signal<
+    'club' | 'play' | 'online' | 'friends' | 'gym' | 'gear' | 'cup'
+  >('club');
   readonly sport = signal<TennisSport>('tennis');
   readonly room = signal<TennisRoom | null>(null);
+  readonly courts = signal<TennisRoom[]>([]);
   readonly error = signal('');
   readonly busy = signal(false);
   readonly paused = signal(false);
@@ -49,7 +71,20 @@ export class TennisComponent {
   readonly training = signal<TennisTrainingChallenge | null>(null);
   readonly drillReps = () => this.training()?.reps ?? 20;
   readonly state = signal<MatchState | null>(null);
-  readonly rackets = RACKETS;
+  /** Networked match: connection, readiness and the result. */
+  readonly onlineStatus = signal<OnlineStatus>('connecting');
+  readonly link = signal<RealtimeStatus>('idle');
+  readonly readySent = signal(false);
+  readonly opponentReady = signal(false);
+  readonly opponentName = signal('');
+  readonly serving = signal(false);
+  readonly toast = signal('');
+  readonly rewards = signal<MatchRewards | null>(null);
+  readonly reconnectDeadline = signal('');
+  /** The live-ops season, if one is on; null hides the championship entirely. */
+  readonly championship = signal<TennisChampionship | null>(null);
+  readonly standings = signal<TennisStandings | null>(null);
+  readonly trophies = signal<TennisTrophy[]>([]);
   readonly sports: { id: TennisSport; name: string; icon: string }[] = [
     { id: 'tennis', name: 'Tennis', icon: '◉' },
     { id: 'ping-pong', name: 'Ping pong', icon: '◒' },
@@ -62,29 +97,38 @@ export class TennisComponent {
   username = '';
   private scene?: TennisScene;
   private match?: TennisMatch;
+  private online?: OnlineMatch;
+  private realtime?: TennisRealtime;
+  private subscribedRoom = '';
   private observer?: ResizeObserver;
   private frame = 0;
   private disposed = false;
   private last = 0;
   private hud = 0;
+  private lastInput = 0;
+  private toastTimer = 0;
+  private championshipTimer = 0;
+  private championshipLoading = false;
   private keys = new Set<string>();
   private recorded = false;
   private trainingLast = 0;
   private trainingStart = 0;
   private trainingLog: TennisRepEvent[] = [];
   private keydown = (e: KeyboardEvent) => {
-    if (this.page() !== 'play' || (e.target as HTMLElement).matches('input,a'))
-      return;
+    const onCourt = this.page() === 'play' || this.page() === 'online';
+    if (!onCourt || (e.target as HTMLElement).matches('input,a')) return;
     if (e.key === ' ' && (e.target as HTMLElement).matches('button')) return;
     if (['ArrowLeft', 'ArrowRight', ' ', 'a', 'd', 'Escape'].includes(e.key)) {
       e.preventDefault();
       this.keys.add(e.key);
       if (e.key === ' ' && !e.repeat) this.hit();
-      if (e.key === 'Escape') this.paused.update((v) => !v);
+      if (e.key === 'Escape' && this.page() === 'play')
+        this.paused.update((v) => !v);
     }
   };
   private keyup = (e: KeyboardEvent) => this.keys.delete(e.key);
   private visibility = () => {
+    if (!document.hidden) void this.loadChampionship();
     if (document.hidden && this.page() === 'play') {
       this.paused.set(true);
       this.keys.clear();
@@ -93,11 +137,20 @@ export class TennisComponent {
   constructor() {
     afterNextRender(() => {
       void this.load();
+      this.championshipTimer = window.setInterval(() => {
+        if (!document.hidden) void this.loadChampionship();
+      }, 60_000);
       document.addEventListener('keydown', this.keydown);
       document.addEventListener('keyup', this.keyup);
       document.addEventListener('visibilitychange', this.visibility);
       this.initScene();
     });
+  }
+  get onlineEnabled(): boolean {
+    return !this.api.mock && !!this.api.realtimeTicket;
+  }
+  get me(): string | null {
+    return this.realtime?.playerId ?? this.api.playerId?.() ?? null;
   }
   private async load(): Promise<void> {
     await this.action(async () => {
@@ -108,11 +161,21 @@ export class TennisComponent {
         this.state.set({ ...this.match.state });
       }
     });
+    void this.loadChampionship();
     const invite = this.route.snapshot.queryParamMap.get('invite');
     if (invite && this.api.joinByInvite && !this.disposed)
       await this.action(async () => {
-        this.room.set(await this.api.joinByInvite!(invite));
+        this.setRoom(await this.api.joinByInvite!(invite));
         this.page.set('friends');
+      });
+    else if (this.api.currentRoom && !this.disposed)
+      // A reloaded page picks its court back up; a running match re-enters on Play.
+      await this.action(async () => {
+        const room = await this.api.currentRoom!();
+        if (room && !this.disposed) {
+          this.setRoom(room);
+          this.page.set('friends');
+        }
       });
   }
   private initScene(): void {
@@ -134,11 +197,36 @@ export class TennisComponent {
     if (this.disposed) return;
     const dt = Math.min(0.035, (time - this.last) / 1000 || 0.016);
     this.last = time;
-    if (this.match) {
+    const dir =
+      (this.keys.has('ArrowRight') || this.keys.has('d') ? 1 : 0) -
+      (this.keys.has('ArrowLeft') || this.keys.has('a') ? 1 : 0);
+    if (this.page() === 'online' && this.online) {
+      const online = this.online;
+      if (dir) online.move(online.state.player + dir * dt * 10);
+      online.tick(time, dt);
+      // Inputs go out at 30 Hz while the match runs; the swing rides the next frame.
+      if (
+        this.onlineStatus() === 'playing' &&
+        time - this.lastInput >= 33 &&
+        this.realtime?.status === 'open'
+      ) {
+        this.lastInput = time;
+        this.realtime.send({
+          type: 'match.input',
+          matchId: online.matchId,
+          ...online.nextFrame(),
+        });
+      }
+      this.scene?.render(online.state, time / 1000);
+      if (time - this.hud > 70) {
+        this.hud = time;
+        this.zone.run(() => {
+          this.state.set({ ...online.state });
+          this.serving.set(online.serving);
+        });
+      }
+    } else if (this.match) {
       if (this.page() === 'play' && !this.paused()) {
-        const dir =
-          (this.keys.has('ArrowRight') || this.keys.has('d') ? 1 : 0) -
-          (this.keys.has('ArrowLeft') || this.keys.has('a') ? 1 : 0);
         if (dir) this.match.move(this.match.state.player + dir * dt * 10);
         this.match.tick(dt);
         if (this.match.state.phase === 'finished' && !this.recorded) {
@@ -167,12 +255,15 @@ export class TennisComponent {
     this.page.set('play');
   }
   hit(aim = 0, spin = 0): void {
-    if (this.page() === 'play' && !this.paused()) this.match?.swing(aim, spin);
+    if (this.page() === 'online') this.online?.swing(aim, spin);
+    else if (this.page() === 'play' && !this.paused())
+      this.match?.swing(aim, spin);
   }
   aim(event: PointerEvent): void {
-    if (this.page() !== 'play' || this.paused()) return;
     const r = this.canvas().nativeElement.getBoundingClientRect();
-    this.match?.move(((event.clientX - r.left) / r.width - 0.5) * 12);
+    const x = ((event.clientX - r.left) / r.width - 0.5) * 12;
+    if (this.page() === 'online') this.online?.move(x);
+    else if (this.page() === 'play' && !this.paused()) this.match?.move(x);
   }
   touch(event: PointerEvent): void {
     this.aim(event);
@@ -181,13 +272,34 @@ export class TennisComponent {
   }
   async back(): Promise<void> {
     this.paused.set(true);
-    if (this.room()) await this.cancel();
+    if (this.page() === 'online') {
+      this.leaveOnline();
+    } else if (this.room()) await this.cancel();
     if (this.page() === 'play' && !this.recorded) {
       this.recorded = true;
       await this.record();
     }
     this.page.set('club');
     this.keys.clear();
+  }
+
+  // ------------------------------------------------------------------
+  // courts: creating, listing, joining
+  // ------------------------------------------------------------------
+
+  async openFriends(): Promise<void> {
+    this.page.set('friends');
+    await this.refreshCourts();
+  }
+  async refreshCourts(): Promise<void> {
+    if (!this.api.listRooms) return;
+    try {
+      const rooms = await this.api.listRooms(this.sport());
+      const mine = this.room()?.id;
+      this.courts.set(rooms.filter((r) => r.id !== mine));
+    } catch {
+      /* The list is a convenience; creating a court still works. */
+    }
   }
   async openRoom(invite: boolean): Promise<void> {
     await this.action(async () => {
@@ -199,8 +311,14 @@ export class TennisComponent {
         await this.api.cancelRoom(room.id);
         return;
       }
-      this.room.set(room);
+      this.setRoom(room);
       this.copied.set(false);
+    });
+  }
+  async joinCourt(id: string): Promise<void> {
+    if (!this.api.joinRoom) return;
+    await this.action(async () => {
+      this.setRoom(await this.api.joinRoom!(id));
     });
   }
   async cancel(): Promise<void> {
@@ -208,7 +326,7 @@ export class TennisComponent {
     if (r)
       await this.action(async () => {
         await this.api.cancelRoom(r.id);
-        this.room.set(null);
+        this.clearRoom();
       });
   }
   async copyInvite(): Promise<void> {
@@ -222,6 +340,266 @@ export class TennisComponent {
       this.copied.set(true);
     });
   }
+  /** Whether the court has its second player and a match waiting to start. */
+  roomReady(): boolean {
+    const r = this.room();
+    return (
+      !!r?.matchId &&
+      (r.serverStatus === 'ready' || r.serverStatus === 'playing')
+    );
+  }
+  private setRoom(room: TennisRoom): void {
+    this.room.set(room);
+    this.readySent.set(false);
+    this.opponentReady.set(false);
+    if (this.onlineEnabled) void this.watchRoom(room.id);
+  }
+  private clearRoom(): void {
+    this.room.set(null);
+    this.subscribedRoom = '';
+    this.readySent.set(false);
+    this.opponentReady.set(false);
+  }
+
+  // ------------------------------------------------------------------
+  // the networked match
+  // ------------------------------------------------------------------
+
+  private async ensureRealtime(): Promise<TennisRealtime> {
+    if (this.realtime && this.realtime.status !== 'closed')
+      return this.realtime;
+    const realtime = new TennisRealtime(
+      () => this.api.realtimeTicket!(),
+      (url, ticket) => this.api.realtimeUrl!(url, ticket),
+      (message) => this.zone.run(() => this.onMessage(message)),
+      (status) => this.zone.run(() => this.onLink(status)),
+    );
+    this.realtime = realtime;
+    await realtime.connect();
+    return realtime;
+  }
+  private async watchRoom(roomId: string): Promise<void> {
+    try {
+      const realtime = await this.ensureRealtime();
+      this.subscribedRoom = roomId;
+      realtime.send({ type: 'room.subscribe', roomId });
+    } catch (e) {
+      this.error.set(
+        e instanceof Error ? e.message : 'Online play is unavailable right now.',
+      );
+    }
+  }
+  /** "Play": tells the server we are at the court; the match starts when both players are. */
+  async ready(): Promise<void> {
+    const r = this.room();
+    if (!r?.matchId) return;
+    await this.action(async () => {
+      const realtime = await this.ensureRealtime();
+      realtime.send({ type: 'match.ready', matchId: r.matchId });
+      this.readySent.set(true);
+    });
+  }
+  private onLink(status: RealtimeStatus): void {
+    this.link.set(status);
+    if (status === 'open' && this.realtime) {
+      // Back after a drop: watch the court again and ask for the current frame.
+      if (this.subscribedRoom)
+        this.realtime.send({
+          type: 'room.subscribe',
+          roomId: this.subscribedRoom,
+        });
+      if (this.online && this.page() === 'online') {
+        this.realtime.send({
+          type: 'match.ready',
+          matchId: this.online.matchId,
+        });
+        this.realtime.send({
+          type: 'match.resync',
+          matchId: this.online.matchId,
+        });
+      }
+    }
+    if (
+      status === 'closed' &&
+      this.page() === 'online' &&
+      this.onlineStatus() !== 'finished'
+    )
+      this.error.set('Connection lost.');
+  }
+  private onMessage(message: ServerMessage): void {
+    switch (message.type) {
+      case 'room.updated':
+        this.onRoomUpdated(message.room);
+        break;
+      case 'match.waiting':
+        if (message.readyPlayerId !== this.realtime?.playerId)
+          this.opponentReady.set(true);
+        break;
+      case 'match.started': {
+        const me = this.realtime?.playerId ?? '';
+        this.online = new OnlineMatch(message.matchId, me, message.players);
+        const rival = this.room()?.members?.find(
+          (m) => m.id === this.online!.opponentId,
+        );
+        this.opponentName.set(rival?.username ?? 'Opponent');
+        this.rewards.set(null);
+        this.onlineStatus.set('playing');
+        this.state.set({ ...this.online.state });
+        this.keys.clear();
+        this.page.set('online');
+        break;
+      }
+      case 'match.snapshot':
+        if (this.online?.matchId === message.matchId) {
+          this.online.applySnapshot(message, performance.now());
+          if (
+            this.onlineStatus() === 'suspended' &&
+            message.phase !== 'suspended'
+          )
+            this.onlineStatus.set('playing');
+        }
+        break;
+      case 'match.point':
+        if (this.online?.matchId === message.matchId) {
+          this.online.applyScore(message.score);
+          const mine = message.winnerId === this.online.me;
+          this.showToast(
+            mine ? 'Your point!' : 'Point to ' + this.opponentName(),
+          );
+        }
+        break;
+      case 'match.suspended':
+        if (this.online?.matchId === message.matchId) {
+          this.onlineStatus.set('suspended');
+          this.reconnectDeadline.set(message.reconnectDeadline);
+        }
+        break;
+      case 'match.resumed':
+        if (
+          this.online?.matchId === message.matchId &&
+          this.onlineStatus() === 'suspended'
+        )
+          this.onlineStatus.set('playing');
+        break;
+      case 'match.finished':
+        if (this.online?.matchId === message.matchId) {
+          this.online.applyScore(message.score);
+          this.online.finish();
+          this.rewards.set(message.rewards);
+          this.profile.set(message.profile);
+          this.onlineStatus.set('finished');
+          this.state.set({ ...this.online.state });
+          this.clearRoom();
+        }
+        break;
+      case 'error':
+        if (message.code !== 'MATCH_NOT_RUNNING') this.error.set(message.message);
+        break;
+      default:
+        break;
+    }
+  }
+  private onRoomUpdated(room: RealtimeRoom): void {
+    const current = this.room();
+    if (!current || current.id !== room.id) return;
+    if (room.status === 'closed') {
+      if (this.page() !== 'online') {
+        this.clearRoom();
+        this.showToast('The court was closed.');
+      }
+      return;
+    }
+    this.room.set({
+      ...current,
+      status: 'waiting',
+      serverStatus: room.status,
+      matchId: room.matchId ?? undefined,
+      inviteUrl: room.inviteUrl ?? current.inviteUrl,
+      players: room.players.map((p) => p.username),
+      members: room.players.map((p) => ({ id: p.id, username: p.username })),
+    });
+    if (room.status === 'waiting') this.readySent.set(false);
+  }
+  /** Leaving a running match forfeits it; the server scores it for the opponent. */
+  leaveOnline(): void {
+    if (this.online && this.onlineStatus() !== 'finished' && this.realtime)
+      this.realtime.send({ type: 'match.leave', matchId: this.online.matchId });
+    this.online = undefined;
+    this.onlineStatus.set('connecting');
+    this.clearRoom();
+    this.realtime?.close();
+    this.realtime = undefined;
+  }
+  private showToast(text: string): void {
+    this.toast.set(text);
+    clearTimeout(this.toastTimer);
+    this.toastTimer = window.setTimeout(() => this.toast.set(''), 1800);
+  }
+
+  // ------------------------------------------------------------------
+  // championship: a live-ops event, invisible while none is on
+  // ------------------------------------------------------------------
+
+  private async loadChampionship(): Promise<void> {
+    if (this.disposed || this.championshipLoading || !this.api.championship) return;
+    this.championshipLoading = true;
+    try {
+      const season = await this.api.championship();
+      if (this.disposed) return;
+      if (season?.id !== this.championship()?.id) this.standings.set(null);
+      this.championship.set(season);
+      if (!season && this.page() === 'cup') this.page.set('club');
+    } catch {
+      if (!this.disposed) {
+        this.championship.set(null);
+        this.standings.set(null);
+        if (this.page() === 'cup') this.page.set('club');
+      }
+    } finally {
+      this.championshipLoading = false;
+    }
+  }
+  async openCup(): Promise<void> {
+    if (!this.championship()) return;
+    this.page.set('cup');
+    await this.refreshCup();
+  }
+  async refreshCup(): Promise<void> {
+    await this.loadChampionship();
+    const season = this.championship();
+    if (!season || !this.api.standings) return;
+    try {
+      const [standings, trophies] = await Promise.all([
+        this.api.standings(season.id),
+        this.api.trophies ? this.api.trophies() : Promise.resolve([]),
+      ]);
+      if (this.disposed || this.championship()?.id !== season.id) return;
+      this.standings.set(standings);
+      this.trophies.set(trophies);
+    } catch (e) {
+      this.error.set(e instanceof Error ? e.message : 'Please try again');
+    }
+  }
+  async register(): Promise<void> {
+    const season = this.championship();
+    if (!season || !this.api.registerForChampionship) return;
+    await this.action(async () => {
+      await this.api.registerForChampionship!(season.id);
+      await this.refreshCup();
+    });
+  }
+  /** Walks to the bracket court; the ready handshake then starts the match. */
+  async playBracket(match: TennisBracketMatch): Promise<void> {
+    if (!match.roomId || !this.api.getRoom) return;
+    await this.action(async () => {
+      this.setRoom(await this.api.getRoom!(match.roomId!));
+      this.page.set('friends');
+    });
+  }
+  // ------------------------------------------------------------------
+  // gear and gym
+  // ------------------------------------------------------------------
+
   async equip(id: RacketId): Promise<void> {
     await this.action(async () => this.profile.set(await this.api.equip(id)));
   }
@@ -284,12 +662,18 @@ export class TennisComponent {
     if (typeof document === 'undefined') return;
     this.disposed = true;
     cancelAnimationFrame(this.frame);
+    clearTimeout(this.toastTimer);
+    clearInterval(this.championshipTimer);
     this.observer?.disconnect();
     this.scene?.destroy();
     document.removeEventListener('keydown', this.keydown);
     document.removeEventListener('keyup', this.keyup);
     document.removeEventListener('visibilitychange', this.visibility);
-    const r = this.room();
-    if (r) void this.api.cancelRoom(r.id);
+    if (this.page() === 'online') this.leaveOnline();
+    else {
+      const r = this.room();
+      if (r) void this.api.cancelRoom(r.id);
+      this.realtime?.close();
+    }
   }
 }

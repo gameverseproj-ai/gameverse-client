@@ -1,10 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { SessionStore } from './session.store';
 import {
   RacketId,
   TennisApi,
+  TennisChampionship,
+  TennisStandings,
+  TennisTrophy,
   TennisProfile,
+  TennisRealtimeTicket,
   TennisRepEvent,
   TennisRoom,
   TennisSport,
@@ -38,7 +43,12 @@ export class HttpTennisApi implements TennisApi {
   readonly mock = false;
   private readonly http = inject(HttpClient);
   private readonly base = inject(API_BASE_URL);
+  private readonly session = inject(SessionStore);
   private readonly url = () => `${this.base}/api/tennis`;
+
+  playerId(): string | null {
+    return this.session.read()?.playerId ?? null;
+  }
 
   profile(): Promise<TennisProfile> {
     return firstValueFrom(this.http.get<TennisProfile>(`${this.url()}/profile`));
@@ -62,6 +72,57 @@ export class HttpTennisApi implements TennisApi {
       idempotencyKey: crypto.randomUUID(),
     }));
     return toRoom(joined.room);
+  }
+
+  async currentRoom(): Promise<TennisRoom | null> {
+    const room = await firstValueFrom(this.http.get<ServerRoom | null>(`${this.url()}/rooms/mine`));
+    return room ? toRoom(room) : null;
+  }
+
+  async listRooms(sport: TennisSport): Promise<TennisRoom[]> {
+    const page = await firstValueFrom(this.http.get<{ items: ServerRoom[] }>(`${this.url()}/rooms`, { params: { sport } }));
+    return page.items.map(room => toRoom(room));
+  }
+
+  async joinRoom(id: string): Promise<TennisRoom> {
+    const joined = await firstValueFrom(this.http.post<{ room: ServerRoom }>(`${this.url()}/rooms/${id}/join`, {
+      idempotencyKey: crypto.randomUUID(),
+    }));
+    return toRoom(joined.room);
+  }
+
+  realtimeTicket(): Promise<TennisRealtimeTicket> {
+    return firstValueFrom(this.http.post<TennisRealtimeTicket>(`${this.url()}/realtime/ticket`, null));
+  }
+
+  /** A path is relative to the API origin (same-origin behind the dev proxy). */
+  realtimeUrl(realtimeUrl: string, ticket: string): string {
+    const absolute = /^wss?:/.test(realtimeUrl)
+      ? realtimeUrl
+      : (this.base || location.origin).replace(/^http/, 'ws') + realtimeUrl;
+    return `${absolute}?ticket=${encodeURIComponent(ticket)}`;
+  }
+
+  async getRoom(id: string): Promise<TennisRoom> {
+    return toRoom(await firstValueFrom(this.http.get<ServerRoom>(`${this.url()}/rooms/${id}`)));
+  }
+
+  championship(): Promise<TennisChampionship | null> {
+    return firstValueFrom(this.http.get<TennisChampionship | null>(`${this.url()}/championships/current`));
+  }
+
+  async registerForChampionship(id: string): Promise<void> {
+    await firstValueFrom(this.http.post(`${this.url()}/championships/${id}/registration`, {
+      idempotencyKey: crypto.randomUUID(),
+    }));
+  }
+
+  standings(id: string): Promise<TennisStandings> {
+    return firstValueFrom(this.http.get<TennisStandings>(`${this.url()}/championships/${id}/standings`));
+  }
+
+  async trophies(): Promise<TennisTrophy[]> {
+    return (await firstValueFrom(this.http.get<{ items: TennisTrophy[] }>(`${this.url()}/profile/trophies`))).items;
   }
 
   cancelRoom(id: string): Promise<void> {
@@ -109,5 +170,7 @@ function toRoom(room: ServerRoom, invitedUsername?: string): TennisRoom {
     ...(room.inviteUrl ? { inviteUrl: room.inviteUrl } : {}),
     ...(room.matchId ? { matchId: room.matchId } : {}),
     players: room.players.map(p => p.username),
+    members: room.players.map(p => ({ id: p.id, username: p.username })),
+    serverStatus: room.status,
   };
 }
