@@ -35,8 +35,20 @@ export interface TennisChampionship {
   startsAt: string;
   endsAt: string;
   status: 'registration' | 'running' | 'finished' | 'cancelled';
-  rules: { format: string; pointsToWin: number; minPlayers: number; maxPlayers: number; roundDurationMinutes: number };
-  prize: { title: string; coins: number; gems: number; xp: number; trophyAssetUrl: string };
+  rules: {
+    format: string;
+    pointsToWin: number;
+    minPlayers: number;
+    maxPlayers: number;
+    roundDurationMinutes: number;
+  };
+  prize: {
+    title: string;
+    coins: number;
+    gems: number;
+    xp: number;
+    trophyAssetUrl: string;
+  };
   registrationOpen: boolean;
   registered: boolean;
   participants: number;
@@ -62,7 +74,9 @@ export interface TennisBracketMatch {
 }
 export interface TennisStandings {
   standings: TennisStanding[];
-  bracket: { rounds: { round: number; name: string; matches: TennisBracketMatch[] }[] };
+  bracket: {
+    rounds: { round: number; name: string; matches: TennisBracketMatch[] }[];
+  };
   champion: TennisStanding | null;
 }
 export interface TennisTrophy {
@@ -80,6 +94,7 @@ export interface TennisTrainingChallenge {
   id: string;
   reps: number;
   minIntervalMs: number;
+  maxDurationMs?: number;
 }
 export interface TennisRepEvent {
   sequence: number;
@@ -88,6 +103,8 @@ export interface TennisRepEvent {
 }
 export interface TennisApi {
   readonly mock: boolean;
+  bootstrap(): Promise<TennisBootstrap>;
+  invitations?(): Promise<TennisInvitation[]>;
   profile(): Promise<TennisProfile>;
   createRoom(sport: TennisSport, username?: string): Promise<TennisRoom>;
   /** Joins the court behind an invitation link; absent on the mock. */
@@ -114,17 +131,48 @@ export interface TennisApi {
   cancelRoom(id: string): Promise<void>;
   equip(racket: RacketId): Promise<TennisProfile>;
   /** Opens a gym challenge; the rep log is checked by `train`. */
-  startTraining(): Promise<TennisTrainingChallenge>;
-  train(challenge: TennisTrainingChallenge, events: TennisRepEvent[]): Promise<TennisProfile>;
+  startTraining(exerciseId?: string): Promise<TennisTrainingChallenge>;
+  train(
+    challenge: TennisTrainingChallenge,
+    events: TennisRepEvent[],
+  ): Promise<TennisProfile>;
   completePractice(activeSeconds: number): Promise<TennisProfile>;
 }
-export const RACKETS: {
+export interface TennisRacket {
   id: RacketId;
   name: string;
   price: number;
   spin: number;
   speed: number;
-}[] = [
+}
+export interface TennisExercise {
+  id: string;
+  name: string;
+  reps: number;
+  minIntervalMs: number;
+  maxDurationMs: number;
+  power: number;
+}
+export interface TennisInvitation {
+  id: string;
+  roomId: string;
+  sport: TennisSport;
+  status: string;
+  expiresAt: string;
+  inviteUrl: string;
+  fromUsername: string;
+  toUsername: string;
+}
+export interface TennisBootstrap {
+  enabledSports: TennisSport[];
+  sports: { id: TennisSport; name: string; enabled: boolean }[];
+  profile: TennisProfile;
+  rackets: TennisRacket[];
+  exercises: TennisExercise[];
+  activeChampionship: TennisChampionship | null;
+  realtimeUrl: string;
+}
+export const RACKETS: TennisRacket[] = [
   { id: 'starter', name: 'Orbit', price: 0, spin: 0, speed: 1 },
   { id: 'spin', name: 'Prism', price: 100, spin: 1, speed: 0.96 },
   { id: 'power', name: 'Volt', price: 150, spin: 0.3, speed: 1.12 },
@@ -144,6 +192,26 @@ export class MockTennisApi implements TennisApi {
   private value = initial();
   private loaded = false;
   private rooms = new Map<string, TennisRoom>();
+  async bootstrap(): Promise<TennisBootstrap> {
+    return {
+      enabledSports: ['tennis'],
+      sports: [{ id: 'tennis', name: 'Tennis', enabled: true }],
+      profile: await this.profile(),
+      rackets: RACKETS,
+      exercises: [
+        {
+          id: 'serve-reps',
+          name: 'Serve reps',
+          reps: 20,
+          minIntervalMs: 500,
+          maxDurationMs: 120000,
+          power: 1,
+        },
+      ],
+      activeChampionship: null,
+      realtimeUrl: '',
+    };
+  }
   async profile(): Promise<TennisProfile> {
     if (!this.loaded) {
       this.loaded = true;
@@ -207,7 +275,8 @@ export class MockTennisApi implements TennisApi {
     challenge: TennisTrainingChallenge,
     events: TennisRepEvent[],
   ): Promise<TennisProfile> {
-    if (events.length < challenge.reps) throw new Error('Finish the drill first');
+    if (events.length < challenge.reps)
+      throw new Error('Finish the drill first');
     this.value.power = Math.min(10, this.value.power + 1);
     return this.save();
   }
@@ -231,7 +300,5 @@ export class MockTennisApi implements TennisApi {
     return structuredClone(this.value);
   }
 }
-export const TENNIS_API = new InjectionToken<TennisApi>('TENNIS_API', {
-  providedIn: 'root',
-  factory: () => new MockTennisApi(),
-});
+// Production must explicitly provide its HTTP adapter; never silently fall back to demo data.
+export const TENNIS_API = new InjectionToken<TennisApi>('TENNIS_API');

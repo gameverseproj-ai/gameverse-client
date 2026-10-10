@@ -1,3 +1,4 @@
+import { TennisSport } from './tennis.api';
 import { MatchState } from './tennis-match';
 import { MatchSnapshot, SnapshotPlayer } from './tennis-realtime';
 
@@ -20,8 +21,16 @@ export interface InputFrame {
  */
 export class OnlineMatch {
   readonly state: MatchState = {
-    x: 0, z: 7, player: 0, opponent: 0, stamina: 100,
-    score: 0, rivalScore: 0, rally: 0, phase: 'serve', activeSeconds: 0,
+    x: 0,
+    z: 7,
+    player: 0,
+    opponent: 0,
+    stamina: 100,
+    score: 0,
+    rivalScore: 0,
+    rally: 0,
+    phase: 'serve',
+    activeSeconds: 0,
   };
   readonly side: 1 | -1;
   readonly opponentId: string;
@@ -35,7 +44,12 @@ export class OnlineMatch {
   private pendingSwing: Swing = 'none';
   private pendingAim = 0;
   private rivalTarget = 0;
-  constructor(readonly matchId: string, readonly me: string, players: SnapshotPlayer[]) {
+  constructor(
+    readonly matchId: string,
+    readonly me: string,
+    players: SnapshotPlayer[],
+    readonly sport: TennisSport = 'tennis',
+  ) {
     const mine = players.find((p) => p.id === me);
     this.side = mine?.side ?? 1;
     this.opponentId = players.find((p) => p.id !== me)?.id ?? '';
@@ -43,7 +57,7 @@ export class OnlineMatch {
 
   /** Mirrors a server x/z into the local player's perspective. */
   private mirror(value: number): number {
-    return this.side === 1 ? value : -value;
+    return this.sport === 'squash' || this.side === 1 ? value : -value;
   }
 
   applySnapshot(snapshot: MatchSnapshot, now: number): void {
@@ -60,7 +74,14 @@ export class OnlineMatch {
     s.rivalScore = snapshot.score[this.opponentId] ?? 0;
     s.rally = snapshot.rally;
     s.activeSeconds = snapshot.activeSeconds;
-    s.phase = snapshot.phase === 'rally' ? 'rally' : snapshot.phase === 'finished' ? 'finished' : 'serve';
+    s.phase =
+      snapshot.phase === 'rally'
+        ? 'rally'
+        : snapshot.phase === 'finished'
+          ? 'finished'
+          : 'serve';
+    s.playerZ = mine ? this.mirror(mine.position.z) : 7;
+    s.opponentZ = rival ? this.mirror(rival.position.z) : -7;
     if (mine) s.player = this.mirror(mine.position.x);
     if (rival) this.rivalTarget = this.mirror(rival.position.x);
   }
@@ -81,8 +102,16 @@ export class OnlineMatch {
     if (this.latest) {
       const age = Math.min(0.12, Math.max(0, (now - this.receivedAt) / 1000));
       const { position, velocity } = this.latest.ball;
-      const x = this.latest.phase === 'rally' ? position.x + velocity.x * age : position.x;
-      const z = this.latest.phase === 'rally' ? position.z + velocity.z * age : position.z;
+      const x =
+        this.latest.phase === 'rally'
+          ? position.x + velocity.x * age
+          : position.x;
+      const z =
+        this.latest.phase === 'rally'
+          ? position.z + velocity.z * age
+          : position.z;
+      if (position.y !== undefined)
+        s.y = Math.max(0, position.y + (velocity.y ?? 0) * age);
       s.x = this.mirror(Math.max(-4.6, Math.min(4.6, x)));
       s.z = this.mirror(z);
     }
@@ -104,7 +133,8 @@ export class OnlineMatch {
   /** The next frame to send; the swing goes out once. */
   nextFrame(): InputFrame {
     const gap = this.target - this.state.player;
-    const moveX = Math.abs(gap) < 0.08 ? 0 : Math.max(-1, Math.min(1, gap * 1.6));
+    const moveX =
+      Math.abs(gap) < 0.08 ? 0 : Math.max(-1, Math.min(1, gap * 1.6));
     const frame: InputFrame = {
       sequence: ++this.sequence,
       clientTick: this.sequence,

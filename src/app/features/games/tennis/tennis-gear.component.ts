@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
-import { RACKETS, RacketId, TennisProfile } from './tennis.api';
+import { TennisRacket, RacketId, TennisProfile } from './tennis.api';
 
 @Component({
   selector: 'app-tennis-gear',
@@ -14,5 +14,5 @@ export class TennisGearComponent {
   readonly mock = input(false);
   readonly busy = input(false);
   readonly equip = output<RacketId>();
-  readonly rackets = RACKETS;
+  readonly rackets = input<TennisRacket[]>([]);
 }

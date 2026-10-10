@@ -3,7 +3,7 @@
   <h2>{{ "Find your signature." | t }}</h2>
   <p>{{ profile()?.coins }} {{ (mock() ? "demo coins" : "coins") | t }}</p>
   <div class="rackets">
-    @for (r of rackets; track r.id) {
+    @for (r of rackets(); track r.id) {
       <button
         [class.equipped]="profile()?.racket === r.id"
         (click)="equip.emit(r.id)"

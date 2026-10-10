@@ -17,6 +17,8 @@ import {
   TennisBracketMatch,
   TennisChampionship,
   TennisProfile,
+  TennisBootstrap,
+  TennisInvitation,
   TennisStandings,
   TennisTrophy,
   TennisRepEvent,
@@ -24,7 +26,8 @@ import {
   TennisSport,
   TennisTrainingChallenge,
 } from './tennis.api';
-import { TennisMatch, MatchState } from './tennis-match';
+import { MatchState } from './tennis-match';
+import { createPractice, PracticeMatch, SPORT_RULES } from './racquet-sports';
 import { TennisScene } from './tennis-scene';
 import {
   MatchRewards,
@@ -37,16 +40,17 @@ import { OnlineMatch } from './tennis-online';
 
 /** Where a networked match stands, as shown on the online court. */
 export type OnlineStatus =
-  | 'connecting'
-  | 'waiting-opponent'
-  | 'playing'
-  | 'suspended'
-  | 'finished';
+  'connecting' | 'waiting-opponent' | 'playing' | 'suspended' | 'finished';
 
 @Component({
   selector: 'app-tennis',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, TennisGearComponent, TennisChampionshipComponent],
+  imports: [
+    RouterLink,
+    TranslatePipe,
+    TennisGearComponent,
+    TennisChampionshipComponent,
+  ],
   templateUrl: './tennis.component.html',
   styleUrl: './tennis.component.scss',
 })
@@ -55,6 +59,9 @@ export class TennisComponent {
   readonly api = inject(TENNIS_API);
   private zone = inject(NgZone);
   private route = inject(ActivatedRoute);
+  readonly catalog = signal<TennisBootstrap | null>(null);
+  readonly invitations = signal<TennisInvitation[]>([]);
+  readonly exerciseId = signal('');
   readonly profile = signal<TennisProfile | null>(null);
   readonly page = signal<
     'club' | 'play' | 'online' | 'friends' | 'gym' | 'gear' | 'cup'
@@ -85,18 +92,12 @@ export class TennisComponent {
   readonly championship = signal<TennisChampionship | null>(null);
   readonly standings = signal<TennisStandings | null>(null);
   readonly trophies = signal<TennisTrophy[]>([]);
-  readonly sports: { id: TennisSport; name: string; icon: string }[] = [
-    { id: 'tennis', name: 'Tennis', icon: '◉' },
-    { id: 'ping-pong', name: 'Ping pong', icon: '◒' },
-    { id: 'squash', name: 'Squash', icon: '▣' },
-    { id: 'badminton', name: 'Badminton', icon: '✧' },
-  ];
   setUsername(event: Event): void {
     this.username = (event.target as HTMLInputElement).value;
   }
   username = '';
   private scene?: TennisScene;
-  private match?: TennisMatch;
+  private match?: PracticeMatch;
   private online?: OnlineMatch;
   private realtime?: TennisRealtime;
   private subscribedRoom = '';
@@ -128,7 +129,10 @@ export class TennisComponent {
   };
   private keyup = (e: KeyboardEvent) => this.keys.delete(e.key);
   private visibility = () => {
-    if (!document.hidden) void this.loadChampionship();
+    if (!document.hidden) {
+      void this.loadChampionship();
+      void this.refreshInvitations();
+    }
     if (document.hidden && this.page() === 'play') {
       this.paused.set(true);
       this.keys.clear();
@@ -138,7 +142,10 @@ export class TennisComponent {
     afterNextRender(() => {
       void this.load();
       this.championshipTimer = window.setInterval(() => {
-        if (!document.hidden) void this.loadChampionship();
+        if (!document.hidden) {
+          void this.loadChampionship();
+          void this.refreshInvitations();
+        }
       }, 60_000);
       document.addEventListener('keydown', this.keydown);
       document.addEventListener('keyup', this.keyup);
@@ -154,14 +161,22 @@ export class TennisComponent {
   }
   private async load(): Promise<void> {
     await this.action(async () => {
-      const p = await this.api.profile();
+      const catalog = await this.api.bootstrap();
       if (!this.disposed) {
-        this.profile.set(p);
-        this.match = new TennisMatch(p);
+        this.catalog.set(catalog);
+        this.exerciseId.set(catalog.exercises[0]?.id ?? '');
+        this.profile.set(catalog.profile);
+        this.championship.set(catalog.activeChampionship);
+        this.match = createPractice(
+          catalog.profile,
+          catalog.rackets,
+          this.sport(),
+        );
         this.state.set({ ...this.match.state });
       }
     });
-    void this.loadChampionship();
+    if (!this.catalog()) return;
+    void this.refreshInvitations();
     const invite = this.route.snapshot.queryParamMap.get('invite');
     if (invite && this.api.joinByInvite && !this.disposed)
       await this.action(async () => {
@@ -242,13 +257,22 @@ export class TennisComponent {
     }
     this.frame = requestAnimationFrame(this.loop);
   };
+  get rules() {
+    return SPORT_RULES[this.sport()];
+  }
   selectSport(id: TennisSport): void {
+    this.scene?.setSport(id);
     this.sport.set(id);
+    const profile = this.profile();
+    if (profile && this.page() === 'club') {
+      this.match = createPractice(profile, this.catalog()?.rackets, id);
+      this.state.set({ ...this.match.state });
+    }
   }
   start(): void {
     const p = this.profile();
-    if (!p || this.sport() !== 'tennis') return;
-    this.match = new TennisMatch(p);
+    if (!p || !this.catalog()?.enabledSports.includes(this.sport())) return;
+    this.match = createPractice(p, this.catalog()?.rackets, this.sport());
     this.recorded = false;
     this.state.set({ ...this.match.state });
     this.paused.set(false);
@@ -289,7 +313,42 @@ export class TennisComponent {
 
   async openFriends(): Promise<void> {
     this.page.set('friends');
-    await this.refreshCourts();
+    await Promise.all([this.refreshCourts(), this.refreshInvitations()]);
+  }
+  async refreshInvitations(): Promise<void> {
+    if (!this.api.invitations) return;
+    try {
+      const items = await this.api.invitations();
+      if (!this.disposed)
+        this.invitations.set(
+          items.filter(
+            (i) =>
+              i.status === 'pending' && Date.parse(i.expiresAt) > Date.now(),
+          ),
+        );
+    } catch {
+      if (this.page() === 'friends')
+        this.error.set('Unable to load invitations. Please try again.');
+    }
+  }
+  async acceptInvitation(invitation: TennisInvitation): Promise<void> {
+    if (!this.api.joinByInvite) return;
+    const token = new URL(
+      invitation.inviteUrl,
+      location.origin,
+    ).searchParams.get('invite');
+    if (!token) {
+      this.error.set('Invalid invitation link');
+      return;
+    }
+    await this.action(async () => {
+      const room = await this.api.joinByInvite!(token);
+      if (this.disposed) return;
+      this.setRoom(room);
+      this.invitations.update((items) =>
+        items.filter((item) => item.id !== invitation.id),
+      );
+    });
   }
   async refreshCourts(): Promise<void> {
     if (!this.api.listRooms) return;
@@ -298,7 +357,8 @@ export class TennisComponent {
       const mine = this.room()?.id;
       this.courts.set(rooms.filter((r) => r.id !== mine));
     } catch {
-      /* The list is a convenience; creating a court still works. */
+      this.courts.set([]);
+      this.error.set('Unable to load courts. Please try again.');
     }
   }
   async openRoom(invite: boolean): Promise<void> {
@@ -333,10 +393,8 @@ export class TennisComponent {
     const r = this.room();
     if (!r) return;
     await this.action(async () => {
-      await navigator.clipboard.writeText(
-        r.inviteUrl ??
-          `${location.origin}/games/tennis?invite=${encodeURIComponent(r.id)}`,
-      );
+      if (!r.inviteUrl) throw new Error('Invitation link is not available');
+      await navigator.clipboard.writeText(r.inviteUrl);
       this.copied.set(true);
     });
   }
@@ -349,6 +407,7 @@ export class TennisComponent {
     );
   }
   private setRoom(room: TennisRoom): void {
+    this.selectSport(room.sport);
     this.room.set(room);
     this.readySent.set(false);
     this.opponentReady.set(false);
@@ -385,7 +444,9 @@ export class TennisComponent {
       realtime.send({ type: 'room.subscribe', roomId });
     } catch (e) {
       this.error.set(
-        e instanceof Error ? e.message : 'Online play is unavailable right now.',
+        e instanceof Error
+          ? e.message
+          : 'Online play is unavailable right now.',
       );
     }
   }
@@ -436,8 +497,14 @@ export class TennisComponent {
           this.opponentReady.set(true);
         break;
       case 'match.started': {
+        if (message.sport) this.selectSport(message.sport);
         const me = this.realtime?.playerId ?? '';
-        this.online = new OnlineMatch(message.matchId, me, message.players);
+        this.online = new OnlineMatch(
+          message.matchId,
+          me,
+          message.players,
+          message.sport ?? this.sport(),
+        );
         const rival = this.room()?.members?.find(
           (m) => m.id === this.online!.opponentId,
         );
@@ -493,7 +560,8 @@ export class TennisComponent {
         }
         break;
       case 'error':
-        if (message.code !== 'MATCH_NOT_RUNNING') this.error.set(message.message);
+        if (message.code !== 'MATCH_NOT_RUNNING')
+          this.error.set(message.message);
         break;
       default:
         break;
@@ -541,7 +609,8 @@ export class TennisComponent {
   // ------------------------------------------------------------------
 
   private async loadChampionship(): Promise<void> {
-    if (this.disposed || this.championshipLoading || !this.api.championship) return;
+    if (this.disposed || this.championshipLoading || !this.api.championship)
+      return;
     this.championshipLoading = true;
     try {
       const season = await this.api.championship();
@@ -613,13 +682,23 @@ export class TennisComponent {
       this.drillDone()
     )
       return;
+    if (
+      challenge.maxDurationMs &&
+      now - this.trainingStart > challenge.maxDurationMs
+    ) {
+      this.training.set(null);
+      this.error.set('Training expired. Start a new drill.');
+      return;
+    }
     this.trainingLast = now;
-    this.drill.update((v) => v + 1);
-    this.trainingLog.push({
-      sequence: this.drill(),
-      elapsedMs: Math.round(now - this.trainingStart),
-      action: 'rep',
-    });
+    if (this.drill() < challenge.reps) {
+      this.drill.update((v) => v + 1);
+      this.trainingLog.push({
+        sequence: this.drill(),
+        elapsedMs: Math.round(now - this.trainingStart),
+        action: 'rep',
+      });
+    }
     if (this.drill() >= challenge.reps)
       await this.action(async () => {
         this.profile.set(await this.api.train(challenge, this.trainingLog));
@@ -627,13 +706,20 @@ export class TennisComponent {
       });
   }
   async openGym(): Promise<void> {
+    this.page.set('gym');
+    this.training.set(null);
+    this.drill.set(0);
+    this.drillDone.set(false);
+  }
+  async startDrill(): Promise<void> {
+    if (!this.exerciseId() || this.busy()) return;
     this.drill.set(0);
     this.drillDone.set(false);
     this.training.set(null);
     this.trainingLog = [];
     this.page.set('gym');
     await this.action(async () => {
-      this.training.set(await this.api.startTraining());
+      this.training.set(await this.api.startTraining(this.exerciseId()));
       this.trainingStart = performance.now();
       this.trainingLast = 0;
     });

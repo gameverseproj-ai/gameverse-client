@@ -1,3 +1,4 @@
+import { RACKETS } from './tennis.api';
 import { TestBed } from '@angular/core/testing';
 import { LanguageService } from '../../../core/i18n/language.service';
 import { TennisGearComponent } from './tennis-gear.component';
@@ -17,6 +18,7 @@ describe('Tennis panels', () => {
 
   it('keeps purchase affordability and sends the selected racket to its owner', () => {
     const f = TestBed.createComponent(TennisGearComponent);
+    f.componentRef.setInput('rackets', RACKETS);
     f.componentRef.setInput('profile', {
       coins: 100,
       racket: 'starter',

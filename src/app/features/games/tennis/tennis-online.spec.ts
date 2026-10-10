@@ -23,6 +23,25 @@ const snapshot = (over: Partial<MatchSnapshot> = {}): MatchSnapshot => ({
 });
 
 describe('Online match model', () => {
+  it('keeps the second squash player facing the front wall and preserves ball height', () => {
+    const sameEnd = players.map((p) => ({ ...p, position: { ...p.position, z: 7 } }));
+    const m = new OnlineMatch('m', B, sameEnd, 'squash');
+    m.applySnapshot(snapshot({
+      players: sameEnd,
+      ball: { position: { x: 1, y: 2, z: -4 }, velocity: { x: 0, y: 3, z: 8 } },
+    }), 1000);
+    m.tick(1050, 0.05);
+    expect(m.state.playerZ).toBe(7);
+    expect(m.state.opponentZ).toBe(7);
+    expect(m.state.x).toBe(1);
+    expect(m.state.z).toBeCloseTo(-3.6);
+    expect(m.state.y).toBeCloseTo(2.15);
+    m.move(4);
+    m.swing(0.5);
+    const frame = m.nextFrame();
+    expect(frame.moveX).toBeGreaterThan(0);
+    expect(frame.aimX).toBe(0.5);
+  });
   it('keeps the first player in their own perspective', () => {
     const m = new OnlineMatch('m', A, players);
     m.applySnapshot(snapshot(), 1000);

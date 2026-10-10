@@ -5,6 +5,8 @@ import { SessionStore } from './session.store';
 import {
   RacketId,
   TennisApi,
+  TennisBootstrap,
+  TennisInvitation,
   TennisChampionship,
   TennisStandings,
   TennisTrophy,
@@ -28,7 +30,12 @@ interface ServerRoom {
 }
 interface ServerTraining {
   id: string;
-  challenge: { exerciseId: string; reps: number; minIntervalMs: number; maxDurationMs: number };
+  challenge: {
+    exerciseId: string;
+    reps: number;
+    minIntervalMs: number;
+    maxDurationMs: number;
+  };
 }
 
 /**
@@ -50,49 +57,98 @@ export class HttpTennisApi implements TennisApi {
     return this.session.read()?.playerId ?? null;
   }
 
+  bootstrap(): Promise<TennisBootstrap> {
+    return firstValueFrom(
+      this.http.get<TennisBootstrap>(`${this.url()}/bootstrap`),
+    );
+  }
+  invitations(): Promise<TennisInvitation[]> {
+    return firstValueFrom(
+      this.http.get<TennisInvitation[]>(`${this.url()}/invitations`),
+    );
+  }
+
   profile(): Promise<TennisProfile> {
-    return firstValueFrom(this.http.get<TennisProfile>(`${this.url()}/profile`));
+    return firstValueFrom(
+      this.http.get<TennisProfile>(`${this.url()}/profile`),
+    );
   }
 
   async createRoom(sport: TennisSport, username?: string): Promise<TennisRoom> {
     const invitedUsername = username?.trim() || undefined;
-    const room = await firstValueFrom(this.http.post<ServerRoom>(`${this.url()}/rooms`, {
-      sport,
-      visibility: invitedUsername ? 'private' : 'public',
-      invitedUsername,
-      idempotencyKey: crypto.randomUUID(),
-    }));
+    const room = await firstValueFrom(
+      this.http.post<ServerRoom>(`${this.url()}/rooms`, {
+        sport,
+        visibility: invitedUsername ? 'private' : 'public',
+        invitedUsername,
+        idempotencyKey: crypto.randomUUID(),
+      }),
+    );
     return toRoom(room, invitedUsername);
   }
 
   async joinByInvite(token: string): Promise<TennisRoom> {
-    const preview = await firstValueFrom(this.http.get<ServerRoom>(`${this.url()}/invitations/${encodeURIComponent(token)}`));
-    const joined = await firstValueFrom(this.http.post<{ room: ServerRoom }>(`${this.url()}/rooms/${preview.id}/join`, {
-      inviteToken: token,
-      idempotencyKey: crypto.randomUUID(),
-    }));
+    const preview = await firstValueFrom(
+      this.http.get<ServerRoom>(
+        `${this.url()}/invitations/${encodeURIComponent(token)}`,
+      ),
+    );
+    const joined = await firstValueFrom(
+      this.http.post<{ room: ServerRoom }>(
+        `${this.url()}/rooms/${preview.id}/join`,
+        {
+          inviteToken: token,
+          idempotencyKey: crypto.randomUUID(),
+        },
+      ),
+    );
     return toRoom(joined.room);
   }
 
   async currentRoom(): Promise<TennisRoom | null> {
-    const room = await firstValueFrom(this.http.get<ServerRoom | null>(`${this.url()}/rooms/mine`));
+    const room = await firstValueFrom(
+      this.http.get<ServerRoom | null>(`${this.url()}/rooms/mine`),
+    );
     return room ? toRoom(room) : null;
   }
 
   async listRooms(sport: TennisSport): Promise<TennisRoom[]> {
-    const page = await firstValueFrom(this.http.get<{ items: ServerRoom[] }>(`${this.url()}/rooms`, { params: { sport } }));
-    return page.items.map(room => toRoom(room));
+    const rooms: TennisRoom[] = [];
+    let cursor: string | undefined;
+    const seen = new Set<string>();
+    do {
+      const params: Record<string, string> = { sport };
+      if (cursor) params['cursor'] = cursor;
+      const page = await firstValueFrom(
+        this.http.get<{ items: ServerRoom[]; nextCursor?: string | null }>(
+          `${this.url()}/rooms`,
+          { params },
+        ),
+      );
+      rooms.push(...page.items.map((room) => toRoom(room)));
+      cursor = page.nextCursor ?? undefined;
+      if (cursor && seen.has(cursor)) break;
+      if (cursor) seen.add(cursor);
+    } while (cursor);
+    return [...new Map(rooms.map((room) => [room.id, room])).values()];
   }
 
   async joinRoom(id: string): Promise<TennisRoom> {
-    const joined = await firstValueFrom(this.http.post<{ room: ServerRoom }>(`${this.url()}/rooms/${id}/join`, {
-      idempotencyKey: crypto.randomUUID(),
-    }));
+    const joined = await firstValueFrom(
+      this.http.post<{ room: ServerRoom }>(`${this.url()}/rooms/${id}/join`, {
+        idempotencyKey: crypto.randomUUID(),
+      }),
+    );
     return toRoom(joined.room);
   }
 
   realtimeTicket(): Promise<TennisRealtimeTicket> {
-    return firstValueFrom(this.http.post<TennisRealtimeTicket>(`${this.url()}/realtime/ticket`, null));
+    return firstValueFrom(
+      this.http.post<TennisRealtimeTicket>(
+        `${this.url()}/realtime/ticket`,
+        null,
+      ),
+    );
   }
 
   /** A path is relative to the API origin (same-origin behind the dev proxy). */
@@ -104,25 +160,45 @@ export class HttpTennisApi implements TennisApi {
   }
 
   async getRoom(id: string): Promise<TennisRoom> {
-    return toRoom(await firstValueFrom(this.http.get<ServerRoom>(`${this.url()}/rooms/${id}`)));
+    return toRoom(
+      await firstValueFrom(
+        this.http.get<ServerRoom>(`${this.url()}/rooms/${id}`),
+      ),
+    );
   }
 
   championship(): Promise<TennisChampionship | null> {
-    return firstValueFrom(this.http.get<TennisChampionship | null>(`${this.url()}/championships/current`));
+    return firstValueFrom(
+      this.http.get<TennisChampionship | null>(
+        `${this.url()}/championships/current`,
+      ),
+    );
   }
 
   async registerForChampionship(id: string): Promise<void> {
-    await firstValueFrom(this.http.post(`${this.url()}/championships/${id}/registration`, {
-      idempotencyKey: crypto.randomUUID(),
-    }));
+    await firstValueFrom(
+      this.http.post(`${this.url()}/championships/${id}/registration`, {
+        idempotencyKey: crypto.randomUUID(),
+      }),
+    );
   }
 
   standings(id: string): Promise<TennisStandings> {
-    return firstValueFrom(this.http.get<TennisStandings>(`${this.url()}/championships/${id}/standings`));
+    return firstValueFrom(
+      this.http.get<TennisStandings>(
+        `${this.url()}/championships/${id}/standings`,
+      ),
+    );
   }
 
   async trophies(): Promise<TennisTrophy[]> {
-    return (await firstValueFrom(this.http.get<{ items: TennisTrophy[] }>(`${this.url()}/profile/trophies`))).items;
+    return (
+      await firstValueFrom(
+        this.http.get<{ items: TennisTrophy[] }>(
+          `${this.url()}/profile/trophies`,
+        ),
+      )
+    ).items;
   }
 
   cancelRoom(id: string): Promise<void> {
@@ -133,25 +209,46 @@ export class HttpTennisApi implements TennisApi {
   async equip(racket: RacketId): Promise<TennisProfile> {
     const current = await this.profile();
     if (!current.owned.includes(racket)) {
-      await firstValueFrom(this.http.post(`${this.url()}/rackets/${racket}/purchase`, {
-        idempotencyKey: crypto.randomUUID(),
-      }));
+      await firstValueFrom(
+        this.http.post(`${this.url()}/rackets/${racket}/purchase`, {
+          idempotencyKey: crypto.randomUUID(),
+        }),
+      );
     }
-    return firstValueFrom(this.http.put<TennisProfile>(`${this.url()}/profile/racket`, { racketId: racket }));
+    return firstValueFrom(
+      this.http.put<TennisProfile>(`${this.url()}/profile/racket`, {
+        racketId: racket,
+      }),
+    );
   }
 
-  async startTraining(): Promise<TennisTrainingChallenge> {
-    const session = await firstValueFrom(this.http.post<ServerTraining>(`${this.url()}/training/sessions`, {
-      exerciseId: 'serve-reps',
-      idempotencyKey: crypto.randomUUID(),
-    }));
-    return { id: session.id, reps: session.challenge.reps, minIntervalMs: session.challenge.minIntervalMs };
+  async startTraining(
+    exerciseId = 'serve-reps',
+  ): Promise<TennisTrainingChallenge> {
+    const session = await firstValueFrom(
+      this.http.post<ServerTraining>(`${this.url()}/training/sessions`, {
+        exerciseId,
+        idempotencyKey: crypto.randomUUID(),
+      }),
+    );
+    return {
+      id: session.id,
+      reps: session.challenge.reps,
+      minIntervalMs: session.challenge.minIntervalMs,
+      maxDurationMs: session.challenge.maxDurationMs,
+    };
   }
 
-  async train(challenge: TennisTrainingChallenge, events: TennisRepEvent[]): Promise<TennisProfile> {
-    const result = await firstValueFrom(this.http.post<{ profile: TennisProfile }>(
-      `${this.url()}/training/sessions/${challenge.id}/complete`,
-      { events, idempotencyKey: crypto.randomUUID() }));
+  async train(
+    challenge: TennisTrainingChallenge,
+    events: TennisRepEvent[],
+  ): Promise<TennisProfile> {
+    const result = await firstValueFrom(
+      this.http.post<{ profile: TennisProfile }>(
+        `${this.url()}/training/sessions/${challenge.id}/complete`,
+        { events, idempotencyKey: crypto.randomUUID() },
+      ),
+    );
     return result.profile;
   }
 
@@ -169,8 +266,8 @@ function toRoom(room: ServerRoom, invitedUsername?: string): TennisRoom {
     ...(invitedUsername ? { invitedUsername } : {}),
     ...(room.inviteUrl ? { inviteUrl: room.inviteUrl } : {}),
     ...(room.matchId ? { matchId: room.matchId } : {}),
-    players: room.players.map(p => p.username),
-    members: room.players.map(p => ({ id: p.id, username: p.username })),
+    players: room.players.map((p) => p.username),
+    members: room.players.map((p) => ({ id: p.id, username: p.username })),
     serverStatus: room.status,
   };
 }

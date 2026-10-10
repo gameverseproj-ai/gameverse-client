@@ -1,5 +1,6 @@
 import * as T from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { TennisSport } from './tennis.api';
 import { MatchState } from './tennis-match';
 
 export class TennisScene {
@@ -18,6 +19,9 @@ export class TennisScene {
   );
   private particles: T.Points;
   private disposed = false;
+  private court = new T.Group();
+  private sport: TennisSport = 'tennis';
+  private shuttle = new T.Group();
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new T.WebGLRenderer({
       canvas,
@@ -37,21 +41,8 @@ export class TennisScene {
     this.box([16, 1, 25], [0, -0.65, 0], 0x283552, 0.45);
     this.box([15.4, 0.08, 24.4], [0, -0.1, 0], 0x3dd4d8, 0.18);
     this.box([15, 0.12, 24], [0, 0, 0], 0x162c49, 0.25);
-    this.box([10, 0.08, 17], [0, 0.1, 0], 0x215a74, 0.03);
-    const line = (w: number, d: number, x: number, z: number) =>
-      this.box([w, 0.025, d], [x, 0.16, z], 0xc9fff1, 0.01);
-    for (const x of [-5, 5]) line(0.06, 17, x, 0);
-    for (const z of [-8.5, 8.5, -4, 4]) line(10, 0.06, 0, z);
-    line(0.06, 8, 0, 0);
-    for (const x of [-3.8, 3.8]) line(0.04, 17, x, 0);
-    // Transparent mesh and luminous posts leave the court readable.
-    for (const x of [-5.5, 5.5])
-      this.box([0.15, 1.4, 0.15], [x, 0.7, 0], 0xdc91ff, 0.04);
-    for (let x = -5.4; x <= 5.4; x += 0.3)
-      this.box([0.012, 1.1, 0.018], [x, 0.6, 0], 0x71b4c8, 0.004);
-    for (let y = 0.15; y <= 1.2; y += 0.18)
-      this.box([10.8, 0.012, 0.018], [0, y, 0], 0x71b4c8, 0.004);
-    this.box([11, 0.065, 0.065], [0, 1.22, 0], 0xf0f6ff, 0.015);
+    this.scene.add(this.court);
+    this.setSport('tennis');
     for (const side of [-1, 1]) {
       for (let i = 0; i < 3; i++)
         this.box(
@@ -91,7 +82,20 @@ export class TennisScene {
     this.robot(this.player, 0x6de9dc);
     this.robot(this.rival, 0xffb477);
     this.rival.rotation.y = Math.PI;
-    this.scene.add(this.player, this.rival, this.ball);
+    this.scene.add(this.player, this.rival, this.ball, this.shuttle);
+    const cork = new T.Mesh(
+      new T.SphereGeometry(0.14, 12, 8),
+      new T.MeshStandardMaterial({ color: 0xfff1b0 }),
+    );
+    this.shuttle.add(cork);
+    const feathers = new T.Mesh(
+      new T.ConeGeometry(0.32, 0.6, 12, 1, true),
+      new T.MeshStandardMaterial({ color: 0xffffff, side: T.DoubleSide }),
+    );
+    feathers.rotation.z = Math.PI;
+    feathers.position.y = 0.33;
+    this.shuttle.add(feathers);
+
     const stars = new Float32Array(90 * 3);
     for (let i = 0; i < 90; i++) {
       stars[i * 3] = Math.sin(i * 17) * 45;
@@ -111,13 +115,14 @@ export class TennisScene {
     pos: [number, number, number],
     color: number,
     radius: number,
+    parent: T.Object3D = this.scene,
   ): T.Mesh {
     const m = new T.Mesh(
       new RoundedBoxGeometry(...size, 2, radius),
       new T.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.18 }),
     );
     m.position.set(...pos);
-    this.scene.add(m);
+    parent.add(m);
     return m;
   }
   private robot(group: T.Group, color: number): void {
@@ -166,6 +171,7 @@ export class TennisScene {
         side: T.DoubleSide,
       }),
     );
+    strings.name = 'strings';
     strings.position.copy(racket.position);
     group.add(strings);
     for (const x of [-0.22, 0.22]) {
@@ -173,6 +179,73 @@ export class TennisScene {
       foot.scale.set(1, 0.7, 1.5);
       foot.position.set(x, 0.18, 0.12);
       group.add(foot);
+    }
+  }
+  setSport(sport: TennisSport): void {
+    this.sport = sport;
+    this.court.traverse((o) => {
+      const m = o as T.Mesh;
+      m.geometry?.dispose();
+      if (m.material)
+        (Array.isArray(m.material) ? m.material : [m.material]).forEach((x) =>
+          x.dispose(),
+        );
+    });
+    this.court.clear();
+    const box = (
+      size: [number, number, number],
+      pos: [number, number, number],
+      color: number,
+      radius = 0.03,
+    ) => this.box(size, pos, color, radius, this.court);
+    const ping = sport === 'ping-pong',
+      squash = sport === 'squash',
+      badminton = sport === 'badminton';
+    const floor = ping ? 1.25 : 0.16;
+    box(
+      [9.2, ping ? 0.22 : 0.08, ping ? 13 : 17],
+      [0, floor - 0.06, 0],
+      ping ? 0x263bb3 : squash ? 0x906b48 : badminton ? 0x287961 : 0x215a74,
+    );
+    if (ping)
+      for (const x of [-3.6, 3.6])
+        for (const z of [-5, 5]) box([0.35, 1.2, 0.35], [x, 0.6, z], 0x7b9cb2);
+    const line = (w: number, d: number, x: number, z: number) =>
+      box([w, 0.025, d], [x, floor + 0.03, z], 0xc9fff1, 0.005);
+    for (const x of [-4.6, 4.6]) line(0.055, ping ? 13 : 17, x, 0);
+    for (const z of ping ? [-6.5, 6.5] : [-8.5, 8.5, -4, 4])
+      line(9.2, 0.055, 0, z);
+    line(0.045, ping ? 13 : 8, 0, 0);
+    if (squash) {
+      box([10, 7, 0.3], [0, 3.5, -8.3], 0x233957, 0.12);
+      for (const y of [0.4, 2.3, 6])
+        box([9.5, 0.075, 0.06], [0, y, -8.1], y === 2.3 ? 0xffc363 : 0xfa627d);
+      for (const side of [-1, 1]) {
+        const wall = box([0.18, 6.8, 16.4], [side * 4.85, 3.4, -0.2], 0x71e9e6);
+        const mat = wall.material as T.MeshStandardMaterial;
+        mat.transparent = true;
+        mat.opacity = 0.13;
+        mat.depthWrite = false;
+        box([0.08, 0.08, 16.4], [side * 4.85, 6, -0.2], 0xfa627d);
+      }
+      for (const side of [-1, 1]) {
+        line(2, 0.05, side * 3.5, 3);
+        line(0.05, 2, side * 2.5, 4);
+      }
+    } else {
+      const net = ping ? 0.35 : badminton ? 1.4 : 1.1;
+      for (const x of [-4.8, 4.8])
+        box(
+          [0.12, net + 0.2, 0.12],
+          [x, floor + net / 2, 0],
+          badminton ? 0xffcb71 : 0xdc91ff,
+        );
+      for (let x = -4.6; x <= 4.6; x += 0.35)
+        box([0.014, net, 0.018], [x, floor + net / 2, 0], 0x71b4c8, 0.004);
+      for (let y = 0.1; y <= net; y += 0.18)
+        box([9.2, 0.014, 0.018], [0, floor + y, 0], 0x71b4c8, 0.004);
+      box([9.5, 0.045, 0.045], [0, floor + net, 0], 0xf0f6ff, 0.01);
+      if (badminton) for (const x of [-3.7, 3.7]) line(0.045, 17, x, 0);
     }
   }
   resize(w: number, h: number): void {
@@ -184,15 +257,35 @@ export class TennisScene {
   }
   render(s: MatchState, time: number): void {
     if (this.disposed) return;
-    this.player.position.set(s.player, 0, 7);
-    this.rival.position.set(s.opponent, 0, -7);
+    const squash = this.sport === 'squash';
+    this.player.position.set(s.player, 0, squash ? 7.4 : (s.playerZ ?? 7));
+    this.rival.position.set(s.opponent, 0, squash ? 6.6 : (s.opponentZ ?? -7));
+    this.rival.rotation.y = squash ? 0 : Math.PI;
+    for (const robot of [this.player, this.rival]) {
+      const strings = robot.getObjectByName('strings') as T.Mesh;
+      const mat = strings.material as T.MeshBasicMaterial;
+      mat.wireframe = this.sport !== 'ping-pong';
+      mat.opacity = this.sport === 'ping-pong' ? 1 : 0.45;
+      mat.color.setHex(this.sport === 'ping-pong' ? 0xeb657e : 0x98c7ee);
+    }
+    const height =
+      s.y ??
+      (s.phase === 'rally'
+        ? 0.45 + Math.sin(((s.z + 8.5) / 17) * Math.PI) * 1.5
+        : 1.4);
+    this.ball.visible = this.sport !== 'badminton';
+    this.shuttle.visible = !this.ball.visible;
     this.ball.position.set(
       s.x,
-      s.phase === 'rally'
-        ? 0.45 + Math.sin(((s.z + 8.5) / 17) * Math.PI) * 1.5
-        : 1.4,
+      height + (this.sport === 'ping-pong' ? 1.25 : 0.16),
       s.z,
     );
+    this.ball.material.color.setHex(
+      this.sport === 'ping-pong' ? 0xffffff : squash ? 0x66baff : 0xeaff66,
+    );
+    this.ball.scale.setScalar(squash ? 0.7 : 1);
+    this.shuttle.position.copy(this.ball.position);
+    this.shuttle.rotation.x = Math.sin(time * 4) * 0.25;
     this.ball.rotation.x = time * 3;
     this.particles.rotation.y = time * 0.006;
     this.renderer.render(this.scene, this.camera);

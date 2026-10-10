@@ -1,5 +1,9 @@
-import { RACKETS, TennisProfile } from './tennis.api';
+import { RACKETS, TennisProfile, TennisRacket } from './tennis.api';
 export interface MatchState {
+  y?: number;
+  playerZ?: number;
+  opponentZ?: number;
+  serving?: boolean;
   x: number;
   z: number;
   player: number;
@@ -32,7 +36,10 @@ export class TennisMatch {
   private target = 0;
   private aim = 0;
   private spin = 0;
-  constructor(private profile: TennisProfile) {}
+  constructor(
+    private profile: TennisProfile,
+    private rackets: TennisRacket[] = RACKETS,
+  ) {}
   move(x: number): void {
     this.target = Math.max(-4.5, Math.min(4.5, x));
   }
@@ -84,7 +91,7 @@ export class TennisMatch {
     }
     if (this.vz > 0 && s.z >= 6.6) {
       if (Math.abs(s.x - s.player) < 1.25 && this.clock <= this.swingUntil) {
-        const racket = RACKETS.find((r) => r.id === this.profile.racket)!;
+        const racket = this.rackets.find((r) => r.id === this.profile.racket)!;
         this.vz =
           -(8 + this.profile.power * 0.25) *
           (0.7 + s.stamina / 330) *

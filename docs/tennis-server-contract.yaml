@@ -1,6 +1,6 @@
 # Tennis Island: proposed server contract, version 0.1.
-# No backend implementation or real multiplayer is included in this client slice.
-# Current adapter: TENNIS_API -> MockTennisApi. Production adapter must use existing bearer auth.
+# Backend implementation exists in be-core; the production client uses HttpTennisApi.
+# Current adapter: TENNIS_API -> HttpTennisApi, using the existing bearer session.
 # Currency here is mock-only and separate from the real GameVerse wallet.
 basePath: /api/tennis
 version: 0.1
@@ -78,11 +78,20 @@ realtime:
   rate: client inputs up to 30Hz; snapshots 20Hz; render interpolated at display refresh rate
   authority: server owns physics, hit validation, fatigue, score, active-time progression and championship results
   reconnect: resubscribe and request snapshot; define grace window and forfeit server-side
-mock_limits:
-  - Practice uses local arcade rules: first to five points, side-wall rebounds, demo opponent.
-  - Other three sports are visibly unavailable, not disguised as tennis with different labels.
-  - Mock rooms do not connect browsers. No invitation is actually delivered.
-  - Invite links currently open the club; redemption requires the future server adapter.
-  - Training and racket purchases modify a separate local demo profile only.
-  - No client submitted score or duration may grant real progress in production.
-  - Championship panel is a preview and grants no trophy or champion title.
+implementation_notes:
+  - Production uses HTTP and WebSocket; there is no default mock-provider fallback.
+  - Bootstrap supplies profile, enabledSports, sports, rackets, exercises, activeChampionship and realtimeUrl.
+  - GET /invitations supplies incoming invitations; GET /invitations/{token} resolves their room before join.
+  - GET /rooms/mine restores the current room; public room listing follows nextCursor.
+  - POST /realtime/ticket supplies the one-time socket ticket.
+  - The gym uses selected server exercises and server-provided repetition and timing limits.
+  - Practice remains a local bot match, first to five; it grants no real progress or currency.
+  - All four sports are enabled; rooms select the sport-specific authoritative engine.
+  - Ping-pong uses two service bounces, one receiver bounce, and first to 11 (win by 2, cap 21).
+  - Squash uses a shared end, front-wall return, alternating hitters and at most one floor bounce; first to 11 (cap 21).
+  - Badminton has no floor bounce; first to 21 (win by 2, cap 30).
+  - These are arcade singles modes, not complete federation tournament rule sets.
+  - Snapshot vectors include y; match.started identifies sport. Squash does not mirror the second player's coordinates.
+  - Deploy the be-core changes together with the client to enable the new modes.
+  - MockTennisApi is retained only for explicit development/test use.
+  - Championships are server-controlled live-ops events and hidden when current returns null.
