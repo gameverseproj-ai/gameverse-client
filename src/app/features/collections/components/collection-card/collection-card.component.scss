@@ -6,6 +6,12 @@
   transition:transform .18s ease-out; -webkit-tap-highlight-color:transparent;
   border-radius:22px; box-shadow:0 3px 0 #aa8050,0 7px 0 #352642,0 22px 35px #0009;
 }
+// The portrait is a touch inspection surface; the reverse keeps native fact scrolling.
+.card3d:not(.locked):not(.to-back) { touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
+.card3d.to-back { touch-action:pan-y; }
+.card3d.touch-tilting { z-index:4; box-shadow:0 3px 0 #e2b166,0 7px 0 #352642,0 28px 42px #0009,0 0 35px #e8ba6030; }
+.card3d.touch-tilting .window img { transform:scale(1.055); }
+.card3d.touch-tilting .face::after { opacity:1; }
 .card3d:focus-visible { outline:3px solid #fff2ba; outline-offset:6px; }
 .card-inner { position:absolute; inset:0; transform-style:preserve-3d; transition:transform .75s cubic-bezier(.2,.7,.2,1); }
 .to-back .card-inner { transform:rotateY(180deg); }

@@ -56,7 +56,8 @@ export class GellyWorldComponent implements OnDestroy {
 
   readonly mobileControls = signal(false);
   private movementPointer: number | null = null;
-  private cameraPointer: { id: number; x: number; y: number } | null = null;
+  private cameraPointer: { id: number; x: number; y: number; startX: number; startY: number; started: number; onPlayer: boolean; moved: boolean } | null = null;
+  private lastPlayerTap: { time: number; x: number; y: number } | null = null;
   private inputQuery?: MediaQueryList;
   private readonly inputModeChanged = () => {
     this.resetJoystick();
@@ -202,7 +203,9 @@ export class GellyWorldComponent implements OnDestroy {
       this.joystick.move(event.pointerId, x, y);
     } else {
       if (this.cameraPointer) return;
-      this.cameraPointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
+      this.cameraPointer = { id: event.pointerId, x: event.clientX, y: event.clientY,
+        startX: event.clientX, startY: event.clientY, started: event.timeStamp,
+        onPlayer: this.scene?.isPlayerAt(event.clientX, event.clientY) ?? false, moved: false };
     }
     event.preventDefault();
     surface.setPointerCapture(event.pointerId);
@@ -213,27 +216,41 @@ export class GellyWorldComponent implements OnDestroy {
       const bounds = (event.currentTarget as HTMLElement).getBoundingClientRect();
       this.joystick.move(event.pointerId, event.clientX - bounds.left, event.clientY - bounds.top);
     } else if (event.pointerId === this.cameraPointer?.id) {
-      this.scene?.orbitCamera(event.clientX - this.cameraPointer.x, event.clientY - this.cameraPointer.y);
+      if (Math.hypot(event.clientX - this.cameraPointer.startX, event.clientY - this.cameraPointer.startY) > 10) this.cameraPointer.moved = true;
+      if (this.cameraPointer.moved) this.scene?.orbitCamera(event.clientX - this.cameraPointer.x, event.clientY - this.cameraPointer.y);
       this.cameraPointer.x = event.clientX; this.cameraPointer.y = event.clientY;
     }
   }
 
   onPointerEnd(event: PointerEvent): void {
     if (event.pointerId === this.movementPointer) { this.joystick.end(event.pointerId); this.movementPointer = null; }
-    if (event.pointerId === this.cameraPointer?.id) this.cameraPointer = null;
+    if (event.pointerId === this.cameraPointer?.id) {
+      const tap = this.cameraPointer;
+      const isTap = event.type === 'pointerup' && tap.onPlayer && !tap.moved
+        && Math.hypot(event.clientX - tap.startX, event.clientY - tap.startY) <= 10
+        && event.timeStamp - tap.started <= 300 && this.movementPointer === null;
+      if (isTap) {
+        const previous = this.lastPlayerTap;
+        if (previous && event.timeStamp - previous.time <= 350
+          && Math.hypot(event.clientX - previous.x, event.clientY - previous.y) <= 32) {
+          this.scene?.playAction('jump');
+          this.lastPlayerTap = null;
+        } else this.lastPlayerTap = { time: event.timeStamp, x: event.clientX, y: event.clientY };
+      } else this.lastPlayerTap = null;
+      this.cameraPointer = null;
+    }
     const surface = event.currentTarget as HTMLElement;
     if (surface.hasPointerCapture(event.pointerId)) surface.releasePointerCapture(event.pointerId);
   }
 
   @HostListener('window:blur')
-  resetJoystick(): void { this.joystick.reset(); this.movementPointer = null; this.cameraPointer = null; }
+  resetJoystick(): void { this.joystick.reset(); this.movementPointer = null; this.cameraPointer = null; this.lastPlayerTap = null; }
 
   @HostListener('document:visibilitychange')
   onVisibilityChange(): void {
     if (document.hidden) this.resetJoystick();
   }
 
-  playAction(action: 'jump' | 'wave'): void { this.scene?.playAction(action); }
   enterPortal(): void { this.scene?.interact(); }
 
   ngOnDestroy(): void {

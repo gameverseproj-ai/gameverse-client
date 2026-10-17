@@ -1,3 +1,4 @@
+import { UsernameEditorComponent } from '../username-editor/username-editor.component';
 import { Component, ElementRef, HostListener, computed, effect, inject, input, signal, viewChild } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { GoogleSignInService } from '../../../core/services/google-signin.service';
@@ -8,12 +9,13 @@ import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { LanguageService } from '../../../core/i18n/language.service';
 
 @Component({
-  selector: 'app-account-controls', standalone: true, imports: [TranslatePipe, LanguageControlsComponent, MusicControlsComponent], host: { '[class.world-mode]': 'worldMode()' },
+  selector: 'app-account-controls', standalone: true, imports: [UsernameEditorComponent, TranslatePipe, LanguageControlsComponent, MusicControlsComponent], host: { '[class.world-mode]': 'worldMode()' },
   templateUrl: './account-controls.component.html', styleUrl: './account-controls.component.scss',
 })
 export class AccountControlsComponent {
   readonly worldMode = input(false);
   readonly auth = inject(AuthService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly google = inject(GoogleSignInService);
   private readonly telegram = inject(TelegramSignInService);
   private readonly language = inject(LanguageService);
@@ -31,7 +33,15 @@ export class AccountControlsComponent {
       if (host) this.google.renderButton(host, locale, idToken => this.auth.attachGoogle(idToken));
     });
   }
-  close(): void { this.expanded.set(false); this.auth.dismiss(); this.toggleButton()?.nativeElement.focus(); }
+  close(restoreFocus = true): void {
+    this.expanded.set(false);
+    this.auth.dismiss();
+    if (restoreFocus) this.toggleButton()?.nativeElement.focus();
+  }
+  @HostListener('document:pointerdown', ['$event'])
+  outsidePointerDown(event: PointerEvent): void {
+    if (this.open() && !event.composedPath().includes(this.host.nativeElement)) this.close(false);
+  }
   @HostListener('document:keydown.escape') escape(): void { if (this.open()) this.close(); }
 
   /** Mini App sessions carry signed initData; everywhere else the popup flow runs. */

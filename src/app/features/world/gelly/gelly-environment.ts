@@ -7,6 +7,7 @@ import { WorldObstacle } from '../../../shared/world/world-obstacle.model';
 const SPAWN             = new THREE.Vector3(0, 0, 8);
 const PLAZA_RADIUS      = 9;
 const ROAD_SEGMENTS     = 42;
+const ROAD_HALF_WIDTH   = 1.51;
 const ROAD_PARTICLE_COUNT = 18;
 
 // ─── Road shader ──────────────────────────────────────────────────────────────
@@ -317,6 +318,52 @@ export class GellyEnvironment implements WorldEnvironment {
   private islandGroups: THREE.Group[] = [];
   private islandBaseY: number[] = [];
   private roads: MagicalRoad[] = [];
+  private roadSegments: THREE.Line3[] = [];
+  private decorationFootprints: Array<{ x: number; z: number; radius: number }> = [];
+
+  /** Keep the entire decoration outside paths, entrances, and neighbouring props. */
+  private reserveDecoration(x: number, z: number, radius: number, roadGap = 1.8): THREE.Vector3 {
+    const point = new THREE.Vector3();
+    const closest = new THREE.Vector3();
+    const isClear = (px: number, pz: number): boolean => {
+      if (Math.hypot(px - SPAWN.x, pz - SPAWN.z) < PLAZA_RADIUS + radius + 1.5) return false;
+      point.set(px, 0, pz);
+      if (this.roadSegments.some(segment => {
+        segment.closestPointToPoint(point, true, closest);
+        return point.distanceTo(closest) < ROAD_HALF_WIDTH + radius + roadGap;
+      })) return false;
+      if (this.portals.some(portal => {
+        const dx = Math.max(0, Math.abs(px - portal.position[0]) - portal.scale[0] / 2);
+        const dz = Math.max(0, Math.abs(pz - portal.position[2]) - portal.scale[2] / 2);
+        return Math.hypot(dx, dz) < radius + 3;
+      })) return false;
+      return this.decorationFootprints.every(other =>
+        Math.hypot(px - other.x, pz - other.z) >= radius + other.radius + 2);
+    };
+
+    // Search outwards from the art-directed anchor, with stable placement on reload.
+    for (let ring = 0; ; ring++) {
+      const samples = ring === 0 ? 1 : ring * 12;
+      for (let i = 0; i < samples; i++) {
+        const angle = i / samples * Math.PI * 2 + Math.atan2(z - SPAWN.z, x - SPAWN.x);
+        const px = x + Math.cos(angle) * ring * 1.5;
+        const pz = z + Math.sin(angle) * ring * 1.5;
+        if (!isClear(px, pz)) continue;
+        this.decorationFootprints.push({ x: px, z: pz, radius });
+        return new THREE.Vector3(px, 0, pz);
+      }
+    }
+  }
+
+  private placeDecoration(object: THREE.Object3D, x: number, z: number, roadGap = 1.8): void {
+    const bounds = new THREE.Box3().setFromObject(object);
+    // Include off-centre branches and tilted crystals, not only their origin.
+    const radius = Math.hypot(
+      Math.max(Math.abs(bounds.min.x), Math.abs(bounds.max.x)),
+      Math.max(Math.abs(bounds.min.z), Math.abs(bounds.max.z)),
+    );
+    object.position.add(this.reserveDecoration(x, z, radius, roadGap));
+  }
 
   // Grass particles
   private grassParticles!: THREE.Points;
@@ -473,6 +520,10 @@ export class GellyEnvironment implements WorldEnvironment {
   private buildMagicalRoads(scene: THREE.Scene): void {
     for (const portal of this.portals) {
       const curve = this.buildRoadCurve(portal);
+      const points = curve.getPoints(ROAD_SEGMENTS);
+      for (let i = 1; i < points.length; i++) {
+        this.roadSegments.push(new THREE.Line3(points[i - 1], points[i]));
+      }
       const color = new THREE.Color(portal.color);
 
       // Base slab
@@ -652,8 +703,8 @@ export class GellyEnvironment implements WorldEnvironment {
       const tree = new THREE.Group();
       const fallback = buildJellyTree(scale, seed);
       tree.add(fallback);
-      tree.position.set(x, 0, z);
       tree.rotation.y = rotY;
+      this.placeDecoration(tree, x, z, 3);
       scene.add(tree);
       this.addObstacle(tree);
       const phase = (x * 0.31 + z * 0.17) % (Math.PI * 2);
@@ -686,7 +737,7 @@ export class GellyEnvironment implements WorldEnvironment {
 
     for (const [x, z, color, count] of defs) {
       const [group, light] = buildCrystalCluster(color, count);
-      group.position.set(x, 0, z);
+      this.placeDecoration(group, x, z);
       scene.add(group);
       this.crystalLights.push(light);
       this.addObstacle(group);
@@ -715,7 +766,7 @@ export class GellyEnvironment implements WorldEnvironment {
     ];
     for (const [x, z, color, scale] of mushrooms) {
       const m = buildMushroom(color, scale);
-      m.position.set(x, 0, z);
+      this.placeDecoration(m, x, z);
       scene.add(m);
       this.addObstacle(m);
     }
@@ -732,7 +783,8 @@ export class GellyEnvironment implements WorldEnvironment {
     for (const [x, z, sx, sy, sz] of rocks) {
       const rock = new THREE.Mesh(new THREE.SphereGeometry(1, 5, 4), rockMat);
       rock.scale.set(sx, sy, sz);
-      rock.position.set(x, sy * 0.5, z);
+      rock.position.y = sy * 0.5;
+      this.placeDecoration(rock, x, z);
       scene.add(rock);
       this.addObstacle(rock);
     }
@@ -746,7 +798,8 @@ export class GellyEnvironment implements WorldEnvironment {
     const beds = [[-12, 1, 2.5], [12, 1, 2.4], [-17, 8, 3], [18, 9, 3],
       [-27, -14, 3.5], [-12, -21, 2.2], [2, -24, 2.5], [19, -24, 2.8],
       [-31, -5, 3], [32, -6, 3], [-12, 18, 2.5], [12, 20, 2.8]];
-    for (const [x, z, radius] of beds) {
+    for (const [anchorX, anchorZ, radius] of beds) {
+      const { x, z } = this.reserveDecoration(anchorX, anchorZ, radius + .3);
       transforms.push({position: [x, .025, z], scale: [radius, .16, radius * .7], color: 0x326c68});
       for (let i = 0; i < 20; i++) {
         const a = i * 2.39996, r = radius * Math.sqrt((i + .5) / 20);
@@ -1047,5 +1100,7 @@ export class GellyEnvironment implements WorldEnvironment {
       for (const mat of road.edgeMats) mat.dispose();
     }
     this.roads = [];
+    this.roadSegments = [];
+    this.decorationFootprints = [];
   }
 }

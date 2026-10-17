@@ -1,3 +1,5 @@
+import { provideRouter } from '@angular/router';
+import { LanguageService } from '../../../core/i18n/language.service';
 import { TestBed, fakeAsync, flushMicrotasks } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { Subject } from 'rxjs';
@@ -86,4 +88,57 @@ describe('2048 responsive input', () => {
     component.pointerEnd(event('pointerup',60,101));
     expect(move).toHaveBeenCalledTimes(1);
   });
+});
+
+// Keep the actual template and CSS: engine-only tests cannot detect a mirrored grid.
+describe('2048 spatial directions in RTL languages', () => {
+  const originalDir = document.documentElement.dir;
+  const originalLang = document.documentElement.lang;
+  afterEach(() => {
+    document.documentElement.dir = originalDir;
+    document.documentElement.lang = originalLang;
+  });
+
+  for (const language of ['he', 'ar']) {
+    for (const direction of ['left', 'right'] as const) {
+      it(`${language}: renders and animates ${direction} on the physical ${direction}`, async () => {
+        document.documentElement.dir = 'rtl';
+        document.documentElement.lang = language;
+        const move = jasmine.createSpy('move').and.returnValue(new Subject<TempleBootstrap>());
+        TestBed.configureTestingModule({ providers: [
+          provideRouter([]),
+          { provide: TEMPLE_API, useValue: { move } },
+          { provide: GameFacade, useValue: { bootstrap: signal(null) } },
+          { provide: LanguageService, useValue: { t: (text: unknown) => String(text) } },
+        ] });
+        const fixture = TestBed.createComponent(TempleComponent);
+        const component = fixture.componentInstance;
+        spyOn(component, 'load');
+        const data = new TempleMockServer(undefined, () => 0).startRun('rtl-test-12345');
+        data.progress.state.run!.board = [0, 2, 0, 0, ...Array(12).fill(0)];
+        component.data.set(data);
+        component.active.set(true);
+        fixture.detectChanges();
+        const board = fixture.nativeElement.querySelector('.board') as HTMLElement;
+        board.style.width = '400px';
+        const cells = board.querySelectorAll<HTMLElement>('.cell');
+        expect(getComputedStyle(board).direction).toBe('ltr');
+        expect(cells[0].getBoundingClientRect().left).toBeLessThan(cells[3].getBoundingClientRect().left);
+        const tile = cells[1].querySelector<HTMLElement>('.tile')!;
+        const animation = spyOn(tile, 'animate').and.returnValue({ finished: Promise.resolve(), cancel: () => {} } as unknown as Animation);
+        component.key(new KeyboardEvent('keydown', { code: direction === 'left' ? 'ArrowLeft' : 'ArrowRight' }));
+        expect(move.calls.mostRecent().args[0].direction).toBe(direction);
+        const frames = animation.calls.mostRecent().args[0] as Keyframe[];
+        const dx = Number(String(frames[1]['transform']).match(/translate\(([-\d.]+)px/)![1]);
+        expect(direction === 'left' ? dx < 0 : dx > 0).toBeTrue();
+        await fixture.whenStable();
+        fixture.detectChanges();
+        expect(component.tiles[direction === 'left' ? 0 : 3]).toBe(2);
+        component.pause();
+        fixture.detectChanges();
+        expect(getComputedStyle(board.querySelector('.overlay')!).direction).toBe('rtl');
+        fixture.destroy();
+      });
+    }
+  }
 });

@@ -1,4 +1,5 @@
-import { Component, input, output } from '@angular/core';
+import { LanguageService } from '../../../core/i18n/language.service';
+import { Component, inject, input, output } from '@angular/core';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import {
   TennisChampionship,
@@ -15,6 +16,7 @@ import {
   styleUrl: './tennis-championship.component.scss',
 })
 export class TennisChampionshipComponent {
+  private readonly locale = inject(LanguageService);
   readonly championship = input<TennisChampionship | null>(null);
   readonly standings = input<TennisStandings | null>(null);
   readonly trophies = input<TennisTrophy[]>([]);
@@ -46,7 +48,7 @@ export class TennisChampionshipComponent {
   }
   when(iso: string | null | undefined): string {
     if (!iso) return '';
-    return new Date(iso).toLocaleString(undefined, {
+    return new Date(iso).toLocaleString(this.locale.language(), {
       day: 'numeric',
       month: 'short',
       hour: '2-digit',

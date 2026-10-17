@@ -1,12 +1,12 @@
 <div class="sheet cup">
-  <span class="eyebrow">ISLAND CHAMPIONSHIP</span>
+  <span class="eyebrow">{{ "Island Championship" | t }}</span>
   @if (championship(); as c) {
     @if (standings()?.champion; as champ) {
       <div class="trophy">♜</div>
       <h2>{{ champ.username }}</h2>
       <p>{{ "Champion of season" | t }} {{ c.season }}</p>
     } @else {
-      <h2>{{ c.prize.title }}</h2>
+      <h2>{{ c.prize.title | t }}</h2>
       <p>
         {{
           (c.status === "registration"

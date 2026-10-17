@@ -1,6 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
-import { catchError, finalize, switchMap, of, take, tap, timeout } from 'rxjs';
+import { EMPTY, Observable, defer, catchError, finalize, switchMap, of, take, tap, timeout } from 'rxjs';
 import { AUTH_API } from '../api/auth.api';
 import { AuthResponse, ClientMode, ProviderCredential, clientMode } from '../models/auth.model';
 import { LanguageService } from '../i18n/language.service';
@@ -50,6 +50,18 @@ export class AuthService {
     ).subscribe({
       next: session => this.session.set(session),
       error: () => this.error.set('Sign-in is unavailable. You can keep playing.'),
+    });
+  }
+
+  updateUsername(username: string): Observable<AuthResponse> {
+    return defer(() => {
+      if (this.busy() || !this.session()) return EMPTY;
+      this.busy.set(true);
+      return this.api.updateUsername(username).pipe(
+        take(1), timeout(10000),
+        tap(session => this.session.set(session)),
+        finalize(() => this.busy.set(false)),
+      );
     });
   }
 

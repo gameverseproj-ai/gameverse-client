@@ -32,7 +32,6 @@ p { line-height: 1.5; font-size: 14px; }
 }
 .provider.telegram { background: #29A9EB; color: #fff; border: 1px solid #29A9EB; }
 .provider.telegram:hover { background: #1f94d2; }
-.skip { width: 100%; margin-top: 10px; background: transparent; }
 @media (max-height: 500px) { .account-panel { max-height: 65dvh; } }
 
 :host(.world-mode) {

@@ -1,5 +1,5 @@
 <div class="sheet gear">
-  <span class="eyebrow">THE PRO SHOP</span>
+  <span class="eyebrow">{{ "The Pro Shop" | t }}</span>
   <h2>{{ "Find your signature." | t }}</h2>
   <p>{{ profile()?.coins }} {{ (mock() ? "demo coins" : "coins") | t }}</p>
   <div class="rackets">
@@ -18,7 +18,7 @@
           [class.prism]="r.id === 'spin'"
           [class.volt]="r.id === 'power'"
         ></span
-        ><strong>{{ r.name }}</strong
+        ><strong>{{ r.name | t }}</strong
         ><small>{{
           (r.id === "spin"
             ? "Spin control"

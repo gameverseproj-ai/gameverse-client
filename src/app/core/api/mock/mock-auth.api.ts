@@ -25,6 +25,14 @@ export class MockAuthApi implements AuthApi {
     this.memory = structuredClone(value);
     return structuredClone(value);
   }
+  updateUsername(username: string) {
+    return defer(() => {
+      const state = this.read();
+      if (!state) throw new MockAuthError('UNAUTHORIZED');
+      if (!username.trim() || username.length > 100) throw new Error('Invalid username');
+      return of(this.save({ ...state, profile: { ...state.profile, username } }));
+    });
+  }
   me() { return defer(() => of(this.read())); }
   anonymous(language: Language) {
     return defer(() => {

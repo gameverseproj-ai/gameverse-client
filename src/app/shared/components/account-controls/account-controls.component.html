@@ -1,9 +1,10 @@
 <div class="account" [attr.data-client-mode]="auth.mode()">
   @if (open()) {
     <section class="account-panel" id="account-panel" aria-labelledby="account-title">
-      <header><h2 id="account-title">{{ (auth.session()?.anonymous ? 'Save your game progress' : 'Your account') | t }}</h2><button type="button" (click)="close()" [attr.aria-label]="'Close' | t">×</button></header>
+      <header><h2 id="account-title">{{ 'Your account' | t }}</h2><button type="button" (click)="close()" [attr.aria-label]="'Close' | t">×</button></header>
+      <app-username-editor />
       @if (auth.session()?.anonymous) {
-        <p>{{ 'Keep playing as a guest, or connect Google or Telegram to keep your progress across devices.' | t }}</p>
+        <p>{{ 'Sign in to sync your progress.' | t }}</p>
         <div class="providers" [class.telegram-first]="auth.mode() === 'telegram'">
           <!-- Google's own iframe button sits transparent over this styled face: the click reaches Google, the look stays ours. -->
           <div class="provider google" [class.busy]="auth.busy()">
@@ -18,10 +19,8 @@
             <span>{{ 'Sign in with Telegram' | t }}</span>
           </button>
         </div>
-        @if (!worldMode()) { <button type="button" class="skip" (click)="close()">{{ 'Continue without signing in' | t }}</button> }
       } @else if (auth.session()) {
-        <p>{{ 'Account connected. Your player and progress are saved to it.' | t }}</p>
-        <strong>{{ auth.session()!.identities.join(' · ') }}</strong>
+        <p class="connection-status">{{ 'Account connected' | t }}</p>
       }
       @if (auth.busy()) { <p role="status">{{ 'Loading…' | t }}</p> }
       @if (auth.error()) { <p role="alert">{{ auth.error() | t }}</p>@if (!auth.session()) { <button type="button" (click)="auth.init()" [disabled]="auth.busy()">{{ 'Retry' | t }}</button> } }

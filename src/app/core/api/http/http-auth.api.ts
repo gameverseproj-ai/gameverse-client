@@ -49,6 +49,11 @@ export class HttpAuthApi implements AuthApi {
     );
   }
 
+  updateUsername(username: string): Observable<AuthResponse> {
+    return this.http.patch<AuthResponse>(`${this.base}/api/auth/me/username`, { username })
+      .pipe(tap(session => this.saveAndSettleDevice(session)));
+  }
+
   /** Converts the account already in the session; the server keeps its progress. */
   attach(credential: ProviderCredential): Observable<AuthResponse> {
     return this.http

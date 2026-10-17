@@ -2,6 +2,8 @@ import { TENNIS_CATALOG } from './tennis.catalog';
 // English source messages and their translations. Parameters use {0}, {1}, etc.
 export const CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
   ...TENNIS_CATALOG,
+"Sign in to sync your progress.": {"ru":"Войдите, чтобы синхронизировать прогресс.","he":"היכנסו כדי לסנכרן את ההתקדמות.","ar":"سجّل الدخول لمزامنة تقدمك."},
+"Account connected": {"ru":"Аккаунт подключён","he":"החשבון מחובר","ar":"الحساب متصل"},
 "Save username": {"ru":"Сохранить имя","he":"שמירת שם משתמש","ar":"حفظ اسم المستخدم"},
 "Username updated.": {"ru":"Имя пользователя обновлено.","he":"שם המשתמש עודכן.","ar":"تم تحديث اسم المستخدم."},
 "Enter a username between 1 and 100 characters.": {"ru":"Введите имя длиной от 1 до 100 символов.","he":"הזינו שם משתמש באורך 1 עד 100 תווים.","ar":"أدخل اسم مستخدم من حرف واحد إلى 100 حرف."},

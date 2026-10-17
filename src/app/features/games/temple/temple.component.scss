@@ -10,3 +10,7 @@
 .target small { display:flex; justify-content:space-between; font-size:10px; } .target>div { height:5px; background:#ffffff12; margin-top:6px; } .target i { display:block; height:100%; background:var(--game-accent); transition:width .2s; }
 .directions { display:flex; justify-content:center; gap:8px; } .directions button { width:48px; padding:0; font-size:21px; }
 @media(max-height:500px) { .play { width:min(100%,calc(100cqh - 70px)); } .directions { position:absolute; right:12px; bottom:12px; display:grid; grid-template-columns:repeat(2,44px); } .target { display:none; } .board-heading { gap:4px; } .board-heading h2 { font-size:14px; } .board-heading button { padding:4px 8px; } .board { gap:4px; padding:6px; } .tile { font-size:20px; } .tile small { display:none; } }
+
+// Grid indices and physical controls must not mirror with the text language.
+.board, .directions { direction:ltr; }
+:host-context([dir="rtl"]) .overlay { direction:rtl; }

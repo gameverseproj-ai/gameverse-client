@@ -14,6 +14,10 @@ export class GellyPlayerController {
   readonly eyes = new THREE.Vector3();
   private entry: { origin: THREE.Vector3; target: THREE.Vector3; heading: number } | null = null;
 
+  hitTest(ray: THREE.Raycaster): boolean {
+    return this.heroRenderer.mesh.visible && ray.intersectObject(this.heroRenderer.mesh, true).length > 0;
+  }
+
   setFirstPerson(active: boolean): void { this.heroRenderer.mesh.visible = !active; }
 
   private updateEyes(): void {

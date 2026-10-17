@@ -559,6 +559,18 @@ export class GellyWorldScene {
     this.cameraController.init(this.player.position, this.player.heading, this.player.eyes);
   }
 
+  isPlayerAt(clientX: number, clientY: number): boolean {
+    if (this.entry) return false;
+    const rect = this.canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return false;
+    const ray = new THREE.Raycaster();
+    ray.setFromCamera(new THREE.Vector2(
+      (clientX - rect.left) / rect.width * 2 - 1,
+      -(clientY - rect.top) / rect.height * 2 + 1,
+    ), this.cameraController.camera);
+    return this.player.hitTest(ray);
+  }
+
   playAction(action: HeroAction): void { this.player.playAction(action); }
 
   interact(): void { this.handleInteract(); }

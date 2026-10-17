@@ -26,14 +26,14 @@
       </button>
     }
     <div class="brand">
-      <small>NEON WORLD</small><strong>Tennis Island<span>✦</span></strong>
+      <small>{{ "Neon World" | t }}</small><strong>{{ "Tennis Island" | t }}<span>✦</span></strong>
     </div>
     <span class="demo">{{ (api.mock ? "Local demo" : "Online") | t }}</span>
   </header>
   @if (page() === "club") {
     <div class="club">
       <div class="intro">
-        <span class="eyebrow">THE NEON RACQUET CLUB</span>
+        <span class="eyebrow">{{ "The Neon Racquet Club" | t }}</span>
         <h1>{{ "Own the court." | t }}</h1>
         <p>{{ "Find your rhythm. Make your mark." | t }}</p>
       </div>
@@ -168,7 +168,7 @@
       </div>
       <span>:</span>
       <div>
-        <small>{{ opponentName() }}</small
+        <small>{{ opponentName() === "Opponent" ? ("Opponent" | t) : opponentName() }}</small
         ><b>{{ state()?.rivalScore ?? 0 }}</b>
       </div>
       <span class="link" [class.off]="link() !== 'open'">
@@ -247,7 +247,7 @@
   }
   @if (page() === "friends") {
     <div class="sheet">
-      <span class="eyebrow">COURT 01</span>
+      <span class="eyebrow">{{ "Court 01" | t }}</span>
       <h2>{{ "Your court. Your company." | t }}</h2>
       @if (!onlineEnabled) {
         <p>
@@ -384,7 +384,7 @@
   }
   @if (page() === "gym") {
     <div class="sheet">
-      <span class="eyebrow">TRAINING LAB</span>
+      <span class="eyebrow">{{ "Training Lab" | t }}</span>
       <h2>{{ "Build your swing." | t }}</h2>
       <div class="training-orb" [style.--progress]="drill() / drillReps()">
         ◈

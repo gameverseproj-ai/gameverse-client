@@ -54,8 +54,6 @@
       <button type="button" (click)="setCameraMode('first-person')" [attr.aria-pressed]="cameraMode() === 'first-person'">{{ 'Eyes' | t }}</button>
       <button type="button" (click)="setCameraMode('third-person')" [attr.aria-pressed]="cameraMode() === 'third-person'">{{ 'Behind' | t }}</button>
     </div>
-    <button type="button" (click)="playAction('wave')"><span>✦</span>  {{ 'Wave' | t }} <kbd>{{ 'Q' | t }}</kbd></button>
-    <button type="button" (click)="playAction('jump')"><span>↑</span>  {{ 'Jump' | t }} <kbd>{{ 'SPACE' | t }}</kbd></button>
   </div>
   <!-- Controls hint — desktop only -->
   <div class="controls-hint">

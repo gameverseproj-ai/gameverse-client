@@ -1,4 +1,5 @@
-import { Component, afterNextRender, inject } from '@angular/core';
+import { Component, afterNextRender, effect, inject, signal, untracked } from '@angular/core';
+import { LanguageService } from '../../core/i18n/language.service';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { CollectionsFacade } from '../../core/facades/collections.facade';
@@ -18,8 +19,16 @@ import { CollectionCardComponent } from './components/collection-card/collection
 export class CollectionsComponent {
   readonly facade = inject(CollectionsFacade);
 
+  private readonly language = inject(LanguageService);
+  private readonly mounted = signal(false);
+
   constructor() {
-    afterNextRender(() => this.facade.loadCollections());
+    afterNextRender(() => this.mounted.set(true));
+    // Collection content is localized by the server using the saved account language.
+    effect(() => {
+      this.language.language();
+      if (this.mounted()) untracked(() => this.facade.loadCollections());
+    });
   }
 
   summaryOf(collectionId: string) {

@@ -1,8 +1,8 @@
 @if (card().revealed) {
-  <div class="card3d" (pointermove)="tilt($event)" (pointerleave)="resetTilt($event)" (pointercancel)="resetTilt($event)" role="button" tabindex="0"
+  <div class="card3d" (pointerdown)="startTilt($event)" (pointermove)="tilt($event)" (pointerup)="endTilt($event)" (lostpointercapture)="endTilt($event)" (pointerleave)="resetTilt($event)" (pointercancel)="endTilt($event)" role="button" tabindex="0"
     [class.to-back]="side() === 'back'" [class.to-front]="side() === 'front'"
     [attr.aria-label]="card().name" [attr.aria-pressed]="side() === 'back'"
-    (click)="flip()" (keydown.enter)="flip()" (keydown.space)="$event.preventDefault(); flip()">
+    (click)="clickCard($event)" (keydown.enter)="flip()" (keydown.space)="$event.preventDefault(); flip()">
     <div class="card-inner">
 
       <div class="face front" [attr.inert]="side() === 'back' ? '' : null">
