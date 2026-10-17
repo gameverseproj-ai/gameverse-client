@@ -1,5 +1,13 @@
+import { TENNIS_CATALOG } from './tennis.catalog';
 // English source messages and their translations. Parameters use {0}, {1}, etc.
 export const CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
+  ...TENNIS_CATALOG,
+"Save username": {"ru":"Сохранить имя","he":"שמירת שם משתמש","ar":"حفظ اسم المستخدم"},
+"Username updated.": {"ru":"Имя пользователя обновлено.","he":"שם המשתמש עודכן.","ar":"تم تحديث اسم المستخدم."},
+"Enter a username between 1 and 100 characters.": {"ru":"Введите имя длиной от 1 до 100 символов.","he":"הזינו שם משתמש באורך 1 עד 100 תווים.","ar":"أدخل اسم مستخدم من حرف واحد إلى 100 حرف."},
+"Available:": {"ru":"Свободно:","he":"פנוי:","ar":"متاح:"},
+"This username is already taken. Choose another.": {"ru":"Это имя уже занято. Выберите другое.","he":"שם המשתמש כבר תפוס. בחרו שם אחר.","ar":"اسم المستخدم مستخدم بالفعل. اختر اسمًا آخر."},
+"Could not update username. Please try again.": {"ru":"Не удалось обновить имя. Попробуйте снова.","he":"לא ניתן לעדכן את שם המשתמש. נסו שוב.","ar":"تعذر تحديث اسم المستخدم. حاول مجددًا."},
   "Tap to turn": {"ru":"Нажмите, чтобы перевернуть","he":"לחצו להפיכה","ar":"اضغط للقلب"},
   "Lounge": {"ru":"Лаунж","he":"לאונג׳","ar":"لاونج"},
   "Next track": {"ru": "Следующий трек", "he": "הרצועה הבאה", "ar": "المقطع التالي"},

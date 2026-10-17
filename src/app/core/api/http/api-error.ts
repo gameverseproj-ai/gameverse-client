@@ -9,6 +9,8 @@ export class ApiError extends Error {
     override readonly message: string,
     readonly code: string | null,
     readonly status: number,
+    /** An alternative the server offers, e.g. a free variant of a taken username. */
+    readonly suggestion: string | null = null,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -19,10 +21,11 @@ interface ServerError {
   message?: string;
   code?: string | null;
   error?: string;
+  suggestion?: string | null;
 }
 
 export function toApiError(status: number, body: unknown, fallback: string): ApiError {
   const payload = (body ?? {}) as ServerError;
   const message = payload.message || payload.error || fallback;
-  return new ApiError(message, payload.code ?? null, status);
+  return new ApiError(message, payload.code ?? null, status, payload.suggestion ?? null);
 }

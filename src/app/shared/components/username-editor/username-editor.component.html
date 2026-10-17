@@ -1,0 +1,18 @@
+@if (auth.session()) {
+  <form class="username-editor" (submit)="save($event)">
+    <label>
+      <span>{{ 'Username' | t }}</span>
+      <input type="text" name="username" autocomplete="username" dir="auto" maxlength="100" required
+        [value]="draft()" (input)="edit($event)" [disabled]="auth.busy()" [attr.aria-invalid]="error() ? 'true' : null" />
+    </label>
+    <button type="submit" [disabled]="auth.busy() || !changed() || !valid()">{{ (saving() ? 'Saving…' : 'Save username') | t }}</button>
+    @if (saved()) { <p role="status">{{ 'Username updated.' | t }}</p> }
+    @if (error()) { <p role="alert">{{ error() | t }}</p> }
+    @if (suggestion()) {
+      <p class="suggestion">
+        {{ 'Available:' | t }}
+        <button type="button" (click)="useSuggestion($event)" [disabled]="auth.busy()">{{ suggestion() }}</button>
+      </p>
+    }
+  </form>
+}

@@ -1,0 +1,25 @@
+:host { display:block; width:100%; }
+.username-editor { display:grid; gap:10px; margin:16px 0; text-align:start; }
+label { display:grid; gap:8px; font-size:14px; }
+input { box-sizing:border-box; width:100%; min-width:0; min-height:44px; border:1px solid #ffffff55; border-radius:12px; padding:10px 12px; color:#fff7ee; background:#171224; font:inherit; }
+button { justify-self:start; min-height:44px; padding:10px 16px; border:1px solid #ffffff45; border-radius:12px; background:#513767; color:#fff7ee; font:inherit; cursor:pointer; }
+button:disabled { opacity:.5; cursor:default; }
+input:focus-visible, button:focus-visible { outline:3px solid #ffde98; outline-offset:2px; }
+p { margin:0; font-size:13px; overflow-wrap:anywhere; }
+[role=alert] { color:#ffc2c2; }
+
+.suggestion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.suggestion button {
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+}
