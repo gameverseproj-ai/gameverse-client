@@ -41,3 +41,33 @@ describe('Racquet sports practice', () => {
     expect(m.state.opponentZ).toBeGreaterThan(0);
   });
 });
+
+
+describe('Complete variation matches', () => {
+  for (const sport of ['ping-pong', 'badminton', 'squash'] as const) {
+    it(`${sport}: completes a match with legal serving and freezes the final score`, () => {
+      const match = new RacquetMatch(profile, RACKETS, sport);
+      for (let frame = 0; frame < 30000 && match.state.phase !== 'finished'; frame++) {
+        if (match.state.phase === 'serve' && match.state.serving) match.swing();
+        match.tick(1 / 60);
+      }
+      expect(match.state.phase).toBe('finished');
+      const score = [match.state.score, match.state.rivalScore];
+      expect(Math.max(...score)).toBeGreaterThanOrEqual(SPORT_RULES[sport].points);
+      expect(Math.abs(score[0] - score[1]) >= 2 || Math.max(...score) === SPORT_RULES[sport].cap).toBeTrue();
+      match.swing(); match.tick(.2);
+      expect([match.state.score, match.state.rivalScore]).toEqual(score);
+    });
+    it(`${sport}: uses elapsed time consistently at 20 and 60 fps`, () => {
+      const slow = new RacquetMatch(profile, RACKETS, sport);
+      const fast = new RacquetMatch(profile, RACKETS, sport);
+      slow.swing(); fast.swing();
+      for (let i = 0; i < 10; i++) slow.tick(1 / 20);
+      for (let i = 0; i < 30; i++) fast.tick(1 / 60);
+      expect(slow.state.x).toBeCloseTo(fast.state.x, 6);
+      expect(slow.state.y!).toBeCloseTo(fast.state.y!, 6);
+      expect(slow.state.z).toBeCloseTo(fast.state.z, 6);
+      expect(slow.state.activeSeconds).toBeCloseTo(.5, 6);
+    });
+  }
+});

@@ -145,7 +145,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid #ffd1ef; outline-offs
 
 .camera-modes { display: flex; gap: 4px; }
 .camera-modes button[aria-pressed="true"] { background: #9e467f; border-color: #ffc4eb; }
-@media (max-width: 650px) { .camera-modes { position: absolute; bottom: 58px; right: 0; } }
+
 
 .entry-feedback {
   position: absolute;

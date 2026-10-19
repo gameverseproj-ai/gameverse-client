@@ -1,3 +1,4 @@
+import { WorldRenderQuality } from './world-render-quality';
 import * as THREE from 'three';
 import { CSS2DObject, CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -29,6 +30,7 @@ export class GellyWorldScene {
   private entry: { portal: GamePortal; elapsed: number; vortex: GellyPortalVortex; completed: boolean } | null = null;
   readonly input: GellyInputController;
 
+  private quality!: WorldRenderQuality;
   private renderer!: THREE.WebGLRenderer;
   private css2dRenderer!: CSS2DRenderer;
   private composer: EffectComposer | null = null;
@@ -78,10 +80,11 @@ export class GellyWorldScene {
 
     console.log('[GellyWorld] init —', w, 'x', h);
 
-    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true });
+    this.quality = new WorldRenderQuality(navigator.maxTouchPoints > 0, window.devicePixelRatio, w, h);
+    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: !this.quality.mobile });
     this.renderer.setSize(w, h);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.shadowMap.enabled = true;
+    this.renderer.setPixelRatio(this.quality.pixelRatio);
+    this.renderer.shadowMap.enabled = !this.quality.mobile;
     this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.setClearColor(this.theme.clearColor);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -106,6 +109,16 @@ export class GellyWorldScene {
     this.buildSky();
 
     this.environment?.build(this.scene);
+    if (this.quality.mobile) {
+      // Every point light adds fragment-shader work across the entire scene.
+      // Keep the primary world lights; crystals retain their emissive materials.
+      const extraLights: THREE.PointLight[] = [];
+      let lights = 0;
+      this.scene.traverse(object => {
+        if (object instanceof THREE.PointLight && ++lights > 4) extraLights.push(object);
+      });
+      extraLights.forEach(light => light.removeFromParent());
+    }
 
     this.clock.connect(document);
     this.scene.updateMatrixWorld(true);
@@ -346,7 +359,7 @@ export class GellyWorldScene {
   // GPU time on mobile GPUs.
 
   private buildPostProcessing(w: number, h: number): void {
-    const isMobile = navigator.maxTouchPoints > 1;
+    const isMobile = this.quality.mobile;
     if (isMobile) return;
 
     this.composer = new EffectComposer(this.renderer);
@@ -373,7 +386,9 @@ export class GellyWorldScene {
     this.rafId = requestAnimationFrame(() => this.animate());
     this.clock.update();
     // Preserve real movement speed on slow frames, but cap catch-up after a stall.
-    const delta   = Math.min(this.clock.getDelta(), 0.25);
+    const frameDelta = this.clock.getDelta();
+    if (this.quality.sample(frameDelta)) this.renderer.setPixelRatio(this.quality.pixelRatio);
+    const delta   = Math.min(frameDelta, 0.25);
     const elapsed = this.clock.getElapsed();
 
     // Small simulation steps keep steering and collisions stable at low FPS.
@@ -381,7 +396,7 @@ export class GellyWorldScene {
     const stepDelta = delta / steps;
     const movement = this.input.getMovement();
     for (let step = 0; step < steps; step++) {
-      this.player.update(stepDelta, movement);
+      this.player.update(stepDelta, movement, step === steps - 1 ? delta : 0);
     }
     this.environment?.update(elapsed, delta);
     for (const material of this.portalSurfaces ?? []) material.uniforms['t'].value = elapsed;

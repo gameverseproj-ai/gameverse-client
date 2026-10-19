@@ -1,5 +1,8 @@
 // Tennis UI, catalog labels, and match feedback in all supported account languages.
 export const TENNIS_CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
+"First to {0} points.": {"ru":"До {0} очков.","he":"הראשון שמגיע ל־{0} נקודות.","ar":"أول من يصل إلى {0} نقطة."},
+"First to {0} points. Win by two, capped at {1}.": {"ru":"До {0} очков с отрывом в два; предел — {1}.","he":"עד {0} נקודות בהפרש של שתיים, עם תקרה של {1}.","ar":"حتى {0} نقطة بفارق نقطتين، والحد الأقصى {1}."},
+  "Move: drag or ← → · Hit / serve: tap the court or Space": {"ru":"Движение: ведите пальцем или ← → · Удар / подача: тап по корту или пробел","he":"תנועה: גרירה או ← → · חבטה / הגשה: הקשה על המגרש או רווח","ar":"الحركة: اسحب أو ← → · الضرب / الإرسال: انقر على الملعب أو اضغط المسافة"},
   "Club champion {0}": {"ru":"Чемпион клуба {0}","he":"אלוף המועדון {0}","ar":"بطل النادي {0}"},
 "Semi-final": {"ru":"Полуфинал","he":"חצי גמר","ar":"نصف النهائي"},
 "Quarter-final": {"ru":"Четвертьфинал","he":"רבע גמר","ar":"ربع النهائي"},

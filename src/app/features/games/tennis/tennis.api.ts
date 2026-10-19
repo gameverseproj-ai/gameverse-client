@@ -194,8 +194,13 @@ export class MockTennisApi implements TennisApi {
   private rooms = new Map<string, TennisRoom>();
   async bootstrap(): Promise<TennisBootstrap> {
     return {
-      enabledSports: ['tennis'],
-      sports: [{ id: 'tennis', name: 'Tennis', enabled: true }],
+      enabledSports: ['tennis', 'ping-pong', 'badminton', 'squash'],
+      sports: [
+        { id: 'tennis', name: 'Tennis', enabled: true },
+        { id: 'ping-pong', name: 'Ping pong', enabled: true },
+        { id: 'badminton', name: 'Badminton', enabled: true },
+        { id: 'squash', name: 'Squash', enabled: true },
+      ],
       profile: await this.profile(),
       rackets: RACKETS,
       exercises: [

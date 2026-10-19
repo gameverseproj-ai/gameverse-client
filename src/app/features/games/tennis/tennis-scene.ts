@@ -21,6 +21,10 @@ export class TennisScene {
   private disposed = false;
   private court = new T.Group();
   private sport: TennisSport = 'tennis';
+  private readonly lastShuttlePosition = new T.Vector3();
+  private readonly shuttleDirection = new T.Vector3();
+  private readonly shuttleAxis = new T.Vector3(0, -1, 0);
+  private shuttleTracked = false;
   private shuttle = new T.Group();
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new T.WebGLRenderer({
@@ -81,6 +85,7 @@ export class TennisScene {
     }
     this.robot(this.player, 0x6de9dc);
     this.robot(this.rival, 0xffb477);
+    this.updateRackets();
     this.rival.rotation.y = Math.PI;
     this.scene.add(this.player, this.rival, this.ball, this.shuttle);
     const cork = new T.Mesh(
@@ -159,6 +164,7 @@ export class TennisScene {
         roughness: 0.2,
       }),
     );
+    racket.name = 'racket-rim';
     racket.position.set(0.7, 0.85, 0.2);
     group.add(racket);
     const strings = new T.Mesh(
@@ -171,6 +177,8 @@ export class TennisScene {
         side: T.DoubleSide,
       }),
     );
+    const handle = this.box([.09, .4, .09], [.7, .35, .2], 0x334657, .025, group);
+    handle.name = 'racket-handle';
     strings.name = 'strings';
     strings.position.copy(racket.position);
     group.add(strings);
@@ -181,8 +189,29 @@ export class TennisScene {
       group.add(foot);
     }
   }
+  private updateRackets(): void {
+    const ping = this.sport === 'ping-pong';
+    const squash = this.sport === 'squash';
+    const badminton = this.sport === 'badminton';
+    for (const robot of [this.player, this.rival]) {
+      const rim = robot.getObjectByName('racket-rim');
+      const strings = robot.getObjectByName('strings') as T.Mesh | undefined;
+      const handle = robot.getObjectByName('racket-handle');
+      if (!rim || !strings || !handle) continue;
+      const width = ping ? .85 : badminton ? .8 : 1;
+      const height = ping ? .9 : squash ? 1.45 : badminton ? 1.3 : 1.15;
+      rim.scale.set(width, height, 1); strings.scale.copy(rim.scale);
+      rim.position.y = strings.position.y = ping ? 1.65 : 1;
+      handle.position.y = rim.position.y - .38 * height - .17;
+      const material = strings.material as T.MeshBasicMaterial;
+      material.wireframe = !ping; material.opacity = ping ? 1 : .45;
+      material.color.setHex(ping ? 0xeb657e : badminton ? 0xffedb2 : 0x98c7ee);
+    }
+  }
   setSport(sport: TennisSport): void {
     this.sport = sport;
+    this.shuttleTracked = false;
+    this.updateRackets();
     this.court.traverse((o) => {
       const m = o as T.Mesh;
       m.geometry?.dispose();
@@ -261,13 +290,6 @@ export class TennisScene {
     this.player.position.set(s.player, 0, squash ? 7.4 : (s.playerZ ?? 7));
     this.rival.position.set(s.opponent, 0, squash ? 6.6 : (s.opponentZ ?? -7));
     this.rival.rotation.y = squash ? 0 : Math.PI;
-    for (const robot of [this.player, this.rival]) {
-      const strings = robot.getObjectByName('strings') as T.Mesh;
-      const mat = strings.material as T.MeshBasicMaterial;
-      mat.wireframe = this.sport !== 'ping-pong';
-      mat.opacity = this.sport === 'ping-pong' ? 1 : 0.45;
-      mat.color.setHex(this.sport === 'ping-pong' ? 0xeb657e : 0x98c7ee);
-    }
     const height =
       s.y ??
       (s.phase === 'rally'
@@ -285,7 +307,14 @@ export class TennisScene {
     );
     this.ball.scale.setScalar(squash ? 0.7 : 1);
     this.shuttle.position.copy(this.ball.position);
-    this.shuttle.rotation.x = Math.sin(time * 4) * 0.25;
+    if (this.sport === 'badminton' && s.phase === 'rally' && this.shuttleTracked) {
+      this.shuttleDirection.copy(this.shuttle.position).sub(this.lastShuttlePosition);
+      if (this.shuttleDirection.lengthSq() > .000001) {
+        this.shuttle.quaternion.setFromUnitVectors(this.shuttleAxis, this.shuttleDirection.normalize());
+      }
+    } else this.shuttle.rotation.set(0, 0, 0);
+    this.lastShuttlePosition.copy(this.shuttle.position);
+    this.shuttleTracked = this.sport === 'badminton' && s.phase === 'rally';
     this.ball.rotation.x = time * 3;
     this.particles.rotation.y = time * 0.006;
     this.renderer.render(this.scene, this.camera);

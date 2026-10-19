@@ -2,6 +2,11 @@ import { MockTennisApi } from './tennis.api';
 describe('Tennis mock adapter', () => {
   beforeEach(() => localStorage.removeItem('gameverse.tennis.mock.v1'));
   afterEach(() => localStorage.removeItem('gameverse.tennis.mock.v1'));
+  it('exposes all four playable practice sports in the demo catalog', async () => {
+    const catalog = await new MockTennisApi().bootstrap();
+    expect(catalog.enabledSports).toEqual(['tennis', 'ping-pong', 'badminton', 'squash']);
+    expect(catalog.sports.every(sport => sport.enabled)).toBeTrue();
+  });
   it('does not charge twice for an owned racket', async () => {
     const api = new MockTennisApi();
     await api.profile();

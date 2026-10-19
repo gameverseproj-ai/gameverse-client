@@ -210,7 +210,8 @@ export class TennisComponent {
   }
   private loop = (time: number) => {
     if (this.disposed) return;
-    const dt = Math.min(0.035, (time - this.last) / 1000 || 0.016);
+    const frameDelta = Math.min(.25, Math.max(0, (time - this.last) / 1000 || .016));
+    const dt = Math.min(.035, frameDelta);
     this.last = time;
     const dir =
       (this.keys.has('ArrowRight') || this.keys.has('d') ? 1 : 0) -
@@ -242,8 +243,9 @@ export class TennisComponent {
       }
     } else if (this.match) {
       if (this.page() === 'play' && !this.paused()) {
-        if (dir) this.match.move(this.match.state.player + dir * dt * 10);
-        this.match.tick(dt);
+        const practiceDelta = this.sport() === 'tennis' ? dt : frameDelta;
+        if (dir) this.match.move(this.match.state.player + dir * practiceDelta * 10);
+        this.match.tick(practiceDelta);
         if (this.match.state.phase === 'finished' && !this.recorded) {
           this.recorded = true;
           this.zone.run(() => void this.record());
@@ -283,16 +285,29 @@ export class TennisComponent {
     else if (this.page() === 'play' && !this.paused())
       this.match?.swing(aim, spin);
   }
+  private courtPointer: { id: number; x: number; y: number; started: number; moved: boolean } | null = null;
   aim(event: PointerEvent): void {
+    if (event.pointerType !== 'mouse' && event.pointerId !== this.courtPointer?.id) return;
+    if (this.courtPointer && Math.hypot(event.clientX - this.courtPointer.x, event.clientY - this.courtPointer.y) > 10) this.courtPointer.moved = true;
     const r = this.canvas().nativeElement.getBoundingClientRect();
     const x = ((event.clientX - r.left) / r.width - 0.5) * 12;
     if (this.page() === 'online') this.online?.move(x);
     else if (this.page() === 'play' && !this.paused()) this.match?.move(x);
   }
   touch(event: PointerEvent): void {
+    if (this.courtPointer || event.button !== 0 || !['play', 'online'].includes(this.page())) return;
+    this.courtPointer = { id: event.pointerId, x: event.clientX, y: event.clientY, started: event.timeStamp, moved: false };
     this.aim(event);
-    if (event.pointerType === 'touch')
-      this.canvas().nativeElement.setPointerCapture(event.pointerId);
+    this.canvas().nativeElement.setPointerCapture(event.pointerId);
+  }
+  endTouch(event: PointerEvent): void {
+    const gesture = this.courtPointer;
+    if (gesture?.id !== event.pointerId) return;
+    this.courtPointer = null;
+    if (event.type === 'pointerup' && !gesture.moved && event.timeStamp - gesture.started < 350
+      && Math.hypot(event.clientX - gesture.x, event.clientY - gesture.y) <= 10) this.hit();
+    const canvas = this.canvas().nativeElement;
+    if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
   }
   async back(): Promise<void> {
     this.paused.set(true);

@@ -7,6 +7,7 @@
     [attr.aria-label]="'Tennis court' | t"
     (pointerdown)="touch($event)"
     (pointermove)="aim($event)"
+    (pointerup)="endTouch($event)" (pointercancel)="endTouch($event)" (lostpointercapture)="endTouch($event)"
   ></canvas>
   <header>
     @if (page() === "club") {
@@ -64,6 +65,11 @@
               }
             </button>
           }
+        </div>
+        <div class="sport-brief" aria-live="polite">
+          <strong>{{ rules.name | t }}</strong>
+          <p>{{ rules.hint | t }}</p>
+          <small>{{ (sport() === 'tennis' ? 'First to {0} points.' : 'First to {0} points. Win by two, capped at {1}.') | t: [rules.points, rules.cap] }}</small>
         </div>
         @if (catalog()?.enabledSports?.includes(sport())) {
           <button class="primary" (click)="start()" [disabled]="!profile()">
@@ -129,33 +135,14 @@
         <span>{{ "Energy" | t }}</span
         ><meter min="0" max="100" [value]="state()?.stamina ?? 100"></meter
         ><small
-          >{{ rules.name | t }} · {{ "First to" | t }} {{ rules.points }}</small
+          >{{ rules.name | t }} · {{ "First to" | t }} {{ rules.points }}
+            @if (state()?.phase === 'serve') { · {{ (state()?.serving === false ? 'Opponent serves' : 'Your serve') | t }} }
+          </small
         >
-      </div>
-      <div class="shots">
-        <button
-          [attr.aria-label]="'Aim left' | t"
-          (click)="hit(-0.8, -1)"
-          [disabled]="paused() || (state()?.phase === 'serve' && state()?.serving === false)"
-        >
-          ↖</button
-        ><button
-          class="primary"
-          (click)="hit()"
-          [disabled]="paused() || (state()?.phase === 'serve' && state()?.serving === false)"
-        >
-          {{ (state()?.phase === "serve" ? "Serve" : "Hit") | t }}</button
-        ><button
-          [attr.aria-label]="'Aim right' | t"
-          (click)="hit(0.8, 1)"
-          [disabled]="paused() || (state()?.phase === 'serve' && state()?.serving === false)"
-        >
-          ↗
-        </button>
       </div>
       <p>
         {{ rules.hint | t }}<br />{{
-          "Move: drag or ← → · Hit: Space / button" | t
+          "Move: drag or ← → · Hit / serve: tap the court or Space" | t
         }}
       </p>
     </footer>
@@ -225,22 +212,9 @@
           ) | t
         }}</small>
       </div>
-      <div class="shots">
-        <button [attr.aria-label]="'Aim left' | t" (click)="hit(-0.8, -1)">
-          ↖</button
-        ><button
-          class="primary"
-          (click)="hit()"
-          [disabled]="state()?.phase === 'serve' && !serving()"
-        >
-          {{ (state()?.phase === "serve" ? "Serve" : "Hit") | t }}</button
-        ><button [attr.aria-label]="'Aim right' | t" (click)="hit(0.8, 1)">
-          ↗
-        </button>
-      </div>
       <p>
         {{ rules.hint | t }}<br />{{
-          "Move: drag or ← → · Hit: Space / button" | t
+          "Move: drag or ← → · Hit / serve: tap the court or Space" | t
         }}
       </p>
     </footer>

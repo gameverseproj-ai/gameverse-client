@@ -73,7 +73,7 @@ export class GellyPlayerController {
     this.heroRenderer.setFocused?.(focused);
   }
 
-  update(delta: number, movement: { x: number; z: number }): void {
+  update(delta: number, movement: { x: number; z: number }, visualDelta = delta): void {
     if (this.entry) return;
     this.elapsedTime += delta;
     // Left/right steer, up/down move along the hero's heading in both views.
@@ -85,9 +85,12 @@ export class GellyPlayerController {
     if (!this.blocked(x, this.position.z)) this.position.x = x;
     const z = this.position.z + this.velocity.y * SPEED * delta;
     if (!this.blocked(this.position.x, z)) this.position.z = z;
-    this.heroRenderer.update(delta, {x: this.velocity.x, z: this.velocity.y}, this.elapsedTime);
-    this.heroRenderer.mesh.rotation.y = this.heading;
-    this.updateEyes();
+    // Collision substeps stay small; animate the rig only once per rendered frame.
+    if (visualDelta > 0) {
+      this.heroRenderer.update(visualDelta, {x: this.velocity.x, z: this.velocity.y}, this.elapsedTime);
+      this.heroRenderer.mesh.rotation.y = this.heading;
+      this.updateEyes();
+    }
   }
 
   private blocked(x: number, z: number): boolean {

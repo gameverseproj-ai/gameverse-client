@@ -108,8 +108,15 @@ export class RacquetMatch implements PracticeMatch {
     this.until = this.clock + 0.45;
     if (this.state.phase === 'serve' && this.server === 0) this.launch(0, true);
   }
-  tick(dt: number): void {
-    dt = Math.min(0.04, Math.max(0, dt));
+  tick(delta: number): void {
+    if (!Number.isFinite(delta) || delta <= 0 || this.state.phase === 'finished') return;
+    // Preserve elapsed play time on slow frames without skipping a net or bounce.
+    const duration = Math.min(.25, delta);
+    const steps = Math.ceil(duration / (1 / 120));
+    for (let i = 0; i < steps; i++) this.step(duration / steps);
+  }
+  private step(dt: number): void {
+    if (this.state.phase === 'finished') return;
     this.clock += dt;
     const s = this.state;
     s.player +=
