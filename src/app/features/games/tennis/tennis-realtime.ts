@@ -101,6 +101,7 @@ export class TennisRealtime {
   private socket?: WebSocket;
   private attempts = 0;
   private timer = 0;
+  private generation = 0;
   constructor(
     private readonly ticket: () => Promise<TennisRealtimeTicket>,
     private readonly resolveUrl: (
@@ -113,13 +114,19 @@ export class TennisRealtime {
 
   /** Resolves once the server has acknowledged the ticket. */
   async connect(): Promise<void> {
+    const generation = ++this.generation;
     this.keepAlive = true;
     this.set(this.attempts ? 'reconnecting' : 'connecting');
     const { ticket, realtimeUrl } = await this.ticket();
+    if (!this.keepAlive || generation !== this.generation) throw new Error('Connection closed.');
     await new Promise<void>((resolve, reject) => {
       const socket = new WebSocket(this.resolveUrl(realtimeUrl, ticket));
       this.socket = socket;
       let acknowledged = false;
+      const timeout = window.setTimeout(() => {
+        reject(new Error('Online play is unavailable right now.'));
+        socket.close();
+      }, 10_000);
       socket.onmessage = (event) => {
         let message: ServerMessage;
         try {
@@ -130,6 +137,7 @@ export class TennisRealtime {
         if (message.type === 'connected') {
           this.playerId = message.playerId;
           acknowledged = true;
+          clearTimeout(timeout);
           this.attempts = 0;
           this.set('open');
           resolve();
@@ -141,16 +149,14 @@ export class TennisRealtime {
           reject(new Error('Online play is unavailable right now.'));
       };
       socket.onclose = (event) => {
+        clearTimeout(timeout);
+        if (!acknowledged) reject(new Error(
+          event.code === 4401 ? 'Your session ticket expired. Try again.' : 'Online play is unavailable right now.',
+        ));
         if (this.socket !== socket) return;
         this.socket = undefined;
         if (!acknowledged) {
-          reject(
-            new Error(
-              event.code === 4401
-                ? 'Your session ticket expired. Try again.'
-                : 'Online play is unavailable right now.',
-            ),
-          );
+          this.set('closed');
           return;
         }
         if (this.keepAlive && this.attempts < 6) {
@@ -172,6 +178,7 @@ export class TennisRealtime {
 
   close(): void {
     this.keepAlive = false;
+    this.generation++;
     clearTimeout(this.timer);
     const socket = this.socket;
     this.socket = undefined;

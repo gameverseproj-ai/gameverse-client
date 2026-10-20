@@ -31,6 +31,9 @@
     </div>
     <span class="demo">{{ (api.mock ? "Local demo" : "Online") | t }}</span>
   </header>
+  @if (toast()) {
+    <div class="toast" role="status">{{ toast() | t }}</div>
+  }
   @if (page() === "club") {
     <div class="club">
       <div class="intro">
@@ -39,6 +42,16 @@
         <p>{{ "Find your rhythm. Make your mark." | t }}</p>
       </div>
       <div class="club-panel">
+        @if (invitations().length && !room()) {
+          <div class="courts" aria-live="polite">
+            <strong>{{ "Invitations" | t }}</strong>
+            @for (invite of invitations(); track invite.id) {
+              <button class="court" (click)="acceptInvitation(invite)" [disabled]="busy()">
+                <span>{{ invite.fromUsername }}</span><b>{{ "Accept and play" | t }} →</b>
+              </button>
+            }
+          </div>
+        }
         <div
           class="sports"
           role="group"
@@ -162,9 +175,6 @@
         {{ (link() === "open" ? "Live" : "Reconnecting…") | t }}
       </span>
     </div>
-    @if (toast()) {
-      <div class="toast" role="status">{{ toast() | t }}</div>
-    }
     @if (onlineStatus() === "finished") {
       <div class="match-overlay">
         <span>✦</span>
@@ -240,7 +250,7 @@
               (readySent()
                 ? opponentReady()
                   ? "Starting…"
-                  : "Waiting for your opponent to press Play"
+                  : "Waiting for your opponent to connect"
                 : opponentReady()
                   ? "Your opponent is ready"
                   : "Press Play when you are at the court"
@@ -267,7 +277,7 @@
               <small>{{ "No real invitation has been sent." | t }}</small>
             } @else if (r.inviteUrl) {
               <small>{{
-                "Share the link or wait for a player to join." | t
+                "Waiting for acceptance. The match starts automatically when both players connect." | t
               }}</small>
             } @else {
               <small>{{
@@ -301,7 +311,7 @@
                 [disabled]="busy()"
               >
                 <span>{{ invite.fromUsername }}</span
-                ><b>{{ "Join" | t }} →</b>
+                ><b>{{ "Accept and play" | t }} →</b>
               </button>
             } @empty {
               <small>{{ "No pending invitations" | t }}</small>
@@ -313,7 +323,7 @@
           }}<input
             [value]="username"
             (input)="setUsername($event)"
-            maxlength="32"
+            maxlength="100"
             autocomplete="off"
             placeholder="player_name" /></label
         ><button

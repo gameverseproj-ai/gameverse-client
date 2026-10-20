@@ -101,6 +101,10 @@ export class TennisComponent {
   private online?: OnlineMatch;
   private realtime?: TennisRealtime;
   private subscribedRoom = '';
+  private connecting?: Promise<TennisRealtime>;
+  private lobbyTimer = 0;
+  private lobbyLoading = false;
+  private wantsToPlay = false;
   private observer?: ResizeObserver;
   private frame = 0;
   private disposed = false;
@@ -131,7 +135,7 @@ export class TennisComponent {
   private visibility = () => {
     if (!document.hidden) {
       void this.loadChampionship();
-      void this.refreshInvitations();
+      void this.refreshLobby();
     }
     if (document.hidden && this.page() === 'play') {
       this.paused.set(true);
@@ -144,9 +148,11 @@ export class TennisComponent {
       this.championshipTimer = window.setInterval(() => {
         if (!document.hidden) {
           void this.loadChampionship();
-          void this.refreshInvitations();
         }
       }, 60_000);
+      this.lobbyTimer = window.setInterval(() => {
+        if (!document.hidden) void this.refreshLobby();
+      }, 3000);
       document.addEventListener('keydown', this.keydown);
       document.addEventListener('keyup', this.keyup);
       document.addEventListener('visibilitychange', this.visibility);
@@ -180,14 +186,16 @@ export class TennisComponent {
     const invite = this.route.snapshot.queryParamMap.get('invite');
     if (invite && this.api.joinByInvite && !this.disposed)
       await this.action(async () => {
+        this.wantsToPlay = true;
         this.setRoom(await this.api.joinByInvite!(invite));
         this.page.set('friends');
       });
     else if (this.api.currentRoom && !this.disposed)
-      // A reloaded page picks its court back up; a running match re-enters on Play.
+      // Membership records the earlier create/accept action; restore its handshake.
       await this.action(async () => {
         const room = await this.api.currentRoom!();
         if (room && !this.disposed) {
+          this.wantsToPlay = true;
           this.setRoom(room);
           this.page.set('friends');
         }
@@ -330,6 +338,33 @@ export class TennisComponent {
     this.page.set('friends');
     await Promise.all([this.refreshCourts(), this.refreshInvitations()]);
   }
+  private async refreshLobby(): Promise<void> {
+    if (this.disposed || this.lobbyLoading || this.busy() || this.page() === 'online') return;
+    this.lobbyLoading = true;
+    const current = this.room();
+    try {
+      await this.refreshInvitations();
+      if (current && this.api.getRoom) {
+        const latest = await this.api.getRoom(current.id);
+        if (this.disposed || this.room() !== current) return;
+        if (latest.serverStatus === 'closed') {
+          this.clearRoom();
+          this.showToast('The court was closed.');
+        } else {
+          if (latest.matchId !== current.matchId || latest.serverStatus === 'waiting') {
+            this.readySent.set(false);
+            this.opponentReady.set(false);
+          }
+          this.room.set(latest);
+          await this.watchRoom(latest.id);
+        }
+      }
+    } catch {
+      // A transient refresh failure must not discard the court.
+    } finally {
+      this.lobbyLoading = false;
+    }
+  }
   async refreshInvitations(): Promise<void> {
     if (!this.api.invitations) return;
     try {
@@ -359,7 +394,9 @@ export class TennisComponent {
     await this.action(async () => {
       const room = await this.api.joinByInvite!(token);
       if (this.disposed) return;
+      this.wantsToPlay = true;
       this.setRoom(room);
+      this.page.set('friends');
       this.invitations.update((items) =>
         items.filter((item) => item.id !== invitation.id),
       );
@@ -386,6 +423,7 @@ export class TennisComponent {
         await this.api.cancelRoom(room.id);
         return;
       }
+      this.wantsToPlay = true;
       this.setRoom(room);
       this.copied.set(false);
     });
@@ -393,7 +431,9 @@ export class TennisComponent {
   async joinCourt(id: string): Promise<void> {
     if (!this.api.joinRoom) return;
     await this.action(async () => {
-      this.setRoom(await this.api.joinRoom!(id));
+      const room = await this.api.joinRoom!(id);
+      this.wantsToPlay = true;
+      this.setRoom(room);
     });
   }
   async cancel(): Promise<void> {
@@ -431,6 +471,7 @@ export class TennisComponent {
   private clearRoom(): void {
     this.room.set(null);
     this.subscribedRoom = '';
+    this.wantsToPlay = false;
     this.readySent.set(false);
     this.opponentReady.set(false);
   }
@@ -440,8 +481,9 @@ export class TennisComponent {
   // ------------------------------------------------------------------
 
   private async ensureRealtime(): Promise<TennisRealtime> {
-    if (this.realtime && this.realtime.status !== 'closed')
-      return this.realtime;
+    if (this.realtime?.status === 'open') return this.realtime;
+    if (this.connecting) return this.connecting;
+    this.realtime?.close();
     const realtime = new TennisRealtime(
       () => this.api.realtimeTicket!(),
       (url, ticket) => this.api.realtimeUrl!(url, ticket),
@@ -449,34 +491,39 @@ export class TennisComponent {
       (status) => this.zone.run(() => this.onLink(status)),
     );
     this.realtime = realtime;
-    await realtime.connect();
-    return realtime;
+    this.connecting = realtime.connect().then(() => realtime);
+    try { return await this.connecting; }
+    finally { this.connecting = undefined; }
   }
   private async watchRoom(roomId: string): Promise<void> {
+    if (!this.onlineEnabled) return;
     try {
       const realtime = await this.ensureRealtime();
+      if (this.disposed || this.room()?.id !== roomId) return;
       this.subscribedRoom = roomId;
       realtime.send({ type: 'room.subscribe', roomId });
+      this.sendReady();
     } catch (e) {
-      this.error.set(
-        e instanceof Error
-          ? e.message
-          : 'Online play is unavailable right now.',
-      );
+      this.error.set(e instanceof Error ? e.message : 'Online play is unavailable right now.');
     }
   }
-  /** "Play": tells the server we are at the court; the match starts when both players are. */
+  private sendReady(): void {
+    const room = this.room();
+    if (this.wantsToPlay && room?.matchId && this.roomReady()
+      && this.page() !== 'online' && !this.readySent() && this.realtime?.status === 'open') {
+      // Only the server acknowledgement marks us ready. Refresh/reconnect retries safely.
+      this.realtime.send({ type: 'match.ready', matchId: room.matchId });
+    }
+  }
   async ready(): Promise<void> {
-    const r = this.room();
-    if (!r?.matchId) return;
-    await this.action(async () => {
-      const realtime = await this.ensureRealtime();
-      realtime.send({ type: 'match.ready', matchId: r.matchId });
-      this.readySent.set(true);
-    });
+    const room = this.room();
+    if (!room?.matchId) return;
+    this.wantsToPlay = true;
+    await this.watchRoom(room.id);
   }
   private onLink(status: RealtimeStatus): void {
     this.link.set(status);
+    if (status !== 'open') this.readySent.set(false);
     if (status === 'open' && this.realtime) {
       // Back after a drop: watch the court again and ask for the current frame.
       if (this.subscribedRoom)
@@ -484,6 +531,7 @@ export class TennisComponent {
           type: 'room.subscribe',
           roomId: this.subscribedRoom,
         });
+      this.sendReady();
       if (this.online && this.page() === 'online') {
         this.realtime.send({
           type: 'match.ready',
@@ -508,10 +556,12 @@ export class TennisComponent {
         this.onRoomUpdated(message.room);
         break;
       case 'match.waiting':
-        if (message.readyPlayerId !== this.realtime?.playerId)
-          this.opponentReady.set(true);
+        if (message.matchId !== this.room()?.matchId) break;
+        if (message.readyPlayerId === this.me) this.readySent.set(true);
+        else this.opponentReady.set(true);
         break;
       case 'match.started': {
+        if (message.roomId !== this.room()?.id) break;
         if (message.sport) this.selectSport(message.sport);
         const me = this.realtime?.playerId ?? '';
         this.online = new OnlineMatch(
@@ -601,7 +651,11 @@ export class TennisComponent {
       players: room.players.map((p) => p.username),
       members: room.players.map((p) => ({ id: p.id, username: p.username })),
     });
-    if (room.status === 'waiting') this.readySent.set(false);
+    if (room.status === 'waiting' || current.matchId !== room.matchId) {
+      this.readySent.set(false);
+      this.opponentReady.set(false);
+    }
+    this.sendReady();
   }
   /** Leaving a running match forfeits it; the server scores it for the opponent. */
   leaveOnline(): void {
@@ -765,6 +819,7 @@ export class TennisComponent {
     cancelAnimationFrame(this.frame);
     clearTimeout(this.toastTimer);
     clearInterval(this.championshipTimer);
+    clearInterval(this.lobbyTimer);
     this.observer?.disconnect();
     this.scene?.destroy();
     document.removeEventListener('keydown', this.keydown);
@@ -772,8 +827,6 @@ export class TennisComponent {
     document.removeEventListener('visibilitychange', this.visibility);
     if (this.page() === 'online') this.leaveOnline();
     else {
-      const r = this.room();
-      if (r) void this.api.cancelRoom(r.id);
       this.realtime?.close();
     }
   }

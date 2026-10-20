@@ -1,5 +1,13 @@
 // Tennis UI, catalog labels, and match feedback in all supported account languages.
 export const TENNIS_CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
+  "Accept and play": { ru: "Принять и играть", he: "אישור ומשחק", ar: "قبول واللعب" },
+  "Waiting for your opponent to connect": { ru: "Ждём подключения соперника", he: "ממתינים לחיבור היריב", ar: "بانتظار اتصال الخصم" },
+  "Waiting for acceptance. The match starts automatically when both players connect.": {
+    ru: "Ждём принятия приглашения. Матч начнётся автоматически, когда оба игрока подключатся.",
+    he: "ממתינים לאישור ההזמנה. המשחק יתחיל אוטומטית כששני השחקנים יתחברו.",
+    ar: "بانتظار قبول الدعوة. تبدأ المباراة تلقائيًا عند اتصال اللاعبين."
+  },
+
 "First to {0} points.": {"ru":"До {0} очков.","he":"הראשון שמגיע ל־{0} נקודות.","ar":"أول من يصل إلى {0} نقطة."},
 "First to {0} points. Win by two, capped at {1}.": {"ru":"До {0} очков с отрывом в два; предел — {1}.","he":"עד {0} נקודות בהפרש של שתיים, עם תקרה של {1}.","ar":"حتى {0} نقطة بفارق نقطتين، والحد الأقصى {1}."},
   "Move: drag or ← → · Hit / serve: tap the court or Space": {"ru":"Движение: ведите пальцем или ← → · Удар / подача: тап по корту или пробел","he":"תנועה: גרירה או ← → · חבטה / הגשה: הקשה על המגרש או רווח","ar":"الحركة: اسحب أو ← → · الضرب / الإرسال: انقر على الملعب أو اضغط المسافة"},

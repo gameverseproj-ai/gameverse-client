@@ -72,4 +72,15 @@ describe('Tennis realtime socket', () => {
     await expectAsync(connecting).toBeRejectedWithError(/ticket expired/);
     expect(FakeSocket.instances.length).toBe(1);
   });
+  it('does not open a socket if the screen closes while fetching a ticket', async () => {
+    let ticket!: (value: {ticket: string; realtimeUrl: string}) => void;
+    const realtime = new TennisRealtime(() => new Promise(resolve => ticket = resolve),
+      url => url, () => undefined, () => undefined);
+    const connecting = realtime.connect();
+    realtime.close();
+    ticket({ticket:'late',realtimeUrl:'/socket'});
+    await expectAsync(connecting).toBeRejected();
+    expect(FakeSocket.instances.length).toBe(0);
+  });
+
 });
