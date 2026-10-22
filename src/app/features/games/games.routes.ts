@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 export const GAMES_ROUTES: Routes = [
+  { path: 'monstrocity', loadComponent: () => import('./monstrocity/monstrocity.component').then(m => m.MonstrocityComponent) },
   { path: 'tennis', loadComponent: () => import('./tennis/tennis.component').then(m => m.TennisComponent) },
   { path: 'power/play', redirectTo: 'power', pathMatch: 'full' },
   { path: 'power', loadComponent: () => import('./power/power.component').then(m => m.PowerComponent) },

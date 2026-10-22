@@ -1,0 +1,228 @@
+{
+  "version": "courtyard-v1",
+  "units": "metres",
+  "axes": {
+    "x": "east",
+    "z": "south",
+    "y": "up"
+  },
+  "playBounds": {
+    "minX": -17,
+    "maxX": 17,
+    "minZ": -17,
+    "maxZ": 17
+  },
+  "playerRadius": 0.28,
+  "buildings": [
+    {
+      "id": "bakery",
+      "x": -10,
+      "z": -11,
+      "w": 7,
+      "d": 6,
+      "h": 7,
+      "color": 12558720
+    },
+    {
+      "id": "home",
+      "x": 0,
+      "z": -12,
+      "w": 7,
+      "d": 5,
+      "h": 8,
+      "color": 13088154
+    },
+    {
+      "id": "workshop",
+      "x": 10,
+      "z": -11,
+      "w": 7,
+      "d": 6,
+      "h": 6,
+      "color": 11046006
+    },
+    {
+      "id": "library",
+      "x": -12,
+      "z": 0,
+      "w": 5,
+      "d": 8,
+      "h": 6,
+      "color": 12628636
+    },
+    {
+      "id": "house-east",
+      "x": 12,
+      "z": 0,
+      "w": 5,
+      "d": 8,
+      "h": 8,
+      "color": 11182731
+    },
+    {
+      "id": "room",
+      "x": -10,
+      "z": 11,
+      "w": 7,
+      "d": 6,
+      "h": 5,
+      "color": 12164221,
+      "interior": true
+    },
+    {
+      "id": "house-south",
+      "x": 1,
+      "z": 13,
+      "w": 7,
+      "d": 4,
+      "h": 7,
+      "color": 12692874
+    },
+    {
+      "id": "atelier",
+      "x": 11,
+      "z": 11,
+      "w": 6,
+      "d": 6,
+      "h": 5.5,
+      "color": 11903886
+    }
+  ],
+  "shelterCandidates": [
+    {
+      "id": "shelter-0",
+      "position": {
+        "x": -9,
+        "z": -6.8
+      }
+    },
+    {
+      "id": "shelter-1",
+      "position": {
+        "x": 0,
+        "z": -8.2
+      }
+    },
+    {
+      "id": "shelter-2",
+      "position": {
+        "x": 10,
+        "z": -6.8
+      }
+    },
+    {
+      "id": "shelter-3",
+      "position": {
+        "x": -10,
+        "z": 11
+      }
+    },
+    {
+      "id": "shelter-4",
+      "position": {
+        "x": 11,
+        "z": 6.8
+      }
+    }
+  ],
+  "containers": [
+    {
+      "id": "crate-start",
+      "x": -7,
+      "z": -5.8
+    },
+    {
+      "id": "pantry",
+      "x": -9,
+      "z": 11
+    },
+    {
+      "id": "crate-east",
+      "x": 8,
+      "z": -5.5
+    },
+    {
+      "id": "crate-south",
+      "x": 7,
+      "z": 7
+    },
+    {
+      "id": "crate-west",
+      "x": -8,
+      "z": 3
+    },
+    {
+      "id": "cabinet",
+      "x": 2,
+      "z": -8
+    }
+  ],
+  "residents": [
+    {
+      "id": "gardener",
+      "x": 3,
+      "z": 3
+    },
+    {
+      "id": "keeper",
+      "x": -5,
+      "z": -6
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "circle",
+      "x": 0,
+      "z": 0,
+      "radius": 1.5
+    },
+    {
+      "type": "box",
+      "x": -5,
+      "z": 1,
+      "halfX": 1.1,
+      "halfZ": 1.1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "z": 1,
+      "halfX": 1.1,
+      "halfZ": 1.1
+    },
+    {
+      "type": "box",
+      "x": -4,
+      "z": 6,
+      "halfX": 1.1,
+      "halfZ": 1.1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "z": -4,
+      "halfX": 1.1,
+      "halfZ": 1.1
+    },
+    {
+      "type": "box",
+      "x": 15,
+      "z": -7,
+      "halfX": 1.35,
+      "halfZ": 2.85
+    }
+  ],
+  "containerCollisionRadius": 0.5,
+  "interiorCollision": {
+    "wallClearance": 0.35,
+    "outerClearance": 0.25,
+    "doorWidth": 2,
+    "doorWall": "negative-z"
+  },
+  "notes": [
+    "Non-interior buildings block their footprint plus playerRadius.",
+    "The room interior has solid side/back walls and a 2m north doorway. See monstrocity.map.ts blocked() for exact inequalities.",
+    "Crates and planted islands collide; visual foliage does not.",
+    "Residents sway within 0.2m of their authoritative interaction anchors."
+  ]
+}

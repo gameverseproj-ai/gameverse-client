@@ -16,6 +16,8 @@ export class WorldsComponent {
   private readonly returnPoint = inject(WorldReturnService);
   readonly worldFacade = inject(WorldFacade);
 
+  get monstrocity() { return this.worldFacade.standalone().find(game => game.id === 'monstrocity' && game.launchRoute === '/games/monstrocity'); }
+
   constructor() {
     afterNextRender(() => { this.returnPoint.clear(); this.worldFacade.loadWorlds(); });
   }

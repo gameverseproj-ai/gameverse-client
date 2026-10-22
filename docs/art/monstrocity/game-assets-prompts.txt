@@ -1,0 +1,9 @@
+Built-in image_gen. Successful generated assets copied into public/assets/monstrocity.
+
+mossback.png (transparent_background=true)
+Use case stylized-concept. Game asset for MONSTROCITY, standalone mobile adventure for ages 8+. Single full-body creature, centered, entire silhouette visible including feet and hands, transparent background, NO floor, shadow plane, text, frame, weapons or other objects. Mossback: broad gentle-but-formidable moss-covered stone creature, short powerful legs, long expressive arms, layered stone and bark plates, tactile tufts of moss, tiny leaves on shoulders, curious amber eyes, closed expressive mouth, NO sharp fangs or horror. Facing viewer with body slight three-quarter angle, stepping toward camera, both hands visible. Premium cinematic stylized handpainted 3D animation-film look, detailed believable materials, warm highlights and cool blue-green shadows, crisp silhouette suitable for 2D combat sprite. Not cute jelly, not neon, not voxel, no blood. Approximately square composition with generous transparent margin.
+
+cobblestone.png (transparent_background=false)
+Use case stylized-concept. Production diffuse texture for MONSTROCITY 3D courtyard ground. A seamless tileable square surface texture, exact overhead orthographic flat view, irregular small old European cobblestones in warm muted limestone grey, taupe, desaturated beige, tiny patches of moss in joints, handmade detailed stone grain and weathered chipped edges, cinematic handpainted game material quality. Uniform neutral diffuse light, no cast shadows, no perspective, no vignette, no objects, no leaves on top, no street markings, no text, no border. About 14 by 18 small cobbles across the image. Restrained painterly realism rather than cartoon outlines. Edges must tile seamlessly.
+
+The second species generation failed and produced no asset. It is not enabled in the local preview.

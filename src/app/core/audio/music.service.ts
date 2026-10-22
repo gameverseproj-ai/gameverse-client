@@ -24,6 +24,7 @@ export class MusicService {
   readonly ready = signal(false);
   readonly error = signal('');
   private started = false;
+  private soundtrackOwners = new Set<symbol>();
   private revision = 0;
   private queued?: MusicPreferences;
   readonly playbackError = signal('');
@@ -121,10 +122,15 @@ export class MusicService {
       },
     });
   }
+  /** Temporarily yield to a game's own soundtrack without changing saved preferences. */
+  reserveSoundtrack(): () => void {
+    const owner = Symbol(); this.soundtrackOwners.add(owner); this.sync();
+    return () => { if (this.soundtrackOwners.delete(owner)) this.sync(); };
+  }
   private sync(): void {
     const p = this.preferences();
     this.zone.runOutsideAngular(() => {
-      if (!p.enabled || document.hidden || p.volume === 0) this.player.stop();
+      if (this.soundtrackOwners.size > 0 || !p.enabled || document.hidden || p.volume === 0) this.player.stop();
       else this.player.play(p.genre, p.volume, this.tracks()[p.genre]);
     });
   }

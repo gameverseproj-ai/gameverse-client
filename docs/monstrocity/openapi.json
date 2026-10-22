@@ -1,0 +1,2710 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Monstrocity API",
+    "version": "0.1.0",
+    "description": "Proposed implementation contract. No backend implementation is included. Read protocol.md for authoritative timing and ordering semantics."
+  },
+  "servers": [
+    {
+      "url": "/api/monstrocity"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/bootstrap": {
+      "get": {
+        "operationId": "bootstrap",
+        "description": "Read config and reconcile offline state without starting active play or refreshing lastSeenAt.",
+        "responses": {
+          "200": {
+            "description": "Authoritative result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Bootstrap"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not owned by caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or session conflict; reconcile snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs": {
+      "post": {
+        "operationId": "createRun",
+        "description": "Create new run only if no living run exists. Preserve purchased inventory; grant no purchased items. Return a new active session.",
+        "responses": {
+          "200": {
+            "description": "Authoritative result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not owned by caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or session conflict; reconcile snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRun"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{runId}": {
+      "get": {
+        "operationId": "readRun",
+        "description": "Reconcile and read state. Does not heartbeat or resume gameplay.",
+        "responses": {
+          "200": {
+            "description": "Authoritative result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not owned by caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or session conflict; reconcile snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
+      }
+    },
+    "/runs/{runId}/resume": {
+      "post": {
+        "operationId": "resumeRun",
+        "description": "Reconcile offline consequences before opening/resuming session. takeover=false rejects a live session on another device. takeover=true explicitly revokes it. Return active state unless dead.",
+        "responses": {
+          "200": {
+            "description": "Authoritative result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not owned by caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or session conflict; reconcile snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Resume"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{runId}/sync": {
+      "post": {
+        "operationId": "syncRun",
+        "description": "Ordered fixed-tick directional inputs or empty heartbeat. Deduplicate sequence; reject gaps. Server caps accepted simulation time to elapsed monotonic server time and validates collisions. No expectedRevision to race with commands.",
+        "responses": {
+          "200": {
+            "description": "Authoritative result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not owned by caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or session conflict; reconcile snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Sync"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{runId}/pause": {
+      "post": {
+        "operationId": "pauseRun",
+        "description": "Atomically pause simulation and energy. Menus are not a disconnect; continue heartbeat.",
+        "responses": {
+          "200": {
+            "description": "Authoritative result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not owned by caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or session conflict; reconcile snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Pause"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{runId}/unpause": {
+      "post": {
+        "operationId": "unpauseRun",
+        "description": "Resume only after all local overlays close. Do not reset recovery allowance.",
+        "responses": {
+          "200": {
+            "description": "Authoritative result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not owned by caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or session conflict; reconcile snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Unpause"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{runId}/consume": {
+      "post": {
+        "operationId": "consumeItem",
+        "description": "Consume collected stock first, then purchased. Allowed in inventory pause. Restore energy up to max and end recovery protection once positive.",
+        "responses": {
+          "200": {
+            "description": "Authoritative result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not owned by caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or session conflict; reconcile snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Consume"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{runId}/search": {
+      "post": {
+        "operationId": "startSearch",
+        "description": "Validate target distance, availability, movement and state; start timed search. Movement cancels. Completion in sync grants loot once.",
+        "responses": {
+          "200": {
+            "description": "Authoritative result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not owned by caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or session conflict; reconcile snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Target"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{runId}/talk": {
+      "post": {
+        "operationId": "talkToResident",
+        "description": "Validate resident proximity, pause with dialogue, return text key and possibly one newly discovered shelter.",
+        "responses": {
+          "200": {
+            "description": "Authoritative result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not owned by caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or session conflict; reconcile snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Target"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{runId}/throw": {
+      "post": {
+        "operationId": "throwStone",
+        "description": "Validate combat phase and cooldown, launch projectile. Server evaluates hit after flight time against moving target; client does not submit a hit or victory.",
+        "responses": {
+          "200": {
+            "description": "Authoritative result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not owned by caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or session conflict; reconcile snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Throw"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{runId}/sword": {
+      "post": {
+        "operationId": "useSword",
+        "description": "Validate sword window and stock; atomically consume one sword and win the encounter.",
+        "responses": {
+          "200": {
+            "description": "Authoritative result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not owned by caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or session conflict; reconcile snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Sword"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{runId}/disconnect": {
+      "post": {
+        "operationId": "disconnectRun",
+        "description": "Best-effort explicit leave; mark disconnected at server time. Missing request is handled by heartbeat timeout. Do not kill immediately.",
+        "responses": {
+          "200": {
+            "description": "Authoritative result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not owned by caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or session conflict; reconcile snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Disconnect"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "Point": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "x": {
+            "type": "number",
+            "minimum": -10000,
+            "maximum": 10000
+          },
+          "z": {
+            "type": "number",
+            "minimum": -10000,
+            "maximum": 10000
+          }
+        },
+        "required": [
+          "x",
+          "z"
+        ]
+      },
+      "Phase": {
+        "type": "string",
+        "enum": [
+          "day",
+          "evening",
+          "night",
+          "morning"
+        ]
+      },
+      "ItemId": {
+        "type": "string",
+        "enum": [
+          "food",
+          "water",
+          "sword"
+        ]
+      },
+      "ItemStack": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "itemId": {
+            "$ref": "#/components/schemas/ItemId"
+          },
+          "collected": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "purchased": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "itemId",
+          "collected",
+          "purchased"
+        ]
+      },
+      "Profile": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "character": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female"
+            ]
+          },
+          "bestSurvivedDays": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "inventory": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemStack"
+            }
+          }
+        },
+        "required": [
+          "character",
+          "bestSurvivedDays",
+          "inventory"
+        ]
+      },
+      "Shelter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "position": {
+            "$ref": "#/components/schemas/Point"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "start",
+              "exploration",
+              "resident"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "position",
+          "source"
+        ]
+      },
+      "Resource": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "position": {
+            "$ref": "#/components/schemas/Point"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "container",
+              "building",
+              "resident",
+              "shelter"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "searched",
+              "discovered"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "position",
+          "kind",
+          "state"
+        ]
+      },
+      "Monster": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "artId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "hitsToDefeat": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "approachSeconds": {
+            "type": "number",
+            "minimum": 1
+          },
+          "motion": {
+            "type": "string",
+            "enum": [
+              "straight",
+              "zigzag",
+              "stop-start"
+            ]
+          },
+          "swordWindowSeconds": {
+            "type": "number",
+            "minimum": 0.1
+          },
+          "hitRadius": {
+            "type": "number",
+            "minimum": 0.01,
+            "maximum": 1
+          },
+          "motionAmplitude": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "motionPeriodSeconds": {
+            "type": "number",
+            "minimum": 0.1
+          },
+          "motionStartsDay": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Optional first survived day enabling lateral evasion. Omitted means legacy behavior (0). Server target and projectile hit resolution use the same day gate. Proposed extension; requires backend implementation."
+          }
+        },
+        "required": [
+          "id",
+          "artId",
+          "hitsToDefeat",
+          "approachSeconds",
+          "motion",
+          "swordWindowSeconds",
+          "hitRadius",
+          "motionAmplitude",
+          "motionPeriodSeconds"
+        ]
+      },
+      "DifficultyTier": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fromDay": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "encountersPerActiveMinute": {
+            "type": "number",
+            "minimum": 0
+          },
+          "monsterWeights": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "optionalEncounterProbability": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "required": [
+          "fromDay",
+          "encountersPerActiveMinute",
+          "monsterWeights",
+          "optionalEncounterProbability"
+        ]
+      },
+      "Config": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "mapVersion": {
+            "type": "string",
+            "minLength": 1
+          },
+          "assetManifestVersion": {
+            "type": "string",
+            "minLength": 1
+          },
+          "phaseSeconds": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "day": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "evening": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "night": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "morning": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "day",
+              "evening",
+              "night",
+              "morning"
+            ]
+          },
+          "energyMax": {
+            "type": "number",
+            "minimum": 1
+          },
+          "onlineEnergyPerSecond": {
+            "type": "number",
+            "minimum": 0
+          },
+          "restoreEnergy": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "food": {
+                "type": "number",
+                "minimum": 1
+              },
+              "water": {
+                "type": "number",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "food",
+              "water"
+            ]
+          },
+          "outsideDisconnectGraceSeconds": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "recoveryActiveSeconds": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "stoneCooldownSeconds": {
+            "type": "number",
+            "minimum": 0.1
+          },
+          "stoneFlightSeconds": {
+            "type": "number",
+            "minimum": 0.01
+          },
+          "encounterWarningSeconds": {
+            "type": "number",
+            "minimum": 0.1
+          },
+          "combatResultHoldSeconds": {
+            "type": "number",
+            "minimum": 0.1
+          },
+          "searchActiveSeconds": {
+            "type": "number",
+            "minimum": 0.1
+          },
+          "moveUnitsPerSecond": {
+            "type": "number",
+            "minimum": 0.1
+          },
+          "interactionRadius": {
+            "type": "number",
+            "minimum": 0.1
+          },
+          "shelterRadius": {
+            "type": "number",
+            "minimum": 0.1
+          },
+          "noticeSeconds": {
+            "type": "number",
+            "minimum": 0.1
+          },
+          "escapeDistance": {
+            "type": "number",
+            "minimum": 0.1
+          },
+          "loseSightSeconds": {
+            "type": "number",
+            "minimum": 0.1
+          },
+          "swordLootProbability": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "lootTableVersion": {
+            "type": "string",
+            "minLength": 1
+          },
+          "monsters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Monster"
+            }
+          },
+          "difficulty": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DifficultyTier"
+            }
+          },
+          "fog": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "chancePerPhase": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "durationSeconds": {
+                "type": "number",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "chancePerPhase",
+              "durationSeconds"
+            ]
+          },
+          "transport": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "inputTickMs": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "syncIntervalMs": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "maxBatchFrames": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "disconnectAfterSeconds": {
+                "type": "number",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "inputTickMs",
+              "syncIntervalMs",
+              "maxBatchFrames",
+              "disconnectAfterSeconds"
+            ]
+          }
+        },
+        "required": [
+          "version",
+          "mapVersion",
+          "assetManifestVersion",
+          "phaseSeconds",
+          "energyMax",
+          "onlineEnergyPerSecond",
+          "restoreEnergy",
+          "outsideDisconnectGraceSeconds",
+          "recoveryActiveSeconds",
+          "stoneCooldownSeconds",
+          "stoneFlightSeconds",
+          "encounterWarningSeconds",
+          "combatResultHoldSeconds",
+          "searchActiveSeconds",
+          "moveUnitsPerSecond",
+          "interactionRadius",
+          "shelterRadius",
+          "noticeSeconds",
+          "escapeDistance",
+          "loseSightSeconds",
+          "swordLootProbability",
+          "lootTableVersion",
+          "monsters",
+          "difficulty",
+          "fog",
+          "transport"
+        ]
+      },
+      "Combat": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "encounterId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "monsterId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "warning",
+              "approaching",
+              "sword-window",
+              "won",
+              "lost"
+            ]
+          },
+          "elapsedActiveMs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "hitsRemaining": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "target": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "x": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "y": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ]
+          },
+          "swordWindowRemainingMs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "nextThrowActiveMs": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "encounterId",
+          "monsterId",
+          "phase",
+          "elapsedActiveMs",
+          "hitsRemaining",
+          "target",
+          "swordWindowRemainingMs",
+          "nextThrowActiveMs"
+        ]
+      },
+      "Notice": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "encounterId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "monsterId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "optional": {
+            "type": "boolean"
+          },
+          "attention": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "position": {
+            "$ref": "#/components/schemas/Point"
+          }
+        },
+        "required": [
+          "encounterId",
+          "monsterId",
+          "optional",
+          "attention",
+          "position"
+        ]
+      },
+      "Search": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "targetId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "remainingActiveMs": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "targetId",
+          "remainingActiveMs"
+        ]
+      },
+      "Dialogue": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "residentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "textKey": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revealedShelterId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "residentId",
+          "textKey",
+          "revealedShelterId"
+        ]
+      },
+      "Run": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "configVersion": {
+            "type": "string",
+            "minLength": 1
+          },
+          "mapVersion": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "dead"
+            ]
+          },
+          "activeElapsedMs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "survivedDays": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "phase": {
+            "$ref": "#/components/schemas/Phase"
+          },
+          "phaseRemainingMs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "energy": {
+            "type": "number",
+            "minimum": 0
+          },
+          "position": {
+            "$ref": "#/components/schemas/Point"
+          },
+          "shelterId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recoveryRemainingActiveMs": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "knownShelters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Shelter"
+            }
+          },
+          "nearby": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Resource"
+            }
+          },
+          "notice": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Notice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "search": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Search"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dialogue": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Dialogue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "combat": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Combat"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fogRemainingActiveMs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "deathReason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "energy",
+                  "monster",
+                  "disconnected"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "configVersion",
+          "mapVersion",
+          "status",
+          "activeElapsedMs",
+          "survivedDays",
+          "phase",
+          "phaseRemainingMs",
+          "energy",
+          "position",
+          "shelterId",
+          "recoveryRemainingActiveMs",
+          "knownShelters",
+          "nearby",
+          "notice",
+          "search",
+          "dialogue",
+          "combat",
+          "fogRemainingActiveMs",
+          "deathReason"
+        ]
+      },
+      "Session": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "paused",
+              "disconnected"
+            ]
+          },
+          "pauseReason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "map",
+                  "inventory",
+                  "dialogue"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lastAcceptedInputSequence": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "outsideReturnDeadline": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "pauseReason",
+          "lastAcceptedInputSequence",
+          "lastSeenAt",
+          "outsideReturnDeadline"
+        ]
+      },
+      "Snapshot": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "serverTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/Profile"
+          },
+          "run": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Run"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "session": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Session"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "serverTime",
+          "profile",
+          "run",
+          "session"
+        ]
+      },
+      "Bootstrap": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/Config"
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/Snapshot"
+          }
+        },
+        "required": [
+          "config",
+          "snapshot"
+        ]
+      },
+      "CreateRun": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "character": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female"
+            ]
+          },
+          "configVersion": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "character",
+          "configVersion"
+        ]
+      },
+      "Resume": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "takeover": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "takeover"
+        ]
+      },
+      "Input": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "moveX": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1
+          },
+          "moveZ": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1
+          }
+        },
+        "required": [
+          "sequence",
+          "moveX",
+          "moveZ"
+        ]
+      },
+      "Sync": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "frames": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Input"
+            }
+          }
+        },
+        "required": [
+          "sessionId",
+          "frames"
+        ]
+      },
+      "CommandBase": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "expectedRevision"
+        ]
+      },
+      "Pause": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "map",
+              "inventory",
+              "dialogue"
+            ]
+          }
+        },
+        "required": [
+          "sessionId",
+          "expectedRevision",
+          "reason"
+        ]
+      },
+      "Unpause": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "expectedRevision"
+        ]
+      },
+      "Consume": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "itemId": {
+            "type": "string",
+            "enum": [
+              "food",
+              "water"
+            ]
+          }
+        },
+        "required": [
+          "sessionId",
+          "expectedRevision",
+          "itemId"
+        ]
+      },
+      "Target": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "targetId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "sessionId",
+          "expectedRevision",
+          "targetId"
+        ]
+      },
+      "Throw": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "encounterId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "aimX": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "aimY": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "required": [
+          "sessionId",
+          "expectedRevision",
+          "encounterId",
+          "aimX",
+          "aimY"
+        ]
+      },
+      "Sword": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "encounterId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "sessionId",
+          "expectedRevision",
+          "encounterId"
+        ]
+      },
+      "Disconnect": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "expectedRevision"
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "INVALID_REQUEST",
+              "UNAUTHORIZED",
+              "FORBIDDEN",
+              "RUN_EXISTS",
+              "RUN_DEAD",
+              "REVISION_CONFLICT",
+              "SESSION_CONFLICT",
+              "SESSION_EXPIRED",
+              "CONFIG_UNAVAILABLE",
+              "TARGET_UNAVAILABLE",
+              "OUT_OF_RANGE",
+              "INVALID_STATE",
+              "NO_ITEM",
+              "COOLDOWN",
+              "RATE_LIMITED",
+              "INTERNAL_ERROR"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "retryable": {
+            "type": "boolean"
+          },
+          "snapshot": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snapshot"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "retryable",
+          "snapshot"
+        ]
+      }
+    }
+  }
+}

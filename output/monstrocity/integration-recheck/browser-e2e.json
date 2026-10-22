@@ -1,0 +1,407 @@
+{
+  "runId": "7b49c09f-5aad-4636-9726-1d63b45703f0",
+  "trace": [
+    {
+      "path": "/api/monstrocity/bootstrap",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/bootstrap",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/search",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/pause",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/unpause",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/pause",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/consume",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/unpause",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/bootstrap",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/resume",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/throw",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/throw",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/throw",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/throw",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 409
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/resume",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/pause",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/7b49c09f-5aad-4636-9726-1d63b45703f0/sync",
+      "status": 200
+    }
+  ],
+  "checks": [
+    "catalog",
+    "anonymous auth",
+    "create",
+    "movement",
+    "search",
+    "pause",
+    "consume retry same key",
+    "reload/resume",
+    "combat",
+    "takeover",
+    "mobile"
+  ],
+  "errors": []
+}

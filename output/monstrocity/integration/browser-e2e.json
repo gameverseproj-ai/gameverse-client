@@ -1,0 +1,451 @@
+{
+  "runId": "12275f87-bef6-4a0c-b88c-caab2924d9f3",
+  "trace": [
+    {
+      "path": "/api/monstrocity/bootstrap",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/bootstrap",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/search",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/pause",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/unpause",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/pause",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/consume",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/unpause",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/bootstrap",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/resume",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/throw",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/throw",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/throw",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/throw",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 409
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/resume",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/pause",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    },
+    {
+      "path": "/api/monstrocity/runs/12275f87-bef6-4a0c-b88c-caab2924d9f3/sync",
+      "status": 200
+    }
+  ],
+  "checks": [
+    "catalog",
+    "anonymous auth",
+    "create",
+    "movement",
+    "search",
+    "pause",
+    "consume retry same key",
+    "reload/resume",
+    "combat",
+    "takeover",
+    "mobile"
+  ],
+  "errors": []
+}

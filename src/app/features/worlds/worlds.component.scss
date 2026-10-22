@@ -7,3 +7,5 @@ h1 { margin: 0; font-size: clamp(28px,5vw,42px); }
 .worlds__grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 24px; }
 .worlds__error { color: #ffc5ce; }
 @media(max-width:650px) { .worlds { padding-top: 28px; } .worlds__grid { grid-template-columns: 1fr; gap: 20px; } }
+
+.monstro-card {display:block;color:#f2e5ca;text-decoration:none;border:1px solid #c7ab7166;border-radius:28px;overflow:hidden;background:#25392d;transition:transform .2s}.monstro-card:hover{transform:translateY(-5px)}.monstro-card:focus-visible{outline:3px solid #e6c789;outline-offset:4px}.monstro-card__art{height:clamp(180px,30vw,320px);background:url('/assets/monstrocity/cover.png') center/cover}.monstro-card__body{padding:24px}.monstro-card h2{font:28px Georgia,serif;margin:0 0 12px}.monstro-card span{font-size:13px;color:#c2c6b2}.monstro-card strong{display:block;margin-top:18px;font-size:14px;color:#e4c68e}@media(max-width:650px){.monstro-card__art{height:170px}}

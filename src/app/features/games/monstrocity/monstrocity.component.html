@@ -1,0 +1,68 @@
+<section class="monstro" [class.in-combat]="!!combat">
+ <canvas #canvas class="city" [attr.aria-label]="'Monstrocity courtyard' | t"></canvas>
+ <div class="vignette"></div>
+ @if (foundLoot().length && started()) {
+  @for (rewards of [foundLoot()]; track rewards) {
+  <div class="loot-reveal" role="status" aria-live="polite"><strong>{{ 'Found supplies' | t }}</strong><div class="loot-rewards">
+   @for (reward of rewards; track reward.itemId) {
+    <div class="loot-reward"><svg viewBox="0 0 48 48" aria-hidden="true">
+     @switch (reward.itemId) {
+      @case ('food') {<path fill="#d7a15c" stroke="#ffe0a2" stroke-width="2" d="M7 32c-4-9 6-20 17-20s20 8 17 17c-2 8-30 12-34 3Z"/><path d="m17 16 3 8m6-10 3 8m5-6 3 7" stroke="#8d603b" stroke-width="3" stroke-linecap="round"/>}
+      @case ('water') {<path fill="#5fa8b9" stroke="#c5edf0" stroke-width="2" d="M19 8h10v9l5 7v14H14V24l5-7Z"/><path d="M18 28h12M19 8h10" stroke="#e3d6ad" stroke-width="4"/>}
+      @case ('sword') {<path d="m32 6 9-1-1 9-19 20-7-7Z" fill="#c4d4cf" stroke="#f1f4d8"/><path d="m10 25 14 14m-8-7-9 10" stroke="#cfac65" stroke-width="5" stroke-linecap="round"/>}
+     }
+    </svg><span>{{ (reward.itemId === 'food' ? 'Food' : reward.itemId === 'water' ? 'Water' : 'Sword') | t }}</span><b>+{{ reward.count }}</b></div>
+   }
+  </div><small>{{ 'Added to your bag' | t }}</small></div>
+  }
+ }
+
+ @if (!started()) {
+  <div class="welcome">
+   <a routerLink="/worlds" class="back">← {{ 'Worlds' | t }}</a>
+   <div class="welcome-art"></div>
+   <div class="welcome-copy"><small>{{ 'A city worth surviving.' | t }}</small><h1>Monstrocity</h1><p>{{ 'Find shelter. Follow the light. Make it to another morning.' | t }}</p>
+    <div class="preview-label" [hidden]="!api.local">{{ 'Playable preview · saved on this device' | t }}</div>
+    <p class="controls-note">{{ 'Left thumb to walk. Drag on the right to look around.' | t }}</p>
+   </div>
+   <div class="avatar-selection">
+    <app-monstrocity-avatar [female]="hero() === 'female'" [disabled]="busy() || loading() || !!error()" [locked]="run?.status === 'active'" (changeAvatar)="choose(hero() === 'female' ? 'male' : 'female')" (enter)="begin()" />
+    <div class="avatar-caption" aria-live="polite"><strong>{{ (hero() === 'female' ? 'Female explorer' : 'Male explorer') | t }}</strong>
+     <p>{{ (loading() ? 'Preparing the courtyard…' : busy() ? 'Opening your journey…' : run?.status === 'active' ? 'Double tap your explorer to continue' : 'Double tap your explorer to begin') | t }}</p>
+     @if (run?.status !== 'active') {<small>↔ {{ 'Swipe to change explorer' | t }}</small>}
+    </div>
+   </div>
+  </div>
+ } @else {
+  <header class="hud"><div class="hud-left"><a routerLink="/worlds" class="icon" [attr.aria-label]="'Back to Worlds' | t">←</a><div class="vitals"><div><b>{{ 'Day {0}' | t:[dayLabel] }}</b><span>{{ phaseLabel | t }} · {{ phaseClock }}</span></div><div class="energy"><span>{{ 'Energy' | t }}</span><meter min="0" [max]="config()?.energyMax ?? 100" [value]="energy" [attr.aria-label]="'Energy' | t"></meter><strong>{{ energy }}</strong></div></div></div><nav><button (click)="openModal('map', $event)" [disabled]="busy() || !!modal()">{{ 'Map' | t }}</button><button (click)="openModal('inventory', $event)" [disabled]="busy() || !!modal()">{{ 'Bag' | t }}</button><button class="music-toggle" (click)="toggleMusic()" [attr.aria-pressed]="!musicMuted()" [attr.aria-label]="(musicMuted() ? 'Enable music' : 'Mute music') | t" [title]="(musicMuted() ? 'Enable music' : 'Mute music') | t">{{ musicMuted() ? '♪ ×' : '♪' }}</button></nav></header>
+  @if (run?.status === 'active') {
+   @if (!combat) {
+    <div class="camera-zone" (pointerdown)="cameraDown($event)" (pointermove)="cameraMove($event)" (pointerup)="cameraUp($event)" (pointercancel)="cameraUp($event)" (lostpointercapture)="cameraUp($event)"></div>
+    <div class="stick-zone" (pointerdown)="stickDown($event)" (pointermove)="stickMove($event)" (pointerup)="stickUp($event)" (pointercancel)="stickUp($event)" (lostpointercapture)="stickUp($event)"><div class="stick"><i [style.transform]="'translate(' + joystick().x * 30 + 'px,' + joystick().y * 30 + 'px)' "></i></div><span>{{ 'Move' | t }}</span></div>
+    <div class="explore-status">@if (run?.shelterId) {<span class="safe">◇ {{ 'Inside a shelter' | t }}</span>} @else {<span>{{ 'Explore the courtyard' | t }}</span>}<small [hidden]="!api.local">{{ 'Playable preview · saved on this device' | t }}</small></div>
+    @if (action; as target) {<button class="interact" [disabled]="busy() || !!run?.search" (click)="interact()">{{ (run?.search ? 'Searching…' : target.kind === 'resident' ? 'Talk' : 'Search') | t }} <span>↗</span>@if (run?.search; as search) {<progress [max]="(config()?.searchActiveSeconds ?? 2) * 1000" [value]="(config()?.searchActiveSeconds ?? 2) * 1000 - search.remainingActiveMs"></progress>}</button>}
+    @if (run?.notice; as notice) {<div class="notice" role="status"><strong>{{ (notice.optional ? 'A monster noticed you' : 'An encounter is approaching') | t }}</strong><p>{{ (notice.optional ? 'Move away or hide behind a building.' : 'Get your stones ready.') | t }}</p><progress max="1" [value]="notice.attention"></progress></div>}
+   } @else {
+    <div class="arena" [class.reload-locked]="!canAim" #arena (pointerdown)="aimDown($event)" (pointermove)="aimMove($event)" (pointerup)="aimUp($event)" (pointercancel)="aimUp($event)" (lostpointercapture)="aimUp($event)">
+     <div class="monster" [class.hit]="hit()" [class.won]="combat?.phase === 'won'" [style.left.%]="(combat?.target?.x ?? .5) * 100" [style.top.%]="(combat?.target?.y ?? .2) * 100" [style.width.px]="monsterSize">@for (art of [monsterArt]; track art) {<app-monstrocity-monster [artId]="art" [paused]="paused" [hit]="hit()" [stopped]="combat?.phase !== 'approaching'" role="img" [attr.aria-label]="monsterName | t" />}<span class="monster-hits">{{ 'Hits remaining: {0}' | t:[combat?.hitsRemaining] }}</span></div>
+     @if (aiming(); as aim) {<svg class="trajectory" viewBox="0 0 100 100" preserveAspectRatio="none"><path [attr.d]="'M ' + launchOrigin().x*100 + ' ' + launchOrigin().y*100 + ' Q ' + (launchOrigin().x+aim.x)*50 + ' ' + (aim.y > .22 ? aim.y*100-22 : 0) + ' ' + aim.x*100 + ' ' + aim.y*100"/></svg><span class="reticle" [style.left.%]="aim.x*100" [style.top.%]="aim.y*100"></span>}
+     @if (flight(); as shot) {<span class="stone" [style.left.%]="shot.x*100" [style.top.%]="shot.y*100" [style.transform]="'translate(-50%,-50%) scale(' + shot.scale + ')'"></span>}
+     @if (reloading) {<div class="stone-retrieval" aria-hidden="true"></div>}
+     <div class="throwing-hand" [style.--flight-time]="(config()?.stoneFlightSeconds ?? .45) + 's'" [class.fetching]="reloading" [class.throwing]="!!projectile()" [class.aiming]="!!aiming() || throwQueued()" aria-hidden="true"></div>
+    </div>
+    <div class="approach-meter"><span>{{ 'The monster is approaching' | t }}</span><progress max="1" [value]="approach" [attr.aria-label]="'Distance to the monster' | t"></progress></div><div class="combat-help">{{ (combat?.phase === 'won' ? 'The way is clear.' : reloading ? 'Preparing another stone…' : projectile() ? 'Stone in flight' : throwQueued() ? 'Throw queued…' : 'Hold to aim. Release to throw.') | t }}<small>{{ (throwQueued() ? 'Throw queued…' : reloading ? '' : projectile() ? 'Stone in flight' : 'Stone ready') | t }}</small>@if (reloading) {<progress class="reload-progress" max="1" [value]="reloadProgress" [attr.aria-label]="'Taking a stone from the pouch…' | t"></progress>}</div>
+    @if (combat?.phase === 'sword-window') {<div class="sword-window"><b>{{ 'Last chance' | t }} · {{ ((combat?.swordWindowRemainingMs ?? 0) / 1000).toFixed(1) }}</b><button (click)="sword()" [disabled]="busy() || swordCount === 0">⚔ {{ 'Double tap to use sword' | t }} · {{ swordCount }}</button></div>}
+   }
+   @if (run?.recoveryRemainingActiveMs !== null && recovery > 0) {<div class="recovery" role="status">{{ 'Restore your energy: {0}s' | t:[recovery] }}</div>}
+  }
+  @if (run?.status === 'dead') {<div class="overlay"><section class="result"><small>{{ 'Journey complete' | t }}</small><h2>{{ 'Days survived: {0}' | t:[run?.survivedDays] }}</h2><p>{{ (run?.deathReason === 'disconnected' ? 'You were away from shelter for too long.' : run?.deathReason === 'energy' ? 'Your energy ran out.' : 'The monster reached you.') | t }}</p><strong>{{ 'Best journey: {0} days' | t:[state()?.profile?.bestSurvivedDays] }}</strong><p>{{ 'Found supplies are lost. Unused purchases stay with you.' | t }}</p><button class="primary" (click)="begin()" [disabled]="busy()">{{ 'Begin a new journey' | t }}</button><a routerLink="/worlds">{{ 'Back to Worlds' | t }}</a></section></div>}
+ }
+ @if (modal(); as panel) {<div class="overlay" (click)="backdrop($event)"><section class="monstro-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-heading"><h2 id="modal-title">{{ (panel === 'map' ? 'Map' : panel === 'inventory' ? 'Bag' : 'A friendly face') | t }}</h2><button (click)="closeModal()" [disabled]="busy()" [attr.aria-label]="'Close' | t">×</button></div><p class="pause-label">Ⅱ {{ 'Paused · time and energy are safe' | t }}</p>
+  @if (panel === 'inventory') {<div class="items">@for (item of state()?.profile?.inventory; track item.itemId) {<article><span class="item-icon">{{ item.itemId === 'food' ? '◒' : item.itemId === 'water' ? '◈' : '⚔' }}</span><h3>{{ (item.itemId === 'food' ? 'Food' : item.itemId === 'water' ? 'Water' : 'Sword') | t }}</h3><p>{{ 'Found: {0}' | t:[item.collected] }}<br>{{ 'Purchased: {0}' | t:[item.purchased] }}</p>@if (item.itemId !== 'sword') {<button (click)="consume(item.itemId)" [disabled]="busy() || item.collected + item.purchased === 0 || (run?.energy ?? 100) >= (config()?.energyMax ?? 100)">{{ 'Use' | t }} · +{{ item.itemId === 'food' ? config()?.restoreEnergy?.food : config()?.restoreEnergy?.water }}</button>} @else {<small>{{ 'Use in the last moment of a battle.' | t }}</small>}</article>}</div><p>{{ 'Found supplies are used before purchases.' | t }}</p>}
+  @if (panel === 'map') {<svg class="map" viewBox="-19 -19 38 38" role="img" [attr.aria-label]="'Map of known shelters' | t"><rect x="-19" y="-19" width="38" height="38" fill="#d7c9a7"/>@for (b of buildings; track b.id) {<rect [attr.x]="b.x-b.w/2" [attr.y]="b.z-b.d/2" [attr.width]="b.w" [attr.height]="b.d" rx=".4" fill="#a99b7b" stroke="#86785d" stroke-width=".15"/>}<circle cx="0" cy="0" r="1.5" fill="#819771"/>@for (s of run?.knownShelters; track s.id) {<g [attr.transform]="'translate('+s.position.x+','+s.position.z+')'"><path d="M -1 .8 V -.3 L 0 -1.1 L 1 -.3 V .8 Z" fill="#456751" stroke="#fff1c9" stroke-width=".2"/></g>}<circle [attr.cx]="run?.position?.x" [attr.cy]="run?.position?.z" r=".55" fill="#b46139" stroke="#fff3cd" stroke-width=".2"/></svg><p>{{ 'Only discovered shelters appear here.' | t }}</p>}
+  @if (panel === 'dialogue') {<p class="dialogue">{{ run?.dialogue?.textKey | t }}</p><button class="primary" (click)="closeModal()" [disabled]="busy()">{{ 'Thank you' | t }}</button>}
+ </section></div>}
+ @if (toast()) {<div class="toast" role="status">{{ toast() | t }}</div>}
+ @if (error()) {<div class="overlay error-overlay"><section class="result" role="alert"><h2>{{ 'A moment, explorer' | t }}</h2><p>{{ error() | t }}</p>@if (run?.status === 'active') {<button class="primary" (click)="reconnect(error() === 'This journey is open in another tab.')" [disabled]="busy()">{{ 'Reconnect' | t }}</button>}<a routerLink="/worlds">{{ 'Back to Worlds' | t }}</a></section></div>}
+ <div class="rotate-hint">↻ {{ 'Turn your phone sideways for a wider view.' | t }}</div>
+</section>

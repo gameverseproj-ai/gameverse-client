@@ -12,7 +12,12 @@
     <p class="worlds__error">{{ (err) | t }}</p>
   }
 
+  @if (worldFacade.standaloneError()) {<p class="worlds__error">{{ 'Standalone games could not load.' | t }} <button (click)="worldFacade.loadWorlds()">{{ 'Retry' | t }}</button></p>}
   <div class="worlds__grid">
+    @if (monstrocity; as game) {<a class="monstro-card" [routerLink]="game.launchRoute">
+      <div class="monstro-card__art"></div>
+      <div class="monstro-card__body"><h2>Monstrocity</h2><span>{{ 'A city worth surviving.' | t }}</span><strong>{{ 'Begin a new journey' | t }} ↗</strong></div>
+    </a>}
     @for (world of worldFacade.worlds(); track world.id) {
       <app-world-card [world]="world" />
     } @empty {

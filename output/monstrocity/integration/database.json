@@ -1,0 +1,27 @@
+{
+  "runId": "12275f87-bef6-4a0c-b88c-caab2924d9f3",
+  "status": "active",
+  "configVersion": "monstrocity-v1",
+  "revision": 107,
+  "sessionStatus": "disconnected",
+  "items": [
+    {
+      "itemId": "food",
+      "collected": 0,
+      "purchased": 0
+    },
+    {
+      "itemId": "water",
+      "collected": 1,
+      "purchased": 0
+    },
+    {
+      "itemId": "sword",
+      "collected": 0,
+      "purchased": 0
+    }
+  ],
+  "monstersFought": [
+    "mossback"
+  ]
+}

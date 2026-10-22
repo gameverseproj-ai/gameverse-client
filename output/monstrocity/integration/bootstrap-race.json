@@ -1,0 +1,53 @@
+[
+  [
+    {
+      "status": 500,
+      "code": "INTERNAL_ERROR"
+    },
+    {
+      "status": 200
+    },
+    {
+      "status": 500,
+      "code": "INTERNAL_ERROR"
+    },
+    {
+      "status": 500,
+      "code": "INTERNAL_ERROR"
+    }
+  ],
+  [
+    {
+      "status": 500,
+      "code": "INTERNAL_ERROR"
+    },
+    {
+      "status": 200
+    },
+    {
+      "status": 500,
+      "code": "INTERNAL_ERROR"
+    },
+    {
+      "status": 500,
+      "code": "INTERNAL_ERROR"
+    }
+  ],
+  [
+    {
+      "status": 200
+    },
+    {
+      "status": 500,
+      "code": "INTERNAL_ERROR"
+    },
+    {
+      "status": 500,
+      "code": "INTERNAL_ERROR"
+    },
+    {
+      "status": 500,
+      "code": "INTERNAL_ERROR"
+    }
+  ]
+]

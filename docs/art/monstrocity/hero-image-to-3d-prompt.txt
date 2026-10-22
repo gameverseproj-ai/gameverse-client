@@ -1,0 +1,33 @@
+Built-in image_gen; stylized-concept; transparent full-body reference for image-to-3D.
+
+undefined
+
+Edit 1 — male A-pose (built-in image_gen, male-concept-v1.png reference):
+Preserve face, hair, outfit, backpack, materials and colors. Face straight forward, head level, parallel feet, symmetrical relaxed A-pose with arms 18 degrees from torso and empty hands. Full body, 5% margins. Remove backdrop and glow, transparent alpha, neutral studio lighting.
+
+Edit 2 — female variant (built-in image_gen, male-concept-v1.png style/costume reference):
+Matching young adult woman explorer, natural confident face, hazel eyes, chestnut hair in a practical loose braid. Same premium restrained stylization, petrol-green jacket, ivory shirt, ochre scarf, slate trousers, leather boots and backpack. Full-body neutral A-pose with visible hands and feet. Transparent background requested, neutral lighting. No text or pedestal.
+
+Outputs above are concept/reference PNGs. Generated soft background/halo remains visible and should be removed by the reconstruction service's foreground segmentation; do not claim clean cutout verification.
+
+2026-10-21 — Tripo Studio generation:
+Input: hero-references/male-a-pose-v2.png.
+Model: H3.1 Best Quality, HD Model, Geometry & Texture; public visibility.
+Task: eed6d7d1-49c0-4fbd-87f4-b97775ff0af8
+URL: https://studio.tripo3d.ai/workspace/generate/eed6d7d1-49c0-4fbd-87f4-b97775ff0af8
+Completed successfully; 55 credits used, 145 remaining.
+UI reports 1,973,534 triangle faces and 1,020,603 vertices. This is a high-resolution source requiring reduction before mobile integration.
+Screenshot: output/monstrocity/tripo-male-generated.png.
+Selected GLB export with current 4K textures, but Export opened a subscription gate: "Upgrade to export ready-to-use 3D assets in multiple formats".
+Evidence: output/monstrocity/tripo-export-blocked.png.
+No subscription purchased. No GLB downloaded, rig generated, or client model replaced. Female generation deferred until export access is resolved. Tripo CLI remains unauthenticated; Studio login does not establish API authentication.
+
+2026-10-21 — Female generation completed following explicit user request to generate both and download later:
+Input: hero-references/female-a-pose-v1.png.
+Model: H3.1 Best Quality, Geometry & Texture; public visibility.
+Task: dd945d9e-13c0-4196-a472-d851b3c5275a
+URL: https://studio.tripo3d.ai/workspace/generate/dd945d9e-13c0-4196-a472-d851b3c5275a
+Completed successfully; 55 additional credits used, 90 remaining after both generations.
+UI reports 1,962,415 triangle faces and 1,018,651 vertices.
+Screenshot: output/monstrocity/tripo-female-generated.png.
+Both original models are saved in Tripo Assets. Download deferred to user; no client integration or rigging performed yet.

@@ -80,4 +80,19 @@ describe('recorded music', () => {
     expect(r.visit('/games/snake?page=leaderboard')).toBeFalse();
     expect(r.visit('/world')).toBeTrue();
   });
+  it('yields to an exclusive game soundtrack and restores preferences on release', () => {
+    service.choose('lounge');
+    const preferences = service.preferences();
+    const release = service.reserveSoundtrack();
+    player.play.calls.reset(); api.saveMusicPreferences.calls.reset();
+    service.unlock(); service.nextTrack();
+    expect(player.play).not.toHaveBeenCalled();
+    expect(api.saveMusicPreferences).not.toHaveBeenCalled();
+    expect(service.preferences()).toEqual(preferences);
+    release();
+    expect(player.play).toHaveBeenCalled();
+    player.play.calls.reset(); release();
+    expect(player.play).not.toHaveBeenCalled();
+  });
+
 });

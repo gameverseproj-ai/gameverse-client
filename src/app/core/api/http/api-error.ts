@@ -11,6 +11,8 @@ export class ApiError extends Error {
     readonly status: number,
     /** An alternative the server offers, e.g. a free variant of a taken username. */
     readonly suggestion: string | null = null,
+    /** Original structured body for feature-specific recovery (e.g. a run snapshot). */
+    readonly body: unknown = null,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -27,5 +29,5 @@ interface ServerError {
 export function toApiError(status: number, body: unknown, fallback: string): ApiError {
   const payload = (body ?? {}) as ServerError;
   const message = payload.message || payload.error || fallback;
-  return new ApiError(message, payload.code ?? null, status, payload.suggestion ?? null);
+  return new ApiError(message, payload.code ?? null, status, payload.suggestion ?? null, body);
 }

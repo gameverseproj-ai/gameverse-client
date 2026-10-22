@@ -1,7 +1,9 @@
+import { MONSTROCITY_CATALOG } from './monstrocity.catalog';
 import { TENNIS_CATALOG } from './tennis.catalog';
 // English source messages and their translations. Parameters use {0}, {1}, etc.
 export const CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
   ...TENNIS_CATALOG,
+  ...MONSTROCITY_CATALOG,
 "Sign in to sync your progress.": {"ru":"Войдите, чтобы синхронизировать прогресс.","he":"היכנסו כדי לסנכרן את ההתקדמות.","ar":"سجّل الدخول لمزامنة تقدمك."},
 "Account connected": {"ru":"Аккаунт подключён","he":"החשבון מחובר","ar":"الحساب متصل"},
 "Save username": {"ru":"Сохранить имя","he":"שמירת שם משתמש","ar":"حفظ اسم المستخدم"},

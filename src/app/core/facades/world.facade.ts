@@ -1,11 +1,13 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { WORLD_API } from '../api/world.api';
+import { WORLD_API, StandaloneGame } from '../api/world.api';
 import { World, WorldProgress } from '../models/world.model';
 
 @Injectable({ providedIn: 'root' })
 export class WorldFacade {
   private readonly api = inject(WORLD_API);
 
+  readonly standalone = signal<StandaloneGame[]>([]);
+  readonly standaloneError = signal(false);
   readonly worlds        = signal<World[]>([]);
   readonly currentWorld  = signal<World | null>(null);
   readonly worldProgress = signal<WorldProgress | null>(null);
@@ -15,6 +17,8 @@ export class WorldFacade {
   loadWorlds(): void {
     this.loading.set(true);
     this.error.set(null);
+    this.standaloneError.set(false);
+    this.api.getStandaloneGames?.().subscribe({next: games => this.standalone.set(games), error: () => {this.standalone.set([]); this.standaloneError.set(true);}});
     this.api.getWorlds().subscribe({
       next:  (worlds) => { this.worlds.set(worlds); this.loading.set(false); },
       error: (err)    => { this.error.set(err?.message ?? 'Failed to load worlds'); this.loading.set(false); },

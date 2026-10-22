@@ -1,0 +1,27 @@
+[
+  {
+    "test": "death crossed during command",
+    "status": 409,
+    "code": "RUN_DEAD",
+    "errorSnapshotStatus": "dead",
+    "database": "active:0.01",
+    "readStatus": "active",
+    "runId": "0ca177ab-cc76-4d28-aebe-4fac71430671"
+  },
+  {
+    "test": "disconnected run settled by background sweep",
+    "databaseAfter35Seconds": "active",
+    "statusAfterRead": "dead",
+    "reason": "disconnected",
+    "runId": "f3704cf2-a1ba-49ab-b458-3fcd1f6f1c83"
+  },
+  {
+    "test": "concurrent first bootstrap",
+    "bootstrapStatuses": [
+      500,
+      200,
+      500,
+      500
+    ]
+  }
+]

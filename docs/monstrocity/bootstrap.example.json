@@ -1,0 +1,165 @@
+{
+  "config": {
+    "version": "monstrocity-v2",
+    "mapVersion": "courtyard-v1",
+    "assetManifestVersion": "art-v1",
+    "phaseSeconds": {
+      "day": 240,
+      "evening": 120,
+      "night": 240,
+      "morning": 120
+    },
+    "energyMax": 100,
+    "onlineEnergyPerSecond": 0.08,
+    "restoreEnergy": {
+      "food": 30,
+      "water": 18
+    },
+    "outsideDisconnectGraceSeconds": 120,
+    "recoveryActiveSeconds": 60,
+    "stoneCooldownSeconds": 0.9,
+    "stoneFlightSeconds": 0.45,
+    "encounterWarningSeconds": 1.5,
+    "combatResultHoldSeconds": 1.2,
+    "searchActiveSeconds": 2,
+    "moveUnitsPerSecond": 3.2,
+    "interactionRadius": 1.8,
+    "shelterRadius": 2,
+    "noticeSeconds": 4,
+    "escapeDistance": 9,
+    "loseSightSeconds": 1.5,
+    "swordLootProbability": 0.04,
+    "lootTableVersion": "loot-v1",
+    "monsters": [
+      {
+        "id": "mossback",
+        "artId": "mossback",
+        "hitsToDefeat": 4,
+        "approachSeconds": 24,
+        "motion": "straight",
+        "swordWindowSeconds": 3,
+        "hitRadius": 0.13,
+        "motionAmplitude": 0,
+        "motionPeriodSeconds": 4
+      },
+      {
+        "id": "twigwalker",
+        "artId": "twigwalker",
+        "hitsToDefeat": 3,
+        "approachSeconds": 20,
+        "motion": "zigzag",
+        "swordWindowSeconds": 3,
+        "hitRadius": 0.1,
+        "motionAmplitude": 0.22,
+        "motionPeriodSeconds": 3
+      }
+    ],
+    "difficulty": [
+      {
+        "fromDay": 0,
+        "encountersPerActiveMinute": 0.6,
+        "monsterWeights": {
+          "mossback": 1,
+          "twigwalker": 0.3
+        },
+        "optionalEncounterProbability": 0.65
+      },
+      {
+        "fromDay": 3,
+        "encountersPerActiveMinute": 0.85,
+        "monsterWeights": {
+          "mossback": 1,
+          "twigwalker": 0.7
+        },
+        "optionalEncounterProbability": 0.6
+      }
+    ],
+    "fog": {
+      "chancePerPhase": 0.2,
+      "durationSeconds": 75
+    },
+    "transport": {
+      "inputTickMs": 50,
+      "syncIntervalMs": 250,
+      "maxBatchFrames": 10,
+      "disconnectAfterSeconds": 5
+    }
+  },
+  "snapshot": {
+    "serverTime": "2026-10-20T12:00:00Z",
+    "profile": {
+      "character": "female",
+      "bestSurvivedDays": 3,
+      "inventory": [
+        {
+          "itemId": "food",
+          "collected": 1,
+          "purchased": 0
+        },
+        {
+          "itemId": "water",
+          "collected": 1,
+          "purchased": 2
+        },
+        {
+          "itemId": "sword",
+          "collected": 0,
+          "purchased": 1
+        }
+      ]
+    },
+    "run": {
+      "id": "run-example",
+      "revision": 1,
+      "configVersion": "monstrocity-v2",
+      "mapVersion": "courtyard-v1",
+      "status": "active",
+      "activeElapsedMs": 0,
+      "survivedDays": 0,
+      "phase": "day",
+      "phaseRemainingMs": 240000,
+      "energy": 100,
+      "position": {
+        "x": 0,
+        "z": 0
+      },
+      "shelterId": "shelter-start",
+      "recoveryRemainingActiveMs": null,
+      "knownShelters": [
+        {
+          "id": "shelter-start",
+          "position": {
+            "x": 0,
+            "z": 0
+          },
+          "source": "start"
+        }
+      ],
+      "nearby": [
+        {
+          "id": "crate-start",
+          "position": {
+            "x": 1,
+            "z": 0
+          },
+          "kind": "container",
+          "state": "available"
+        }
+      ],
+      "notice": null,
+      "search": null,
+      "dialogue": null,
+      "combat": null,
+      "fogRemainingActiveMs": 0,
+      "deathReason": null
+    },
+    "session": {
+      "id": "session-example",
+      "status": "active",
+      "pauseReason": null,
+      "lastAcceptedInputSequence": 0,
+      "lastSeenAt": "2026-10-20T12:00:00Z",
+      "outsideReturnDeadline": null
+    }
+  }
+}

@@ -1,0 +1,10 @@
+import { MonstrocityScene } from '../../../src/app/features/games/monstrocity/monstrocity.scene';
+import { LocalMonstrocityApi } from '../../../src/app/features/games/monstrocity/monstrocity-local.api';
+const canvas=document.querySelector('canvas')!,scene=new MonstrocityScene(canvas);
+const storage={getItem:()=>null,setItem:()=>{}};
+const api=new LocalMonstrocityApi(storage,Date.now,()=>0);
+const state=await api.create({character:'male',configVersion:api.config.version},crypto.randomUUID());
+state.run!.position={x:-7,z:-4.5};state.run!.combat=null;state.run!.nearby=[{id:'crate-start',kind:'container',state:'available',position:{x:-7,z:-5.8}}];
+let prev=performance.now();function render(now:number){scene.resize(canvas.clientWidth,canvas.clientHeight);scene.render(state,Math.min(.05,(now-prev)/1000),false);prev=now;requestAnimationFrame(render)}requestAnimationFrame(render);
+document.querySelector('#search')!.addEventListener('click',()=>{state.run!.search={targetId:'crate-start',remainingActiveMs:2000};document.querySelector('#result')!.textContent='Обыск: крышка открывается, персонаж ищет припасы.';});
+document.querySelector('#finish')!.addEventListener('click',()=>{state.run!.search=null;state.run!.nearby[0].state='searched';document.querySelector('#result')!.textContent='Найдено: вода +1 · еда +1';});
