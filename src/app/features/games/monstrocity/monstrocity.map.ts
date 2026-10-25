@@ -22,10 +22,42 @@ export const BUILDINGS: Building[] = [
 export const SHELTER_CANDIDATES = [{ x: -9, z: -6.8 }, { x: 0, z: -8.2 }, { x: 10, z: -6.8 }, { x: -10, z: 11 }, { x: 11, z: 6.8 }];
 export const CONTAINERS = [{ id: 'crate-start', x: -7, z: -5.8 }, { id: 'pantry', x: -9, z: 11 }, { id: 'crate-east', x: 8, z: -5.5 }, { id: 'crate-south', x: 7, z: 7 }, { id: 'crate-west', x: -8, z: 3 }, { id: 'cabinet', x: 2, z: -8 }];
 export const RESIDENTS = [{ id: 'gardener', x: 3, z: 3 }, { id: 'keeper', x: -5, z: -6 }];
-export function blocked(p: Point): boolean {
-    if (Math.abs(p.x) > 17 || Math.abs(p.z) > 17)
+export interface District {id:string;name:string;x:number;z:number;park?:boolean}
+export const DISTRICTS: District[] = [
+ {id:'old-town',name:'Old town',x:0,z:0},
+ {id:'market',name:'Market quarter',x:-42,z:0},
+ {id:'workshops',name:'Workshop quarter',x:42,z:0},
+ {id:'gardens',name:'City gardens',x:42,z:-42,park:true},
+ {id:'station',name:'Station quarter',x:-42,z:42},
+ {id:'library-quarter',name:'Library quarter',x:0,z:-42},
+ {id:'canal',name:'Canal quarter',x:0,z:42},
+ {id:'north-gate',name:'North gate',x:-42,z:-42},
+ {id:'south-gate',name:'South gate',x:42,z:42},
+];
+const cityBuildings:Building[]=[...BUILDINGS];
+const cityContainers=[...CONTAINERS],cityResidents=[...RESIDENTS],cityShelters=[...SHELTER_CANDIDATES];
+for(const [index,q] of DISTRICTS.slice(1).entries()){
+ const palette=[0xbca98b,0xaab3a0,0xb7a697,0xc2b394];
+ for(const [i,[dx,dz]] of [[-11,-11],[11,-11],[-11,11],[11,11]].entries()){
+  if(q.park && i>1)continue;
+  cityBuildings.push({id:'city-'+q.id+'-'+i,x:q.x+dx,z:q.z+dz,w:8+(index%3),d:7+(i%2)*2,h:4.8+((index+i)%3)*1.2,color:palette[(index+i)%4],interior:i===0 || (index%3===1 && i===3)});
+ }
+ for(const [i,[dx,dz]] of [[-5,-3],[5,4],[-4,7],[6,-5]].entries())cityContainers.push({id:q.id+'-cache-'+i,x:q.x+dx,z:q.z+dz});
+ cityResidents.push({id:q.id+'-resident',x:q.x-2,z:q.z+1});
+ cityShelters.push({x:q.x+2,z:q.z+5});
+}
+for(const b of cityBuildings)if(b.interior && b.id!=='room')cityContainers.push({id:b.id+'-cupboard',x:b.x+1,z:b.z-1});
+export const CITY_MAP_VERSION='city-v2';
+export function mapFor(version='courtyard-v1'){
+ const expanded=version===CITY_MAP_VERSION;
+ return {version,extent:expanded?67:17,buildings:expanded?cityBuildings:BUILDINGS,containers:expanded?cityContainers:CONTAINERS,residents:expanded?cityResidents:RESIDENTS,shelters:expanded?cityShelters:SHELTER_CANDIDATES,districts:expanded?DISTRICTS:DISTRICTS.slice(0,1)};
+}
+export function indoorContainerIds(map:ReturnType<typeof mapFor>){return map.containers.filter(c=>map.buildings.some(b=>b.interior && Math.abs(c.x-b.x)<b.w/2 && Math.abs(c.z-b.z)<b.d/2)).map(c=>c.id);}
+export type CityMap=ReturnType<typeof mapFor>;
+export function blocked(p: Point, map=mapFor()): boolean {
+    if (Math.abs(p.x) > map.extent || Math.abs(p.z) > map.extent)
         return true;
-    for (const b of BUILDINGS) {
+    for (const b of map.buildings) {
         if (b.interior) {
             // Front doorway is 2 units wide; room is accessible and shares the scene geometry.
             const dx = p.x - b.x, dz = p.z - b.z;
@@ -39,7 +71,7 @@ export function blocked(p: Point): boolean {
         else if (Math.abs(p.x - b.x) < b.w / 2 + .28 && Math.abs(p.z - b.z) < b.d / 2 + .28)
             return true;
     }
-    if (CONTAINERS.some(c => distance(c, p) < .5))
+    if (map.containers.some(c => distance(c, p) < .5))
         return true;
     if (Math.abs(p.x - 15) < 1.35 && Math.abs(p.z + 7) < 2.85)
         return true;
@@ -49,17 +81,18 @@ export function blocked(p: Point): boolean {
     return Math.hypot(p.x, p.z) < 1.5; // planted fountain island
 }
 export const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.z - b.z);
-export function movePoint(p: Point, x: number, z: number): Point {
+export function movePoint(p: Point, x: number, z: number, map=mapFor()): Point {
     const next = { ...p };
-    if (!blocked({ x: p.x + x, z: p.z }))
+    if (!blocked({ x: p.x + x, z: p.z },map))
         next.x += x;
-    if (!blocked({ x: next.x, z: p.z + z }))
+    if (!blocked({ x: next.x, z: p.z + z },map))
         next.z += z;
     return next;
 }
-export function lineBlocked(a: Point, b: Point): boolean {
-    for (let i = 1; i < 20; i++)
-        if (blocked({ x: a.x + (b.x - a.x) * i / 20, z: a.z + (b.z - a.z) * i / 20 }))
+export function lineBlocked(a: Point, b: Point, map=mapFor()): boolean {
+    const steps=Math.max(20,Math.ceil(distance(a,b)/.4));
+    for (let i = 1; i < steps; i++)
+        if (blocked({ x: a.x + (b.x - a.x) * i / steps, z: a.z + (b.z - a.z) * i / steps },map))
             return true;
     return false;
 }

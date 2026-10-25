@@ -130,7 +130,13 @@ export class OnlineMatch {
     this.pendingAim = Math.max(-1, Math.min(1, aim));
   }
 
-  /** The next frame to send; the swing goes out once. */
+  private autoReturnReady(): boolean {
+    const velocity=this.latest?.ball.velocity.z ?? 0;
+    return this.sport==='tennis' && this.phase==='rally' && this.mirror(velocity)>0
+      && this.state.z>=4 && this.state.z<=7.4 && Math.abs(this.state.x-this.state.player)<1.5;
+  }
+
+  /** Tennis returns are automatic; the server still checks actual contact and reach. */
   nextFrame(): InputFrame {
     const gap = this.target - this.state.player;
     const moveX =
@@ -139,7 +145,7 @@ export class OnlineMatch {
       sequence: ++this.sequence,
       clientTick: this.sequence,
       moveX: this.mirror(moveX),
-      swing: this.pendingSwing,
+      swing: this.pendingSwing !== 'none' ? this.pendingSwing : this.autoReturnReady() ? 'flat' : 'none',
       aimX: this.mirror(this.pendingAim),
     };
     this.pendingSwing = 'none';

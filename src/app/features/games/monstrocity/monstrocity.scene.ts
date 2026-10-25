@@ -1,22 +1,35 @@
+import { residentPose, residentRoute } from './monstrocity-residents';
+import { worldInput } from './monstrocity.input';
 import { createExplorer } from './monstrocity-explorer';
 import * as T from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { BUILDINGS, CONTAINERS, RESIDENTS, SHELTER_CANDIDATES } from './monstrocity.map';
+import { BUILDINGS, mapFor } from './monstrocity.map';
 import { Snapshot } from './monstrocity.types';
 /** Authored modular courtyard. Static geometry is batched by material; no other world's art is reused. */
 export class MonstrocityScene {
     private world = new T.Scene();
     private camera = new T.OrthographicCamera(-15, 15, 10, -10, .1, 150);
+    private followCamera = new T.PerspectiveCamera(58, 1, .1, 150);
+    private cameraMode: 'overhead' | 'follow' = 'overhead';
+    private followYaw = Math.PI;
+    private followYawGoal = Math.PI;
+    private followViewYaw?: number;
+    private followHeight = 4.2;
+    private followPosition = new T.Vector3();
+    private followReady = false;
+    private cameraRay = new T.Raycaster();
+    private cameraObstacles: T.Mesh[] = [];
     private fightCamera = new T.PerspectiveCamera(55, 1, .1, 120);
     private renderer: T.WebGLRenderer;
     private materials = new Map<string, T.MeshStandardMaterial>();
     private staticMeshes: T.Mesh[] = [];
-    private roof = new T.Group();
-    private roomWalls = new T.Group();
+    private interiors: {building:typeof BUILDINGS[number];roof:T.Group;walls:T.Group}[] = [];
     private player = new T.Group();
     private limbs: T.Group[] = [];
     private npcs: T.Group[] = [];
+    private npcTime=0;
+    private npcRun='';
     private lights: T.Mesh[] = [];
     private markers: T.Group[] = [];
     private lootCrates = new Map<string,{outline:T.LineSegments;lid:T.Group}>();
@@ -44,7 +57,9 @@ export class MonstrocityScene {
     private frameSample = 0;
     private sampleTime = 0;
     private warmup = 0;
-    constructor(canvas: HTMLCanvasElement) {
+    private map;
+    constructor(canvas: HTMLCanvasElement, readonly mapVersion='courtyard-v1') {
+        this.map=mapFor(mapVersion);
         this.renderer = new T.WebGLRenderer({ canvas, antialias: window.devicePixelRatio < 2, alpha: false, powerPreference: 'high-performance' });
         this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
         this.renderer.setClearColor(0x9ba8a7);
@@ -54,7 +69,7 @@ export class MonstrocityScene {
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = T.PCFSoftShadowMap;
         this.world.fog = new T.FogExp2(0x9ba8a7, .013);
-        this.world.add(this.ambient, this.sun);
+        this.world.add(this.ambient, this.sun, this.sun.target);
         this.sun.position.set(-12, 25, 10);
         this.sun.castShadow = true;
         this.sun.shadow.mapSize.set(1024, 1024);
@@ -64,25 +79,39 @@ export class MonstrocityScene {
         ground.map = new T.TextureLoader().load('/assets/monstrocity/cobblestone.png');
         ground.map.colorSpace = T.SRGBColorSpace;
         ground.map.wrapS = ground.map.wrapT = T.RepeatWrapping;
-        ground.map.repeat.set(12, 12);
+        ground.map.repeat.set(this.map.extent/1.4, this.map.extent/1.4);
         ground.map.anisotropy = 4;
         ground.bumpMap = ground.map;
         ground.bumpScale = .12;
         this.textures.push(ground.map);
-        this.box(64, .3, 64, 0, -.22, 0, ground);
-        for (let i = -16; i <= 16; i += 4) {
+        this.box(this.map.extent*2+12, .3, this.map.extent*2+12, 0, -.22, 0, ground);
+        for (let i = -this.map.extent+1; i <= this.map.extent-1; i += 4) {
             for (const side of [-1, 1]) {
-                this.box(.12, 1, .12, i, .5, side * 18, 0x576456);
-                this.box(4, .07, .09, i, .9, side * 18, 0x576456);
-                this.box(.12, 1, .12, side * 18, .5, i, 0x576456);
-                this.box(.09, .07, 4, side * 18, .9, i, 0x576456);
+                this.box(.12, 1, .12, i, .5, side * (this.map.extent+1), 0x576456);
+                this.box(4, .07, .09, i, .9, side * (this.map.extent+1), 0x576456);
+                this.box(.12, 1, .12, side * (this.map.extent+1), .5, i, 0x576456);
+                this.box(.09, .07, 4, side * (this.map.extent+1), .9, i, 0x576456);
             }
         }
-        for (const b of BUILDINGS)
+        for (const b of this.map.buildings)
             this.building(b);
         for (const x of [-24, -16, -8, 0, 8, 16, 24]) {
-            this.tree(x, -23);
-            this.tree(x, 23);
+            this.tree(x, -this.map.extent-5);
+            this.tree(x, this.map.extent+5);
+        }
+        if(this.map.extent>17){
+            const plaza=this.mat(0xbcb69d);plaza.map=ground.map.clone();plaza.map.repeat.set(5,5);this.textures.push(plaza.map);
+            // Broad boulevards connect the nine authored neighbourhoods.
+            for(const axis of [-63,-21,21,63]){
+                this.box(5,.025,134,axis,-.04,0,0x7b8077);
+                this.box(134,.025,5,0,-.04,axis,0x7b8077);
+            }
+            for(const q of this.map.districts.slice(1)){
+                this.box(15,.06,16,q.x,-.025,q.z, q.park?0x8c9978:plaza);
+                for(const dx of [-7,7]){this.lamp(q.x+dx,q.z-1);this.bench(q.x+dx,q.z+5);}
+                for(const dx of [-16,16])for(const dz of [-5,5])this.tree(q.x+dx,q.z+dz);
+                if(q.park){for(const dx of [-10,0,10])this.tree(q.x+dx,q.z+13);}
+            }
         }
         this.fountain();
         for (const [x, z] of [[-5, 1], [5, 1], [-4, 6], [7, -4], [-16, -8], [15, 8]])
@@ -91,9 +120,9 @@ export class MonstrocityScene {
             this.lamp(x, z);
         for (const [x, z] of [[-2, 3], [3, -1]])
             this.bench(x, z);
-        for (const p of CONTAINERS)
+        for (const p of this.map.containers)
             this.crate(p.x, p.z, p.id);
-        for (const p of SHELTER_CANDIDATES) {
+        for (const p of this.map.shelters) {
             const marker = new T.Group();
             const ring = new T.Mesh(new T.RingGeometry(.7, .85, 40), new T.MeshBasicMaterial({ color: 0xe4bd68, side: T.DoubleSide, transparent: true, opacity: .65 }));
             ring.rotation.x = -Math.PI / 2;
@@ -112,7 +141,7 @@ export class MonstrocityScene {
         const arrowShape=new T.Shape();arrowShape.moveTo(-.13,.48);arrowShape.lineTo(0,.74);arrowShape.lineTo(.13,.48);arrowShape.closePath();
         const arrow=new T.Mesh(new T.ShapeGeometry(arrowShape),new T.MeshBasicMaterial({color:0xf0d494,side:T.DoubleSide}));arrow.rotation.x=Math.PI/2;arrow.position.y=.03;this.playerMarker.add(arrow);this.world.add(this.playerMarker);
         this.limbs = this.player.children.filter(c => c.name === 'limb') as T.Group[];
-        for (let i = 0; i < RESIDENTS.length; i++) {
+        for (let i = 0; i < this.map.residents.length; i++) {
             const person = this.human(i === 1, true);
             person.scale.setScalar(.94);
             this.world.add(person);
@@ -170,37 +199,45 @@ export class MonstrocityScene {
         return t;
     }
     private building(b: typeof BUILDINGS[number]) {
+        const roomWalls=new T.Group(),roomRoof=new T.Group();
+        if(b.interior)this.interiors.push({building:b,roof:roomRoof,walls:roomWalls});
+        const firstMesh=this.staticMeshes.length;
         const { x, z, w, d, h } = b;
         const wall = this.mat(b.color);
         if (!wall.map)
             wall.map = this.texture('plaster');
         if (b.interior) {
-            this.world.add(this.roomWalls, this.roof);
+            this.world.add(roomWalls, roomRoof);
             this.box(w, .16, d, x, .06, z, 0x81735d);
             const wm = wall.clone();
             wm.transparent = true;
-            this.box(.3, h, d, x - w / 2, h / 2, z, wm, this.roomWalls);
-            this.box(.3, h, d, x + w / 2, h / 2, z, wm, this.roomWalls);
-            this.box(w, h, .3, x, h / 2, z + d / 2, wm, this.roomWalls);
-            this.box((w - 2) / 2, h, .3, x - (w + 2) / 4, h / 2, z - d / 2, wm, this.roomWalls);
-            this.box((w - 2) / 2, h, .3, x + (w + 2) / 4, h / 2, z - d / 2, wm, this.roomWalls);
-            this.box(2, 1, .3, x, h - .5, z - d / 2, wm, this.roomWalls);
+            this.box(.3, h, d, x - w / 2, h / 2, z, wm, roomWalls);
+            this.box(.3, h, d, x + w / 2, h / 2, z, wm, roomWalls);
+            this.box(w, h, .3, x, h / 2, z + d / 2, wm, roomWalls);
+            this.box((w - 2) / 2, h, .3, x - (w + 2) / 4, h / 2, z - d / 2, wm, roomWalls);
+            this.box((w - 2) / 2, h, .3, x + (w + 2) / 4, h / 2, z - d / 2, wm, roomWalls);
+            this.box(2, 1, .3, x, h - .5, z - d / 2, wm, roomWalls);
             this.box(3, .8, 1.1, x - 1, .5, z + 1.5, 0x6e523b);
             this.box(1.5, 1.8, .5, x + 2, 1, z + 2, 0x675b43);
         }
         else
             this.box(w, h, d, x, h / 2, z, wall);
         // Stone plinth, cornice, timber trim and chimney silhouette.
-        this.box(w + .15, .4, d + .15, x, .2, z, 0x8d8876, b.interior ? this.roomWalls : undefined);
-        this.box(w + .4, .2, d + .4, x, h - .12, z, 0xd0c1a0, b.interior ? this.roof : undefined);
-        const roofGroup = b.interior ? this.roof : undefined;
+        if(!b.interior)this.box(w + .15,.4,d + .15,x,.2,z,0x8d8876);
+        else {
+            this.box(.32,.3,d,x-w/2,.15,z,0x8d8876,roomWalls);this.box(.32,.3,d,x+w/2,.15,z,0x8d8876,roomWalls);
+            const trim=this.mat(0xead3a0);trim.emissive.setHex(0x8a6a29);trim.emissiveIntensity=.2;
+            for(const dx of [-1.05,1.05])this.box(.12,2.1,.2,x+dx,1.05,z-d/2-.04,trim,roomWalls);
+        }
+        this.box(w + .4, .2, d + .4, x, h - .12, z, 0xd0c1a0, b.interior ? roomRoof : undefined);
+        const roofGroup = b.interior ? roomRoof : undefined;
         const roofMat = this.mat(0x805a45).clone();
         roofMat.transparent = !!b.interior;
         const roof = this.box(w + .65, .22, d / 2 + .5, x, h + .6, z - d / 4, roofMat, roofGroup);
         roof.rotation.x = -.24;
         const roof2 = this.box(w + .65, .22, d / 2 + .5, x, h + .6, z + d / 4, roofMat, roofGroup);
         roof2.rotation.x = .24;
-        for (let i = -w / 2; i <= w / 2; i += .48)
+        for (let i = -w / 2; !b.id.startsWith('city-') && i <= w / 2; i += .48)
             for (const side of [-1, 1])
                 for (let row = 0; row < Math.ceil(d / 2 / .55); row++) {
                     const offset = .25 + row * .55;
@@ -216,16 +253,16 @@ export class MonstrocityScene {
                 const light = this.mat(0xe8be72);
                 light.emissive.setHex(0xc77f31);
                 light.emissiveIntensity = .5;
-                const pane = this.box(.85, 1.25, .06, wx, wy, z + d / 2 + .03, light, b.interior ? this.roomWalls : undefined);
+                const pane = this.box(.85, 1.25, .06, wx, wy, z + d / 2 + .03, light, b.interior ? roomWalls : undefined);
                 this.lights.push(pane);
-                this.box(1.12, .12, .24, wx, wy - .7, z + d / 2 + .1, 0xd5c6a7, b.interior ? this.roomWalls : undefined);
+                this.box(1.12, .12, .24, wx, wy - .7, z + d / 2 + .1, 0xd5c6a7, b.interior ? roomWalls : undefined);
                 for (const side of [-1, 1]) {
-                    this.box(.32, 1.35, .13, wx + side * .63, wy, z + d / 2 + .13, 0x526455, b.interior ? this.roomWalls : undefined);
+                    this.box(.32, 1.35, .13, wx + side * .63, wy, z + d / 2 + .13, 0x526455, b.interior ? roomWalls : undefined);
                     for (let row = 0; row < 5; row++)
-                        this.box(.3, .035, .05, wx + side * .63, wy - .5 + row * .23, z + d / 2 + .21, 0x697461, b.interior ? this.roomWalls : undefined);
+                        this.box(.3, .035, .05, wx + side * .63, wy - .5 + row * .23, z + d / 2 + .21, 0x697461, b.interior ? roomWalls : undefined);
                 }
-                this.box(.06, 1.25, .09, wx, wy, z + d / 2 + .09, 0x534634, b.interior ? this.roomWalls : undefined);
-                this.box(.9, .06, .09, wx, wy, z + d / 2 + .09, 0x534634, b.interior ? this.roomWalls : undefined);
+                this.box(.06, 1.25, .09, wx, wy, z + d / 2 + .09, 0x534634, b.interior ? roomWalls : undefined);
+                this.box(.9, .06, .09, wx, wy, z + d / 2 + .09, 0x534634, b.interior ? roomWalls : undefined);
             }
         if (!b.interior) {
             for (const side of [-1, 1])
@@ -255,6 +292,7 @@ export class MonstrocityScene {
             this.cylinder(.28, .45, x + dx, .22, z + d / 2 + .7, 0x956e50);
             this.sphere(x + dx, .65, z + d / 2 + .7, .36, .42, .36, 0x63764b);
         }
+        for(const mesh of this.staticMeshes.slice(firstMesh))mesh.userData['cameraBuilding']=b.id;
     }
     private fountain() { this.cylinder(1.45, .45, 0, .2, 0, 0x8b8a79); this.cylinder(1.25, .1, 0, .47, 0, 0x547f7e); this.cylinder(.35, 1.3, 0, 1, 0, 0xb2aa8d); this.cylinder(.8, .17, 0, 1.55, 0, 0xc0b597); }
     private tree(x: number, z: number) {
@@ -296,10 +334,14 @@ export class MonstrocityScene {
     private human(female: boolean, npc = false) { return createExplorer(female, color => this.mat(color), npc); }
     private batch() {
         const groups = new Map<T.Material, T.BufferGeometry[]>();
+        const buildingMaterials=new Map<string,T.Material>();
+        const materialBuildings=new Map<T.Material,string>();
         for (const mesh of this.staticMeshes) {
             mesh.updateMatrix();
             const g = mesh.geometry.clone().applyMatrix4(mesh.matrix);
-            const mat = mesh.material as T.Material;
+            let mat = mesh.material as T.Material;
+            const building=mesh.userData['cameraBuilding'] as string|undefined;
+            if(building){const key=building+mat.uuid;let own=buildingMaterials.get(key);if(!own){own=mat.clone();own.transparent=true;buildingMaterials.set(key,own);materialBuildings.set(own,building);}mat=own;}
             const list = groups.get(mat) ?? [];
             list.push(g);
             groups.set(mat, list);
@@ -313,13 +355,26 @@ export class MonstrocityScene {
                 mesh.castShadow = true;
                 mesh.receiveShadow = true;
                 this.world.add(mesh);
+                if(materialBuildings.has(mat)){mesh.userData['cameraBuilding']=materialBuildings.get(mat);this.cameraObstacles.push(mesh);}
             }
             geoms.forEach(g => g.dispose());
         }
         this.staticMeshes = [];
     }
-    resize(w: number, h: number) { this.renderer.setSize(w, h, false); const half = 11; this.camera.left = -half * w / h; this.camera.right = half * w / h; this.camera.top = half; this.camera.bottom = -half; this.camera.updateProjectionMatrix(); this.fightCamera.aspect = w / h; this.fightCamera.updateProjectionMatrix(); }
-    panBy(x: number, y: number) { this.panGoal.set(T.MathUtils.clamp(this.panGoal.x - x * .025, -5, 5), T.MathUtils.clamp(this.panGoal.y - y * .025, -5, 5)); this.panReleased = Infinity; }
+    resize(w: number, h: number) { this.renderer.setSize(w, h, false); const half = 11; this.camera.left = -half * w / h; this.camera.right = half * w / h; this.camera.top = half; this.camera.bottom = -half; this.camera.updateProjectionMatrix(); this.followCamera.aspect = w / Math.max(1,h); this.followCamera.updateProjectionMatrix(); this.fightCamera.aspect = w / h; this.fightCamera.updateProjectionMatrix(); }
+    setCameraMode(mode: 'overhead' | 'follow') {
+        this.cameraMode=mode;this.followReady=false;
+        this.followYaw=this.followYawGoal=this.player.rotation.y;this.followViewYaw=undefined;
+        this.pan.set(0,0);this.panGoal.set(0,0);
+    }
+    movementInput(x:number,y:number) {
+        if(this.cameraMode==='overhead')return worldInput(x,y);
+        const length=Math.max(1,Math.hypot(x,y)),yaw=this.followViewYaw ?? this.followYaw;
+        return {moveX:(-Math.cos(yaw)*x-Math.sin(yaw)*y)/length,moveZ:(Math.sin(yaw)*x-Math.cos(yaw)*y)/length};
+    }
+    panBy(x: number, y: number) {
+        if(this.cameraMode==='follow'){this.followYawGoal-=x*.006;this.followHeight=T.MathUtils.clamp(this.followHeight+y*.015,2.5,5.5);return;}
+ this.panGoal.set(T.MathUtils.clamp(this.panGoal.x - x * .025, -5, 5), T.MathUtils.clamp(this.panGoal.y - y * .025, -5, 5)); this.panReleased = Infinity; }
     releasePan() { this.panReleased = this.clock; }
     render(s: Snapshot | null, dt: number, paused: boolean) {
         if (this.disposed)
@@ -371,15 +426,11 @@ export class MonstrocityScene {
             this.playerMarker.position.set(this.player.position.x,0,this.player.position.z);
             this.playerMarker.rotation.y=this.player.rotation.y;
             this.playerMarker.visible=!r.combat;
-            const inRoom = Math.abs(r.position.x + 10) < 3.5 && Math.abs(r.position.z - 11) < 3;
-            this.roof.visible = !inRoom;
-            this.roomWalls.traverse(o => { if (o instanceof T.Mesh) {
-                const mat = o.material as T.MeshStandardMaterial;
-                if (mat.transparent) {
-                    mat.opacity = inRoom ? .18 : 1;
-                    mat.depthWrite = !inRoom;
-                }
-            } });
+            for(const interior of this.interiors){
+                const b=interior.building,inRoom=Math.abs(r.position.x-b.x)<b.w/2 && Math.abs(r.position.z-b.z)<b.d/2;
+                interior.roof.visible=!inRoom;
+                interior.walls.traverse(o=>{if(o instanceof T.Mesh){const mat=o.material as T.MeshStandardMaterial;if(mat.transparent){mat.opacity=inRoom?.18:1;mat.depthWrite=!inRoom;}}});
+            }
             const insideKnown = new Set(r.knownShelters.map(x => x.id));
             this.markers.forEach((m, i) => m.visible = insideKnown.has('shelter-' + i));
             const night = r.phase === 'night', evening = r.phase === 'evening';
@@ -391,22 +442,68 @@ export class MonstrocityScene {
                 this.monster.position.set(r.notice.position.x, 1.3, r.notice.position.z);
             this.player.visible = !r.combat;
         }
-        this.npcs.forEach((npc, i) => { npc.visible = !r?.combat; const p = RESIDENTS[i]; npc.position.set(p.x + (paused ? 0 : Math.sin(this.clock * .4 + i) * .2), 0, p.z); });
+        if(this.map.extent>17){const x=Math.round(this.player.position.x/4)*4,z=Math.round(this.player.position.z/4)*4;this.sun.position.set(x-12,25,z+10);this.sun.target.position.set(x,0,z);}
+        if(r && this.npcRun!==r.id){this.npcRun=r.id;this.npcTime=r.activeElapsedMs/1000;}
+        if(r && !paused && !r.combat)this.npcTime+=dt;
+        if(r && Math.abs(this.npcTime-r.activeElapsedMs/1000)>.6)this.npcTime=r.activeElapsedMs/1000;
+        this.npcs.forEach((npc,i)=>{
+            npc.visible=!r?.combat;const p=this.map.residents[i],pose=residentPose(residentRoute(p,this.map),this.npcTime);
+            const near=r?.nearby.find(n=>n.kind==='resident' && n.id===p.id);
+            // Authoritative interaction snapshots win over the ambient route.
+            const position=near?.position ?? pose;
+            const goal=new T.Vector3(position.x,0,position.z);
+            if(!npc.userData['placed']){npc.position.copy(goal);npc.userData['placed']=true;}
+            const before=npc.position.clone();if(!paused)npc.position.lerp(goal,1-Math.exp(-dt*14));
+            const delta=npc.position.clone().sub(before),running=delta.length()>.004 && !paused;
+            if(running)npc.rotation.y=Math.atan2(delta.x,delta.z);
+            npc.rotation.x=running?.08:0;
+            npc.position.y=running?Math.abs(Math.sin(pose.stride))*.065:0;
+            for(const [j,limb] of npc.children.filter(c=>c.name==='limb').entries()){
+                const stride=Math.sin(pose.stride+(j===0||j===3?0:Math.PI));limb.rotation.x=running?stride*.85:0;
+                const knee=limb.getObjectByName('knee');if(knee)knee.rotation.x=running?Math.max(0,-stride)*.95:0;
+            }
+        });
         if (this.clock - this.panReleased > .65)
             this.panGoal.multiplyScalar(Math.exp(-dt * 3));
         this.pan.lerp(this.panGoal, 1 - Math.exp(-dt * 7));
-        this.look.lerp(new T.Vector3(T.MathUtils.clamp(this.player.position.x, -8, 8), 0, T.MathUtils.clamp(this.player.position.z, -8, 8)), 1 - Math.exp(-dt * 5));
+        this.look.lerp(new T.Vector3(T.MathUtils.clamp(this.player.position.x, -this.map.extent+9, this.map.extent-9), 0, T.MathUtils.clamp(this.player.position.z, -this.map.extent+9, this.map.extent-9)), 1 - Math.exp(-dt * 5));
         const panX = (this.pan.x + this.pan.y) * .707, panZ = (-this.pan.x + this.pan.y) * .707;
         this.camera.position.set(this.look.x + panX + 15, 24, this.look.z + panZ + 19);
         this.camera.lookAt(this.look.x + panX, 0, this.look.z + panZ);
+        for(const mesh of this.cameraObstacles){const mat=mesh.material as T.Material;mat.opacity=1;mat.depthWrite=true;}
         if (r?.combat) {
             // Stage the encounter in a clear lane, keeping props out of the aiming silhouette.
             this.fightCamera.position.set(-5, 1.6, -6);
             this.fightCamera.lookAt(-5, 1.4, -16);
             this.renderer.render(this.world, this.fightCamera);
         }
-        else
-            this.renderer.render(this.world, this.camera);
+        else if(this.cameraMode==='follow') {
+            this.followYaw+=Math.atan2(Math.sin(this.followYawGoal-this.followYaw),Math.cos(this.followYawGoal-this.followYaw))*(1-Math.exp(-dt*9));
+            const forward=new T.Vector3(Math.sin(this.followYaw),0,Math.cos(this.followYaw));
+            const anchor=this.player.position.clone();anchor.y=1.2;
+            // Look ahead, placing the explorer below centre and keeping the street visible.
+            const focus=anchor.clone();
+            const desired=anchor.clone().addScaledVector(forward,-7.5);desired.y+=this.followHeight;
+            if(!this.followReady){this.followPosition.copy(desired);this.followReady=true;}
+            else this.followPosition.lerp(desired,1-Math.exp(-dt*6));
+            // Keep the camera behind at a shallow angle. Fade only obstructing buildings;
+            // never orbit to the front or fall back to a vertical view.
+            this.followCamera.position.copy(this.followPosition);
+            this.followViewYaw=this.followYaw;
+            const obstructing=new Set<string>();
+            for(const height of [.15,1.4]) {
+                const body=this.player.position.clone();body.y=height;
+                const direction=body.clone().sub(this.followPosition),distance=direction.length();
+                this.cameraRay.set(this.followPosition,direction.normalize());this.cameraRay.near=.1;this.cameraRay.far=distance;
+                for(const hit of this.cameraRay.intersectObjects(this.cameraObstacles,false))obstructing.add(hit.object.userData['cameraBuilding']);
+                this.cameraRay.set(body,direction.negate());
+                for(const hit of this.cameraRay.intersectObjects(this.cameraObstacles,false))obstructing.add(hit.object.userData['cameraBuilding']);
+            }
+            for(const mesh of this.cameraObstacles)if(obstructing.has(mesh.userData['cameraBuilding'])){const mat=mesh.material as T.Material;mat.opacity=.08;mat.depthWrite=false;}
+            focus.addScaledVector(forward,2);
+            this.followCamera.lookAt(focus);
+            this.renderer.render(this.world,this.followCamera);
+        } else this.renderer.render(this.world, this.camera);
         this.warmup += dt;
         if (this.warmup > 5) {
             this.frameSample++;

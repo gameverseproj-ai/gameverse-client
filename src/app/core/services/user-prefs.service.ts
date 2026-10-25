@@ -6,6 +6,14 @@ export type ExplorerAvatar = 'male' | 'female';
 export class UserPrefsService {
   private readonly session = inject(SessionStore);
   private key(preview: boolean) { return `gameverse.user-prefs.v1.${preview ? 'monstrocity-preview' : this.session.read()?.playerId ?? 'guest'}`; }
+  camera(preview = false): 'overhead' | 'follow' {
+    try { return JSON.parse(localStorage.getItem(this.key(preview)) ?? '{}').monstrocityCamera === 'follow' ? 'follow' : 'overhead'; } catch { return 'overhead'; }
+  }
+  setCamera(value: 'overhead' | 'follow', preview = false): void {
+    try { const key=this.key(preview);let prefs;try { prefs=JSON.parse(localStorage.getItem(key) ?? '{}'); } catch { prefs={}; }
+      localStorage.setItem(key,JSON.stringify({...prefs,monstrocityCamera:value}));
+    } catch { /* Keep the selection in memory when storage is unavailable. */ }
+  }
   avatar(preview = false): ExplorerAvatar | null {
     try { const value = JSON.parse(localStorage.getItem(this.key(preview)) ?? '{}').monstrocityAvatar; return value === 'male' || value === 'female' ? value : null; } catch { return null; }
   }

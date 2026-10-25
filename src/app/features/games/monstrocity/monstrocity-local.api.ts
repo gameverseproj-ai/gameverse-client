@@ -1,7 +1,8 @@
+import { residentPose, residentRoute } from './monstrocity-residents';
 import { LOCAL_CONFIG } from './monstrocity.config';
 import { Command, MonstrocityApi, MonstrocityError } from './monstrocity.api';
 import { Bootstrap, CreateRun, Input, ItemId, Point, Snapshot, Sync } from './monstrocity.types';
-import { CONTAINERS, RESIDENTS, SHELTER_CANDIDATES, distance, movePoint, lineBlocked } from './monstrocity.map';
+import { mapFor, distance, movePoint, lineBlocked } from './monstrocity.map';
 interface Saved {
     state: Snapshot;
     shelters: number[];
@@ -23,7 +24,7 @@ interface Saved {
         snapshot: Snapshot;
     }>;
 }
-export const LOCAL_SAVE_KEY = 'gameverse.monstrocity.preview.v1';
+export const LOCAL_SAVE_KEY = 'gameverse.monstrocity.preview.city-v2';
 export const freshState = (): Snapshot => ({ serverTime: new Date().toISOString(), profile: { character: 'female', bestSurvivedDays: 0, inventory: ['food', 'water', 'sword'].map(itemId => ({ itemId: itemId as ItemId, collected: 0, purchased: 0 })) }, run: null, session: null });
 /** Device-only playable preview. It never modifies the real account, purchases or backend. */
 export class LocalMonstrocityApi implements MonstrocityApi {
@@ -37,7 +38,7 @@ export class LocalMonstrocityApi implements MonstrocityApi {
         if (raw) {
             try {
                 const saved = JSON.parse(raw) as Saved;
-                if (saved.state?.profile?.inventory && saved.state.run?.mapVersion === 'courtyard-v1') {
+                if (saved.state?.profile?.inventory && saved.state.run?.mapVersion === this.config.mapVersion) {
                     this.data = saved;
                     if (this.data.offline === null && this.now() - this.data.last > this.config.transport.disconnectAfterSeconds * 1000)
                         this.data.offline = this.data.last;
@@ -46,6 +47,7 @@ export class LocalMonstrocityApi implements MonstrocityApi {
             catch { /* corrupt preview doesn't affect account */ }
         }
     }
+    private get map() { return mapFor(this.s.run?.mapVersion ?? this.config.mapVersion); }
     private get s() { return this.data.state; }
     private copy() {
         this.s.serverTime = new Date(this.now()).toISOString();
@@ -115,7 +117,7 @@ export class LocalMonstrocityApi implements MonstrocityApi {
             let start = Math.floor(this.random() * 2);
             if (start === previous)
                 start = 1 - start;
-            this.data.shelters = [start, 3, 4];
+            this.data.shelters = [start, 3, 4, ...this.map.shelters.map((_,i)=>i).filter(i=>i>=5)];
             this.data.searched = [];
             this.data.spoken = [];
             this.data.shots = [];
@@ -124,8 +126,8 @@ export class LocalMonstrocityApi implements MonstrocityApi {
             this.data.last = this.now();
             this.data.nextEncounter = 18000;
             this.data.hiddenFor = 0;
-            const p = SHELTER_CANDIDATES[start];
-            this.s.run = { id: crypto.randomUUID(), revision: 0, configVersion: this.config.version, mapVersion: this.config.mapVersion, status: 'active', activeElapsedMs: 0, survivedDays: 0, phase: 'day', phaseRemainingMs: 240000, energy: this.config.energyMax, position: { ...p }, shelterId: 'shelter-' + start, recoveryRemainingActiveMs: null, knownShelters: [{ id: 'shelter-' + start, position: { ...p }, source: 'start' }], nearby: [], notice: null, search: null, dialogue: null, combat: null, fogRemainingActiveMs: 0, deathReason: null };
+            const p = this.map.shelters[start];
+            this.s.run = { id: crypto.randomUUID(), revision: 0, configVersion: this.config.version, mapVersion: this.config.mapVersion, status: 'active', activeElapsedMs: 0, survivedDays: 0, phase: 'day', phaseRemainingMs: this.config.phaseSeconds.day * 1000, energy: this.config.energyMax, position: { ...p }, shelterId: 'shelter-' + start, recoveryRemainingActiveMs: null, knownShelters: [{ id: 'shelter-' + start, position: { ...p }, source: 'start' }], nearby: [], notice: null, search: null, dialogue: null, combat: null, fogRemainingActiveMs: 0, deathReason: null };
             this.openSession();
             this.nearby();
             return this.bump();
@@ -266,12 +268,12 @@ export class LocalMonstrocityApi implements MonstrocityApi {
         const length = Math.hypot(input.moveX, input.moveZ);
         if (length > .01) {
             r.search = null;
-            r.position = movePoint(r.position, input.moveX / Math.max(1, length) * c.moveUnitsPerSecond * dt, input.moveZ / Math.max(1, length) * c.moveUnitsPerSecond * dt);
+            r.position = movePoint(r.position, input.moveX / Math.max(1, length) * c.moveUnitsPerSecond * dt, input.moveZ / Math.max(1, length) * c.moveUnitsPerSecond * dt, this.map);
         }
-        const shelter = this.data.shelters.find(i => distance(r.position, SHELTER_CANDIDATES[i]) < c.shelterRadius);
+        const shelter = this.data.shelters.find(i => distance(r.position, this.map.shelters[i]) < c.shelterRadius);
         r.shelterId = shelter === undefined ? null : 'shelter-' + shelter;
         if (shelter !== undefined && !r.knownShelters.some(s => s.id === r.shelterId))
-            r.knownShelters.push({ id: r.shelterId!, position: { ...SHELTER_CANDIDATES[shelter] }, source: 'exploration' });
+            r.knownShelters.push({ id: r.shelterId!, position: { ...this.map.shelters[shelter] }, source: 'exploration' });
         if (r.search) {
             r.search.remainingActiveMs -= dt * 1000;
             if (r.search.remainingActiveMs <= 0) {
@@ -286,7 +288,7 @@ export class LocalMonstrocityApi implements MonstrocityApi {
         }
         if (r.notice) {
             const n = r.notice;
-            const hidden = lineBlocked(r.position, n.position);
+            const hidden = lineBlocked(r.position, n.position,this.map);
             this.data.hiddenFor = hidden ? this.data.hiddenFor + dt : 0;
             if (n.optional && (r.shelterId || distance(r.position, n.position) > c.escapeDistance || this.data.hiddenFor >= c.loseSightSeconds)) {
                 r.notice = null;
@@ -303,7 +305,7 @@ export class LocalMonstrocityApi implements MonstrocityApi {
         }
         else if (!r.shelterId && !r.search && r.activeElapsedMs >= this.data.nextEncounter) {
             const tier = [...c.difficulty].reverse().find(t => r.survivedDays >= t.fromDay)!;
-            r.notice = { encounterId: crypto.randomUUID(), monsterId: this.config.monsters[0].id, optional: this.random() < tier.optionalEncounterProbability, attention: 0, position: movePoint(r.position, 0, -3) };
+            r.notice = { encounterId: crypto.randomUUID(), monsterId: this.config.monsters[0].id, optional: this.random() < tier.optionalEncounterProbability, attention: 0, position: movePoint(r.position, 0, -3,this.map) };
             this.data.hiddenFor = 0;
         }
     }
@@ -351,7 +353,7 @@ export class LocalMonstrocityApi implements MonstrocityApi {
     else
         this.fail('NO_ITEM'); }
     private nearby() { const r = this.s.run; if (!r)
-        return; r.nearby = [...CONTAINERS.map(p => ({ id: p.id, position: { x: p.x, z: p.z }, kind: 'container' as const, state: this.data.searched.includes(p.id) ? 'searched' as const : 'available' as const })), ...RESIDENTS.map(p => ({ id: p.id, position: { x: p.x, z: p.z }, kind: 'resident' as const, state: 'available' as const }))].filter(p => distance(p.position, r.position) < this.config.interactionRadius); }
+        return; r.nearby = [...this.map.containers.map(p => ({ id: p.id, position: { x: p.x, z: p.z }, kind: 'container' as const, state: this.data.searched.includes(p.id) ? 'searched' as const : 'available' as const })), ...this.map.residents.map(p => ({ id: p.id, position: (({x,z})=>({x,z}))(residentPose(residentRoute(p,this.map),r.activeElapsedMs/1000)), kind: 'resident' as const, state: 'available' as const }))].filter(p => distance(p.position, r.position) < this.config.interactionRadius); }
     async command(id: string, name: Command, body: Record<string, unknown>, key: string) {
         return this.receipt(key, { id, name, body }, () => {
             this.verify(id, body['sessionId']);
@@ -402,7 +404,7 @@ export class LocalMonstrocityApi implements MonstrocityApi {
                         const index = this.data.shelters.find(i => !r.knownShelters.some(s => s.id === 'shelter-' + i));
                         if (index !== undefined) {
                             revealed = 'shelter-' + index;
-                            r.knownShelters.push({ id: revealed, position: { ...SHELTER_CANDIDATES[index] }, source: 'resident' });
+                            r.knownShelters.push({ id: revealed, position: { ...this.map.shelters[index] }, source: 'resident' });
                         }
                         this.data.spoken.push(target.id);
                     }

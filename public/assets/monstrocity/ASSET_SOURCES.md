@@ -25,3 +25,5 @@ The scene architecture, character rigs, foliage and other geometry are authored 
 - The rig texture preserves the approved painted designs rather than reverting to procedural stone/wood models. Browser comparison of all eight phases: `output/monstrocity/fixed-view-gait-review.png`.
 
 `stone-retrieval.png`: four chronological pouch-retrieval poses, generated from the approved throw-hand art, source `exec-971f6371-c590-4677-9999-e219a510b51d.png`. Four columns on a 2172×724 transparent sheet; each cell is 543×724. Playback .72 s, fully inside the combat viewport.
+
+- `loot-items.png`: original AI-generated transparent three-cell food, water and sword artwork, generated with OpenAI image generation on 2026-10-22 for Monstrocity.

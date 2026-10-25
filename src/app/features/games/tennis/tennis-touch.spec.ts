@@ -17,7 +17,7 @@ describe('Tennis court gestures', () => {
     spyOn(canvas, 'setPointerCapture'); spyOn(canvas, 'hasPointerCapture').and.returnValue(false);
     move = jasmine.createSpy('move');
     component = Object.assign(Object.create(TennisComponent.prototype), {
-      page:signal('play'), paused:signal(false), canvas:()=>({nativeElement:canvas}), courtPointer:null,
+      sport:signal('tennis'),state:signal({phase:'serve'}),page:signal('play'), paused:signal(false), canvas:()=>({nativeElement:canvas}), courtPointer:null,
       match:{move},
     });
     hit = spyOn(component, 'hit');
@@ -40,4 +40,12 @@ describe('Tennis court gestures', () => {
     component.page.set('club'); component.touch(pointer('pointerdown',700)); component.endTouch(pointer('pointerup',750));
     expect(hit).not.toHaveBeenCalled();
   });
+  it('keeps tennis taps for serving while returns need only movement',()=>{
+    const swing=jasmine.createSpy('swing');(component as any).match={move,swing};hit.and.callThrough();
+    component.state.set({phase:'rally'} as any);
+    component.touch(pointer('pointerdown',0));component.endTouch(pointer('pointerup',100));expect(swing).not.toHaveBeenCalled();
+    component.state.set({phase:'serve'} as any);
+    component.touch(pointer('pointerdown',200));component.endTouch(pointer('pointerup',300));expect(swing).toHaveBeenCalledTimes(1);
+  });
+
 });

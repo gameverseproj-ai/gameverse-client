@@ -1,0 +1,839 @@
+{
+  "version": "city-v2",
+  "units": "metres",
+  "axes": {
+    "x": "east",
+    "z": "south",
+    "y": "up"
+  },
+  "playBounds": {
+    "minX": -67,
+    "maxX": 67,
+    "minZ": -67,
+    "maxZ": 67
+  },
+  "playerRadius": 0.28,
+  "buildings": [
+    {
+      "id": "bakery",
+      "x": -10,
+      "z": -11,
+      "w": 7,
+      "d": 6,
+      "h": 7,
+      "color": 12558720
+    },
+    {
+      "id": "home",
+      "x": 0,
+      "z": -12,
+      "w": 7,
+      "d": 5,
+      "h": 8,
+      "color": 13088154
+    },
+    {
+      "id": "workshop",
+      "x": 10,
+      "z": -11,
+      "w": 7,
+      "d": 6,
+      "h": 6,
+      "color": 11046006
+    },
+    {
+      "id": "library",
+      "x": -12,
+      "z": 0,
+      "w": 5,
+      "d": 8,
+      "h": 6,
+      "color": 12628636
+    },
+    {
+      "id": "house-east",
+      "x": 12,
+      "z": 0,
+      "w": 5,
+      "d": 8,
+      "h": 8,
+      "color": 11182731
+    },
+    {
+      "id": "room",
+      "x": -10,
+      "z": 11,
+      "w": 7,
+      "d": 6,
+      "h": 5,
+      "color": 12164221,
+      "interior": true
+    },
+    {
+      "id": "house-south",
+      "x": 1,
+      "z": 13,
+      "w": 7,
+      "d": 4,
+      "h": 7,
+      "color": 12692874
+    },
+    {
+      "id": "atelier",
+      "x": 11,
+      "z": 11,
+      "w": 6,
+      "d": 6,
+      "h": 5.5,
+      "color": 11903886
+    },
+    {
+      "id": "city-market-0",
+      "x": -53,
+      "z": -11,
+      "w": 8,
+      "d": 7,
+      "h": 4.8,
+      "color": 12364171,
+      "interior": true
+    },
+    {
+      "id": "city-market-1",
+      "x": -31,
+      "z": -11,
+      "w": 8,
+      "d": 9,
+      "h": 6,
+      "color": 11187104,
+      "interior": false
+    },
+    {
+      "id": "city-market-2",
+      "x": -53,
+      "z": 11,
+      "w": 8,
+      "d": 7,
+      "h": 7.199999999999999,
+      "color": 12035735,
+      "interior": false
+    },
+    {
+      "id": "city-market-3",
+      "x": -31,
+      "z": 11,
+      "w": 8,
+      "d": 9,
+      "h": 4.8,
+      "color": 12759956,
+      "interior": false
+    },
+    {
+      "id": "city-workshops-0",
+      "x": 31,
+      "z": -11,
+      "w": 9,
+      "d": 7,
+      "h": 6,
+      "color": 11187104,
+      "interior": true
+    },
+    {
+      "id": "city-workshops-1",
+      "x": 53,
+      "z": -11,
+      "w": 9,
+      "d": 9,
+      "h": 7.199999999999999,
+      "color": 12035735,
+      "interior": false
+    },
+    {
+      "id": "city-workshops-2",
+      "x": 31,
+      "z": 11,
+      "w": 9,
+      "d": 7,
+      "h": 4.8,
+      "color": 12759956,
+      "interior": false
+    },
+    {
+      "id": "city-workshops-3",
+      "x": 53,
+      "z": 11,
+      "w": 9,
+      "d": 9,
+      "h": 6,
+      "color": 12364171,
+      "interior": true
+    },
+    {
+      "id": "city-gardens-0",
+      "x": 31,
+      "z": -53,
+      "w": 10,
+      "d": 7,
+      "h": 7.199999999999999,
+      "color": 12035735,
+      "interior": true
+    },
+    {
+      "id": "city-gardens-1",
+      "x": 53,
+      "z": -53,
+      "w": 10,
+      "d": 9,
+      "h": 4.8,
+      "color": 12759956,
+      "interior": false
+    },
+    {
+      "id": "city-station-0",
+      "x": -53,
+      "z": 31,
+      "w": 8,
+      "d": 7,
+      "h": 4.8,
+      "color": 12759956,
+      "interior": true
+    },
+    {
+      "id": "city-station-1",
+      "x": -31,
+      "z": 31,
+      "w": 8,
+      "d": 9,
+      "h": 6,
+      "color": 12364171,
+      "interior": false
+    },
+    {
+      "id": "city-station-2",
+      "x": -53,
+      "z": 53,
+      "w": 8,
+      "d": 7,
+      "h": 7.199999999999999,
+      "color": 11187104,
+      "interior": false
+    },
+    {
+      "id": "city-station-3",
+      "x": -31,
+      "z": 53,
+      "w": 8,
+      "d": 9,
+      "h": 4.8,
+      "color": 12035735,
+      "interior": false
+    },
+    {
+      "id": "city-library-quarter-0",
+      "x": -11,
+      "z": -53,
+      "w": 9,
+      "d": 7,
+      "h": 6,
+      "color": 12364171,
+      "interior": true
+    },
+    {
+      "id": "city-library-quarter-1",
+      "x": 11,
+      "z": -53,
+      "w": 9,
+      "d": 9,
+      "h": 7.199999999999999,
+      "color": 11187104,
+      "interior": false
+    },
+    {
+      "id": "city-library-quarter-2",
+      "x": -11,
+      "z": -31,
+      "w": 9,
+      "d": 7,
+      "h": 4.8,
+      "color": 12035735,
+      "interior": false
+    },
+    {
+      "id": "city-library-quarter-3",
+      "x": 11,
+      "z": -31,
+      "w": 9,
+      "d": 9,
+      "h": 6,
+      "color": 12759956,
+      "interior": true
+    },
+    {
+      "id": "city-canal-0",
+      "x": -11,
+      "z": 31,
+      "w": 10,
+      "d": 7,
+      "h": 7.199999999999999,
+      "color": 11187104,
+      "interior": true
+    },
+    {
+      "id": "city-canal-1",
+      "x": 11,
+      "z": 31,
+      "w": 10,
+      "d": 9,
+      "h": 4.8,
+      "color": 12035735,
+      "interior": false
+    },
+    {
+      "id": "city-canal-2",
+      "x": -11,
+      "z": 53,
+      "w": 10,
+      "d": 7,
+      "h": 6,
+      "color": 12759956,
+      "interior": false
+    },
+    {
+      "id": "city-canal-3",
+      "x": 11,
+      "z": 53,
+      "w": 10,
+      "d": 9,
+      "h": 7.199999999999999,
+      "color": 12364171,
+      "interior": false
+    },
+    {
+      "id": "city-north-gate-0",
+      "x": -53,
+      "z": -53,
+      "w": 8,
+      "d": 7,
+      "h": 4.8,
+      "color": 12035735,
+      "interior": true
+    },
+    {
+      "id": "city-north-gate-1",
+      "x": -31,
+      "z": -53,
+      "w": 8,
+      "d": 9,
+      "h": 6,
+      "color": 12759956,
+      "interior": false
+    },
+    {
+      "id": "city-north-gate-2",
+      "x": -53,
+      "z": -31,
+      "w": 8,
+      "d": 7,
+      "h": 7.199999999999999,
+      "color": 12364171,
+      "interior": false
+    },
+    {
+      "id": "city-north-gate-3",
+      "x": -31,
+      "z": -31,
+      "w": 8,
+      "d": 9,
+      "h": 4.8,
+      "color": 11187104,
+      "interior": false
+    },
+    {
+      "id": "city-south-gate-0",
+      "x": 31,
+      "z": 31,
+      "w": 9,
+      "d": 7,
+      "h": 6,
+      "color": 12759956,
+      "interior": true
+    },
+    {
+      "id": "city-south-gate-1",
+      "x": 53,
+      "z": 31,
+      "w": 9,
+      "d": 9,
+      "h": 7.199999999999999,
+      "color": 12364171,
+      "interior": false
+    },
+    {
+      "id": "city-south-gate-2",
+      "x": 31,
+      "z": 53,
+      "w": 9,
+      "d": 7,
+      "h": 4.8,
+      "color": 11187104,
+      "interior": false
+    },
+    {
+      "id": "city-south-gate-3",
+      "x": 53,
+      "z": 53,
+      "w": 9,
+      "d": 9,
+      "h": 6,
+      "color": 12035735,
+      "interior": true
+    }
+  ],
+  "shelterCandidates": [
+    {
+      "id": "shelter-0",
+      "position": {
+        "x": -9,
+        "z": -6.8
+      }
+    },
+    {
+      "id": "shelter-1",
+      "position": {
+        "x": 0,
+        "z": -8.2
+      }
+    },
+    {
+      "id": "shelter-2",
+      "position": {
+        "x": 10,
+        "z": -6.8
+      }
+    },
+    {
+      "id": "shelter-3",
+      "position": {
+        "x": -10,
+        "z": 11
+      }
+    },
+    {
+      "id": "shelter-4",
+      "position": {
+        "x": 11,
+        "z": 6.8
+      }
+    },
+    {
+      "id": "shelter-5",
+      "position": {
+        "x": -40,
+        "z": 5
+      }
+    },
+    {
+      "id": "shelter-6",
+      "position": {
+        "x": 44,
+        "z": 5
+      }
+    },
+    {
+      "id": "shelter-7",
+      "position": {
+        "x": 44,
+        "z": -37
+      }
+    },
+    {
+      "id": "shelter-8",
+      "position": {
+        "x": -40,
+        "z": 47
+      }
+    },
+    {
+      "id": "shelter-9",
+      "position": {
+        "x": 2,
+        "z": -37
+      }
+    },
+    {
+      "id": "shelter-10",
+      "position": {
+        "x": 2,
+        "z": 47
+      }
+    },
+    {
+      "id": "shelter-11",
+      "position": {
+        "x": -40,
+        "z": -37
+      }
+    },
+    {
+      "id": "shelter-12",
+      "position": {
+        "x": 44,
+        "z": 47
+      }
+    }
+  ],
+  "containers": [
+    {
+      "id": "crate-start",
+      "x": -7,
+      "z": -5.8
+    },
+    {
+      "id": "pantry",
+      "x": -9,
+      "z": 11
+    },
+    {
+      "id": "crate-east",
+      "x": 8,
+      "z": -5.5
+    },
+    {
+      "id": "crate-south",
+      "x": 7,
+      "z": 7
+    },
+    {
+      "id": "crate-west",
+      "x": -8,
+      "z": 3
+    },
+    {
+      "id": "cabinet",
+      "x": 2,
+      "z": -8
+    },
+    {
+      "id": "market-cache-0",
+      "x": -47,
+      "z": -3
+    },
+    {
+      "id": "market-cache-1",
+      "x": -37,
+      "z": 4
+    },
+    {
+      "id": "market-cache-2",
+      "x": -46,
+      "z": 7
+    },
+    {
+      "id": "market-cache-3",
+      "x": -36,
+      "z": -5
+    },
+    {
+      "id": "workshops-cache-0",
+      "x": 37,
+      "z": -3
+    },
+    {
+      "id": "workshops-cache-1",
+      "x": 47,
+      "z": 4
+    },
+    {
+      "id": "workshops-cache-2",
+      "x": 38,
+      "z": 7
+    },
+    {
+      "id": "workshops-cache-3",
+      "x": 48,
+      "z": -5
+    },
+    {
+      "id": "gardens-cache-0",
+      "x": 37,
+      "z": -45
+    },
+    {
+      "id": "gardens-cache-1",
+      "x": 47,
+      "z": -38
+    },
+    {
+      "id": "gardens-cache-2",
+      "x": 38,
+      "z": -35
+    },
+    {
+      "id": "gardens-cache-3",
+      "x": 48,
+      "z": -47
+    },
+    {
+      "id": "station-cache-0",
+      "x": -47,
+      "z": 39
+    },
+    {
+      "id": "station-cache-1",
+      "x": -37,
+      "z": 46
+    },
+    {
+      "id": "station-cache-2",
+      "x": -46,
+      "z": 49
+    },
+    {
+      "id": "station-cache-3",
+      "x": -36,
+      "z": 37
+    },
+    {
+      "id": "library-quarter-cache-0",
+      "x": -5,
+      "z": -45
+    },
+    {
+      "id": "library-quarter-cache-1",
+      "x": 5,
+      "z": -38
+    },
+    {
+      "id": "library-quarter-cache-2",
+      "x": -4,
+      "z": -35
+    },
+    {
+      "id": "library-quarter-cache-3",
+      "x": 6,
+      "z": -47
+    },
+    {
+      "id": "canal-cache-0",
+      "x": -5,
+      "z": 39
+    },
+    {
+      "id": "canal-cache-1",
+      "x": 5,
+      "z": 46
+    },
+    {
+      "id": "canal-cache-2",
+      "x": -4,
+      "z": 49
+    },
+    {
+      "id": "canal-cache-3",
+      "x": 6,
+      "z": 37
+    },
+    {
+      "id": "north-gate-cache-0",
+      "x": -47,
+      "z": -45
+    },
+    {
+      "id": "north-gate-cache-1",
+      "x": -37,
+      "z": -38
+    },
+    {
+      "id": "north-gate-cache-2",
+      "x": -46,
+      "z": -35
+    },
+    {
+      "id": "north-gate-cache-3",
+      "x": -36,
+      "z": -47
+    },
+    {
+      "id": "south-gate-cache-0",
+      "x": 37,
+      "z": 39
+    },
+    {
+      "id": "south-gate-cache-1",
+      "x": 47,
+      "z": 46
+    },
+    {
+      "id": "south-gate-cache-2",
+      "x": 38,
+      "z": 49
+    },
+    {
+      "id": "south-gate-cache-3",
+      "x": 48,
+      "z": 37
+    },
+    {
+      "id": "city-market-0-cupboard",
+      "x": -52,
+      "z": -12
+    },
+    {
+      "id": "city-workshops-0-cupboard",
+      "x": 32,
+      "z": -12
+    },
+    {
+      "id": "city-workshops-3-cupboard",
+      "x": 54,
+      "z": 10
+    },
+    {
+      "id": "city-gardens-0-cupboard",
+      "x": 32,
+      "z": -54
+    },
+    {
+      "id": "city-station-0-cupboard",
+      "x": -52,
+      "z": 30
+    },
+    {
+      "id": "city-library-quarter-0-cupboard",
+      "x": -10,
+      "z": -54
+    },
+    {
+      "id": "city-library-quarter-3-cupboard",
+      "x": 12,
+      "z": -32
+    },
+    {
+      "id": "city-canal-0-cupboard",
+      "x": -10,
+      "z": 30
+    },
+    {
+      "id": "city-north-gate-0-cupboard",
+      "x": -52,
+      "z": -54
+    },
+    {
+      "id": "city-south-gate-0-cupboard",
+      "x": 32,
+      "z": 30
+    },
+    {
+      "id": "city-south-gate-3-cupboard",
+      "x": 54,
+      "z": 52
+    }
+  ],
+  "residents": [
+    {
+      "id": "gardener",
+      "x": 3,
+      "z": 3
+    },
+    {
+      "id": "keeper",
+      "x": -5,
+      "z": -6
+    },
+    {
+      "id": "market-resident",
+      "x": -44,
+      "z": 1
+    },
+    {
+      "id": "workshops-resident",
+      "x": 40,
+      "z": 1
+    },
+    {
+      "id": "gardens-resident",
+      "x": 40,
+      "z": -41
+    },
+    {
+      "id": "station-resident",
+      "x": -44,
+      "z": 43
+    },
+    {
+      "id": "library-quarter-resident",
+      "x": -2,
+      "z": -41
+    },
+    {
+      "id": "canal-resident",
+      "x": -2,
+      "z": 43
+    },
+    {
+      "id": "north-gate-resident",
+      "x": -44,
+      "z": -41
+    },
+    {
+      "id": "south-gate-resident",
+      "x": 40,
+      "z": 43
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "circle",
+      "x": 0,
+      "z": 0,
+      "radius": 1.5
+    },
+    {
+      "type": "box",
+      "x": -5,
+      "z": 1,
+      "halfX": 1.1,
+      "halfZ": 1.1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "z": 1,
+      "halfX": 1.1,
+      "halfZ": 1.1
+    },
+    {
+      "type": "box",
+      "x": -4,
+      "z": 6,
+      "halfX": 1.1,
+      "halfZ": 1.1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "z": -4,
+      "halfX": 1.1,
+      "halfZ": 1.1
+    },
+    {
+      "type": "box",
+      "x": 15,
+      "z": -7,
+      "halfX": 1.35,
+      "halfZ": 2.85
+    }
+  ],
+  "containerCollisionRadius": 0.5,
+  "interiorCollision": {
+    "wallClearance": 0.35,
+    "outerClearance": 0.25,
+    "doorWidth": 2,
+    "doorWall": "negative-z"
+  },
+  "notes": [
+    "Non-interior buildings block their footprint plus playerRadius.",
+    "The room interior has solid side/back walls and a 2m north doorway. See monstrocity.map.ts blocked() for exact inequalities.",
+    "Crates and planted islands collide; visual foliage does not.",
+    "Residential routes and guaranteed indoor loot are specified in city-v2.rules.json. Decorative gardens and street furniture do not introduce additional collision."
+  ]
+}

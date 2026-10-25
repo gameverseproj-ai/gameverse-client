@@ -155,7 +155,7 @@
       </div>
       <p>
         {{ rules.hint | t }}<br />{{
-          "Move: drag or ← → · Hit / serve: tap the court or Space" | t
+          (sport() === "tennis" ? "Move to the ball to return it automatically. Tap the court or Space to serve." : "Move: drag or ← → · Hit / serve: tap the court or Space") | t
         }}
       </p>
     </footer>
@@ -224,7 +224,7 @@
       </div>
       <p>
         {{ rules.hint | t }}<br />{{
-          "Move: drag or ← → · Hit / serve: tap the court or Space" | t
+          (sport() === "tennis" ? "Move to the ball to return it automatically. Tap the court or Space to serve." : "Move: drag or ← → · Hit / serve: tap the court or Space") | t
         }}
       </p>
     </footer>

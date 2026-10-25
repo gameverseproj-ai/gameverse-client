@@ -86,4 +86,27 @@ describe('Online match model', () => {
     expect(m.state.z).toBe(2);
     expect(m.state.phase).toBe('serve');
   });
+  it('automatically keeps returns ready for either player during a rally',()=>{
+    for(const me of [A,B]){
+      const m=new OnlineMatch('m',me,players);
+      const side=me===A?1:-1;
+      m.applySnapshot(snapshot({players:players.map(p=>({...p,position:{...p.position,x:0}})),ball:{position:{x:0,z:6.3*side},velocity:{x:0,z:8*side}}}),1000);m.tick(1000,.016);
+      expect(m.nextFrame().swing).toBe('flat');expect(m.nextFrame().swing).toBe('flat');
+      m.applySnapshot(snapshot({phase:'serve'}),1200);expect(m.nextFrame().swing).toBe('none');
+      m.applySnapshot(snapshot({phase:'finished'}),1300);expect(m.nextFrame().swing).toBe('none');
+    }
+  });
+  it('keeps manual returns for the other racquet sports',()=>{
+    const m=new OnlineMatch('m',A,players,'badminton');m.applySnapshot(snapshot(),1000);
+    expect(m.nextFrame().swing).toBe('none');m.swing();expect(m.nextFrame().swing).toBe('flat');expect(m.nextFrame().swing).toBe('none');
+  });
+
+  it('does not swing at departing, unreachable, or already missed balls',()=>{
+    const m=new OnlineMatch('m',A,players);
+    for(const [x,z,vz] of [[1,6.5,-8],[-4,6.5,8],[1,8.1,8],[1,2,8]]){
+      m.applySnapshot(snapshot({ball:{position:{x,z},velocity:{x:0,z:vz}}}),1000);m.tick(1000,.016);
+      expect(m.nextFrame().swing).toBe('none');
+    }
+  });
+
 });

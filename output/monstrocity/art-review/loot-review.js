@@ -1,3 +1,10 @@
+// src/app/features/games/monstrocity/monstrocity.input.ts
+function worldInput(x, y) {
+  const scale = Math.max(1, Math.hypot(x, y)) * Math.hypot(0.785, 0.62);
+  const bound = (value) => Math.max(-1, Math.min(1, value / scale));
+  return { moveX: bound(x * 0.785 + y * 0.62), moveZ: bound(-x * 0.62 + y * 0.785) };
+}
+
 // node_modules/three/build/three.core.js
 var REVISION = "184";
 var CullFaceNone = 0;
@@ -11931,12 +11938,12 @@ var Sprite = class extends Object3D {
     _uvA.set(0, 0);
     _uvB.set(1, 0);
     _uvC.set(1, 1);
-    let intersect = raycaster.ray.intersectTriangle(_vA$1, _vB$1, _vC$1, false, _intersectPoint);
-    if (intersect === null) {
+    let intersect2 = raycaster.ray.intersectTriangle(_vA$1, _vB$1, _vC$1, false, _intersectPoint);
+    if (intersect2 === null) {
       transformVertex(_vB$1.set(-0.5, 0.5, 0), _mvPosition, center, _worldScale, sin, cos);
       _uvB.set(0, 1);
-      intersect = raycaster.ray.intersectTriangle(_vA$1, _vC$1, _vB$1, false, _intersectPoint);
-      if (intersect === null) {
+      intersect2 = raycaster.ray.intersectTriangle(_vA$1, _vC$1, _vB$1, false, _intersectPoint);
+      if (intersect2 === null) {
         return;
       }
     }
@@ -12611,13 +12618,13 @@ var Mesh = class extends Object3D {
   }
 };
 function checkIntersection$1(object, material, raycaster, ray, pA, pB, pC, point) {
-  let intersect;
+  let intersect2;
   if (material.side === BackSide) {
-    intersect = ray.intersectTriangle(pC, pB, pA, true, point);
+    intersect2 = ray.intersectTriangle(pC, pB, pA, true, point);
   } else {
-    intersect = ray.intersectTriangle(pA, pB, pC, material.side === FrontSide, point);
+    intersect2 = ray.intersectTriangle(pA, pB, pC, material.side === FrontSide, point);
   }
-  if (intersect === null) return null;
+  if (intersect2 === null) return null;
   _intersectionPointWorld.copy(point);
   _intersectionPointWorld.applyMatrix4(object.matrixWorld);
   const distance2 = raycaster.ray.origin.distanceTo(_intersectionPointWorld);
@@ -13224,32 +13231,32 @@ var Line = class extends Object3D {
       for (let i = start, l = end - 1; i < l; i += step) {
         const a = index.getX(i);
         const b = index.getX(i + 1);
-        const intersect = checkIntersection(this, raycaster, _ray$1, localThresholdSq, a, b, i);
-        if (intersect) {
-          intersects2.push(intersect);
+        const intersect2 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, a, b, i);
+        if (intersect2) {
+          intersects2.push(intersect2);
         }
       }
       if (this.isLineLoop) {
         const a = index.getX(end - 1);
         const b = index.getX(start);
-        const intersect = checkIntersection(this, raycaster, _ray$1, localThresholdSq, a, b, end - 1);
-        if (intersect) {
-          intersects2.push(intersect);
+        const intersect2 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, a, b, end - 1);
+        if (intersect2) {
+          intersects2.push(intersect2);
         }
       }
     } else {
       const start = Math.max(0, drawRange.start);
       const end = Math.min(positionAttribute.count, drawRange.start + drawRange.count);
       for (let i = start, l = end - 1; i < l; i += step) {
-        const intersect = checkIntersection(this, raycaster, _ray$1, localThresholdSq, i, i + 1, i);
-        if (intersect) {
-          intersects2.push(intersect);
+        const intersect2 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, i, i + 1, i);
+        if (intersect2) {
+          intersects2.push(intersect2);
         }
       }
       if (this.isLineLoop) {
-        const intersect = checkIntersection(this, raycaster, _ray$1, localThresholdSq, end - 1, start, end - 1);
-        if (intersect) {
-          intersects2.push(intersect);
+        const intersect2 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, end - 1, start, end - 1);
+        if (intersect2) {
+          intersects2.push(intersect2);
         }
       }
     }
@@ -19204,6 +19211,145 @@ PropertyBinding.prototype.SetterByBindingTypeAndVersioning = [
   ]
 ];
 var _controlInterpolantsResultBuffer = new Float32Array(1);
+var _matrix = /* @__PURE__ */ new Matrix4();
+var Raycaster = class {
+  /**
+   * Constructs a new raycaster.
+   *
+   * @param {Vector3} origin - The origin vector where the ray casts from.
+   * @param {Vector3} direction - The (normalized) direction vector that gives direction to the ray.
+   * @param {number} [near=0] - All results returned are further away than near. Near can't be negative.
+   * @param {number} [far=Infinity] - All results returned are closer than far. Far can't be lower than near.
+   */
+  constructor(origin, direction, near = 0, far = Infinity) {
+    this.ray = new Ray(origin, direction);
+    this.near = near;
+    this.far = far;
+    this.camera = null;
+    this.layers = new Layers();
+    this.params = {
+      Mesh: {},
+      Line: { threshold: 1 },
+      LOD: {},
+      Points: { threshold: 1 },
+      Sprite: {}
+    };
+  }
+  /**
+   * Updates the ray with a new origin and direction by copying the values from the arguments.
+   *
+   * @param {Vector3} origin - The origin vector where the ray casts from.
+   * @param {Vector3} direction - The (normalized) direction vector that gives direction to the ray.
+   */
+  set(origin, direction) {
+    this.ray.set(origin, direction);
+  }
+  /**
+   * Uses the given coordinates and camera to compute a new origin and direction for the internal ray.
+   *
+   * @param {Vector2} coords - 2D coordinates of the mouse, in normalized device coordinates (NDC).
+   * X and Y components should be between `-1` and `1`.
+   * @param {Camera} camera - The camera from which the ray should originate.
+   */
+  setFromCamera(coords, camera) {
+    if (camera.isPerspectiveCamera) {
+      this.ray.origin.setFromMatrixPosition(camera.matrixWorld);
+      this.ray.direction.set(coords.x, coords.y, 0.5).unproject(camera).sub(this.ray.origin).normalize();
+      this.camera = camera;
+    } else if (camera.isOrthographicCamera) {
+      this.ray.origin.set(coords.x, coords.y, (camera.near + camera.far) / (camera.near - camera.far)).unproject(camera);
+      this.ray.direction.set(0, 0, -1).transformDirection(camera.matrixWorld);
+      this.camera = camera;
+    } else {
+      error("Raycaster: Unsupported camera type: " + camera.type);
+    }
+  }
+  /**
+   * Uses the given WebXR controller to compute a new origin and direction for the internal ray.
+   *
+   * @param {WebXRController} controller - The controller to copy the position and direction from.
+   * @return {Raycaster} A reference to this raycaster.
+   */
+  setFromXRController(controller) {
+    _matrix.identity().extractRotation(controller.matrixWorld);
+    this.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+    this.ray.direction.set(0, 0, -1).applyMatrix4(_matrix);
+    return this;
+  }
+  /**
+   * The intersection point of a raycaster intersection test.
+   * @typedef {Object} Raycaster~Intersection
+   * @property {number} distance - The distance from the ray's origin to the intersection point.
+   * @property {number} distanceToRay -  Some 3D objects e.g. {@link Points} provide the distance of the
+   * intersection to the nearest point on the ray. For other objects it will be `undefined`.
+   * @property {Vector3} point - The intersection point, in world coordinates.
+   * @property {Object} face - The face that has been intersected.
+   * @property {number} faceIndex - The face index.
+   * @property {Object3D} object - The 3D object that has been intersected.
+   * @property {Vector2} uv - U,V coordinates at point of intersection.
+   * @property {Vector2} uv1 - Second set of U,V coordinates at point of intersection.
+   * @property {Vector3} normal - Interpolated normal vector at point of intersection.
+   * @property {number} instanceId - The index number of the instance where the ray
+   * intersects the {@link InstancedMesh}.
+   */
+  /**
+   * Checks all intersection between the ray and the object with or without the
+   * descendants. Intersections are returned sorted by distance, closest first.
+   *
+   * `Raycaster` delegates to the `raycast()` method of the passed 3D object, when
+   * evaluating whether the ray intersects the object or not. This allows meshes to respond
+   * differently to ray casting than lines or points.
+   *
+   * Note that for meshes, faces must be pointed towards the origin of the ray in order
+   * to be detected; intersections of the ray passing through the back of a face will not
+   * be detected. To raycast against both faces of an object, you'll want to set  {@link Material#side}
+   * to `THREE.DoubleSide`.
+   *
+   * @param {Object3D} object - The 3D object to check for intersection with the ray.
+   * @param {boolean} [recursive=true] - If set to `true`, it also checks all descendants.
+   * Otherwise it only checks intersection with the object.
+   * @param {Array<Raycaster~Intersection>} [intersects=[]] The target array that holds the result of the method.
+   * @return {Array<Raycaster~Intersection>} An array holding the intersection points.
+   */
+  intersectObject(object, recursive = true, intersects2 = []) {
+    intersect(object, this, intersects2, recursive);
+    intersects2.sort(ascSort);
+    return intersects2;
+  }
+  /**
+   * Checks all intersection between the ray and the objects with or without
+   * the descendants. Intersections are returned sorted by distance, closest first.
+   *
+   * @param {Array<Object3D>} objects - The 3D objects to check for intersection with the ray.
+   * @param {boolean} [recursive=true] - If set to `true`, it also checks all descendants.
+   * Otherwise it only checks intersection with the object.
+   * @param {Array<Raycaster~Intersection>} [intersects=[]] The target array that holds the result of the method.
+   * @return {Array<Raycaster~Intersection>} An array holding the intersection points.
+   */
+  intersectObjects(objects, recursive = true, intersects2 = []) {
+    for (let i = 0, l = objects.length; i < l; i++) {
+      intersect(objects[i], this, intersects2, recursive);
+    }
+    intersects2.sort(ascSort);
+    return intersects2;
+  }
+};
+function ascSort(a, b) {
+  return a.distance - b.distance;
+}
+function intersect(object, raycaster, intersects2, recursive) {
+  let propagate = true;
+  if (object.layers.test(raycaster.layers)) {
+    const result = object.raycast(raycaster, intersects2);
+    if (result === false) propagate = false;
+  }
+  if (propagate === true && recursive === true) {
+    const children = object.children;
+    for (let i = 0, l = children.length; i < l; i++) {
+      intersect(children[i], raycaster, intersects2, true);
+    }
+  }
+}
 var Matrix2 = class _Matrix2 {
   static {
     _Matrix2.prototype.isMatrix2 = true;
@@ -31318,6 +31464,15 @@ function lineBlocked(a, b) {
 var MonstrocityScene = class {
   world = new Scene();
   camera = new OrthographicCamera(-15, 15, 10, -10, 0.1, 150);
+  followCamera = new PerspectiveCamera(58, 1, 0.1, 150);
+  cameraMode = "overhead";
+  followYaw = Math.PI;
+  followYawGoal = Math.PI;
+  followHeight = 9;
+  followPosition = new Vector3();
+  followReady = false;
+  cameraRay = new Raycaster();
+  cameraObstacles = [];
   fightCamera = new PerspectiveCamera(55, 1, 0.1, 120);
   renderer;
   materials = /* @__PURE__ */ new Map();
@@ -31689,6 +31844,7 @@ var MonstrocityScene = class {
         mesh.castShadow = true;
         mesh.receiveShadow = true;
         this.world.add(mesh);
+        this.cameraObstacles.push(mesh);
       }
       geoms.forEach((g) => g.dispose());
     }
@@ -31702,10 +31858,29 @@ var MonstrocityScene = class {
     this.camera.top = half;
     this.camera.bottom = -half;
     this.camera.updateProjectionMatrix();
+    this.followCamera.aspect = w / Math.max(1, h);
+    this.followCamera.updateProjectionMatrix();
     this.fightCamera.aspect = w / h;
     this.fightCamera.updateProjectionMatrix();
   }
+  setCameraMode(mode) {
+    this.cameraMode = mode;
+    this.followReady = false;
+    this.followYaw = this.followYawGoal = this.player.rotation.y;
+    this.pan.set(0, 0);
+    this.panGoal.set(0, 0);
+  }
+  movementInput(x, y) {
+    if (this.cameraMode === "overhead") return worldInput(x, y);
+    const length = Math.max(1, Math.hypot(x, y)), yaw = this.followYaw;
+    return { moveX: (-Math.cos(yaw) * x - Math.sin(yaw) * y) / length, moveZ: (Math.sin(yaw) * x - Math.cos(yaw) * y) / length };
+  }
   panBy(x, y) {
+    if (this.cameraMode === "follow") {
+      this.followYawGoal -= x * 6e-3;
+      this.followHeight = MathUtils.clamp(this.followHeight + y * 0.025, 6, 13);
+      return;
+    }
     this.panGoal.set(MathUtils.clamp(this.panGoal.x - x * 0.025, -5, 5), MathUtils.clamp(this.panGoal.y - y * 0.025, -5, 5));
     this.panReleased = Infinity;
   }
@@ -31819,8 +31994,29 @@ var MonstrocityScene = class {
       this.fightCamera.position.set(-5, 1.6, -6);
       this.fightCamera.lookAt(-5, 1.4, -16);
       this.renderer.render(this.world, this.fightCamera);
-    } else
-      this.renderer.render(this.world, this.camera);
+    } else if (this.cameraMode === "follow") {
+      this.followYaw += Math.atan2(Math.sin(this.followYawGoal - this.followYaw), Math.cos(this.followYawGoal - this.followYaw)) * (1 - Math.exp(-dt * 9));
+      const forward = new Vector3(Math.sin(this.followYaw), 0, Math.cos(this.followYaw));
+      const anchor = this.player.position.clone();
+      anchor.y = 1.2;
+      const focus = anchor.clone();
+      const desired = anchor.clone().addScaledVector(forward, -8.5);
+      desired.y += this.followHeight;
+      if (!this.followReady) {
+        this.followPosition.copy(desired);
+        this.followReady = true;
+      } else this.followPosition.lerp(desired, 1 - Math.exp(-dt * 6));
+      const direction = this.followPosition.clone().sub(anchor), distance2 = direction.length();
+      direction.normalize();
+      this.cameraRay.set(anchor, direction);
+      this.cameraRay.near = 0.25;
+      this.cameraRay.far = distance2;
+      const obstruction = this.cameraRay.intersectObjects(this.cameraObstacles, false)[0];
+      this.followCamera.position.copy(obstruction ? anchor.clone().addScaledVector(direction, Math.max(0.6, obstruction.distance - 0.4)) : this.followPosition);
+      focus.addScaledVector(forward, Math.min(3.5, this.followCamera.position.distanceTo(anchor) * 0.15));
+      this.followCamera.lookAt(focus);
+      this.renderer.render(this.world, this.followCamera);
+    } else this.renderer.render(this.world, this.camera);
     this.warmup += dt;
     if (this.warmup > 5) {
       this.frameSample++;
@@ -54594,6 +54790,15 @@ document.querySelector("#finish").addEventListener("click", () => {
   state.run.nearby[0].state = "searched";
   document.querySelector("#result").textContent = "\u041D\u0430\u0439\u0434\u0435\u043D\u043E: \u0432\u043E\u0434\u0430 +1 \xB7 \u0435\u0434\u0430 +1";
 });
+var cameraButton = document.createElement("button");
+cameraButton.textContent = "Camera: behind";
+document.querySelector("nav").append(cameraButton);
+var following = false;
+cameraButton.onclick = () => {
+  following = !following;
+  scene.setCameraMode(following ? "follow" : "overhead");
+  cameraButton.textContent = following ? "Camera: above" : "Camera: behind";
+};
 /*! Bundled license information:
 
 three/build/three.core.js:

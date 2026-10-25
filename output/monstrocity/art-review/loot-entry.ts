@@ -8,3 +8,5 @@ state.run!.position={x:-7,z:-4.5};state.run!.combat=null;state.run!.nearby=[{id:
 let prev=performance.now();function render(now:number){scene.resize(canvas.clientWidth,canvas.clientHeight);scene.render(state,Math.min(.05,(now-prev)/1000),false);prev=now;requestAnimationFrame(render)}requestAnimationFrame(render);
 document.querySelector('#search')!.addEventListener('click',()=>{state.run!.search={targetId:'crate-start',remainingActiveMs:2000};document.querySelector('#result')!.textContent='Обыск: крышка открывается, персонаж ищет припасы.';});
 document.querySelector('#finish')!.addEventListener('click',()=>{state.run!.search=null;state.run!.nearby[0].state='searched';document.querySelector('#result')!.textContent='Найдено: вода +1 · еда +1';});
+
+const cameraButton=document.createElement("button");cameraButton.textContent="Camera: behind";document.querySelector("nav")!.append(cameraButton);let following=false;cameraButton.onclick=()=>{following=!following;scene.setCameraMode(following?"follow":"overhead");cameraButton.textContent=following?"Camera: above":"Camera: behind";};

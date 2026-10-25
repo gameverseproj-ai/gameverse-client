@@ -1,5 +1,6 @@
 // Tennis UI, catalog labels, and match feedback in all supported account languages.
 export const TENNIS_CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
+  "Move to the ball to return it automatically. Tap the court or Space to serve.": {ru:"Подбеги к мячу — удар автоматический. Подача: тап по корту или пробел.",he:"התקרבו לכדור והחבטה אוטומטית. להגשה: הקשה על המגרש או רווח.",ar:"اقترب من الكرة لردها تلقائيًا. للإرسال: انقر على الملعب أو اضغط المسافة."},
   "Accept and play": { ru: "Принять и играть", he: "אישור ומשחק", ar: "قبول واللعب" },
   "Waiting for your opponent to connect": { ru: "Ждём подключения соперника", he: "ממתינים לחיבור היריב", ar: "بانتظار اتصال الخصم" },
   "Waiting for acceptance. The match starts automatically when both players connect.": {

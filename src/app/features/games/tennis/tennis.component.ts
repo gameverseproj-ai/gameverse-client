@@ -289,6 +289,7 @@ export class TennisComponent {
     this.page.set('play');
   }
   hit(aim = 0, spin = 0): void {
+    if(this.sport()==='tennis' && this.state()?.phase!=='serve')return;
     if (this.page() === 'online') this.online?.swing(aim, spin);
     else if (this.page() === 'play' && !this.paused())
       this.match?.swing(aim, spin);

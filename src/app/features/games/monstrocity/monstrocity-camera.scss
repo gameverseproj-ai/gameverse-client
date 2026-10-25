@@ -1,0 +1,4 @@
+
+.camera-toggle{min-width:82px}
+.camera-toggle[aria-pressed=true]{border-color:#e2c17a;background:#46533a}
+@media(max-width:600px){.hud nav .camera-toggle{position:absolute;right:0;top:60px;min-width:90px;padding:9px 12px;font-size:12px}}

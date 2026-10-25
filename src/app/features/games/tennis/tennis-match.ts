@@ -31,7 +31,6 @@ export class TennisMatch {
   };
   private vx = 0;
   private vz = -8;
-  private swingUntil = 0;
   private clock = 0;
   private target = 0;
   private aim = 0;
@@ -47,7 +46,6 @@ export class TennisMatch {
     if (this.state.phase === 'finished') return;
     this.aim = Math.max(-1, Math.min(1, aim));
     this.spin = Math.max(-1, Math.min(1, spin));
-    this.swingUntil = this.clock + 0.45;
     if (this.state.phase === 'serve') {
       this.state.phase = 'rally';
       this.state.x = this.state.player;
@@ -90,7 +88,7 @@ export class TennisMatch {
       this.vx *= -1;
     }
     if (this.vz > 0 && s.z >= 6.6) {
-      if (Math.abs(s.x - s.player) < 1.25 && this.clock <= this.swingUntil) {
+      if (Math.abs(s.x - s.player) < 1.25) {
         const racket = this.rackets.find((r) => r.id === this.profile.racket)!;
         this.vz =
           -(8 + this.profile.power * 0.25) *
@@ -100,7 +98,6 @@ export class TennisMatch {
         s.z = 6.55;
         s.rally++;
         s.stamina = Math.max(8, s.stamina - 3);
-        this.swingUntil = 0;
       } else if (s.z > 8.4) this.point(false);
     }
     if (this.vz < 0 && s.z <= -6.6) {

@@ -2,13 +2,13 @@ import { Config } from './monstrocity.types';
 /** Local preview only; the HTTP adapter receives all balance from bootstrap. */
 export const LOCAL_CONFIG: Config = {
     "version": "monstrocity-v2",
-    "mapVersion": "courtyard-v1",
+    "mapVersion": "city-v2",
     "assetManifestVersion": "art-v1",
     "phaseSeconds": {
-        "day": 240,
-        "evening": 120,
-        "night": 240,
-        "morning": 120
+        "day": 120,
+        "evening": 60,
+        "night": 120,
+        "morning": 60
     },
     "energyMax": 100,
     "onlineEnergyPerSecond": 0.08,

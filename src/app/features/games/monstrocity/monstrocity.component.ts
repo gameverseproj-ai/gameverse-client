@@ -1,3 +1,4 @@
+import { assistedAim } from './monstrocity-aim';
 import { searchLoot, LootReward } from './monstrocity-loot';
 import { MonstrocityAvatarComponent } from './monstrocity-avatar.component';
 import { UserPrefsService } from '../../../core/services/user-prefs.service';
@@ -13,9 +14,9 @@ import { worldInput } from './monstrocity.input';
 import { MonstrocityMonsterComponent } from './monstrocity-monster.component';
 import { MusicService } from '../../../core/audio/music.service';
 import { MonstrocityMusic } from './monstrocity-music';
-import { BUILDINGS } from './monstrocity.map';
+import { mapFor } from './monstrocity.map';
 const memory = { getItem: (_: string) => null, setItem: (_: string, __: string) => { } };
-@Component({ selector: 'app-monstrocity', standalone: true, imports: [RouterLink, TranslatePipe, MonstrocityMonsterComponent, MonstrocityAvatarComponent], providers: [{ provide: MONSTROCITY_API, useFactory: () => inject(MONSTROCITY_PREVIEW) ? new LocalMonstrocityApi(typeof localStorage === 'undefined' ? memory : localStorage) : inject(HttpMonstrocityApi) }], templateUrl: './monstrocity.component.html', styleUrls: ['./monstrocity.component.scss', './monstrocity-combat.scss', './monstrocity-loot.scss'] })
+@Component({ selector: 'app-monstrocity', standalone: true, imports: [RouterLink, TranslatePipe, MonstrocityMonsterComponent, MonstrocityAvatarComponent], providers: [{ provide: MONSTROCITY_API, useFactory: () => inject(MONSTROCITY_PREVIEW) ? new LocalMonstrocityApi(typeof localStorage === 'undefined' ? memory : localStorage) : inject(HttpMonstrocityApi) }], templateUrl: './monstrocity.component.html', styleUrls: ['./monstrocity-map.scss', './monstrocity-camera.scss', './monstrocity.component.scss', './monstrocity-combat.scss', './monstrocity-loot.scss'] })
 export class MonstrocityComponent {
     readonly api = inject(MONSTROCITY_API);
     private zone = inject(NgZone);
@@ -30,6 +31,7 @@ export class MonstrocityComponent {
     readonly loading = signal(true);
     readonly modal = signal<'map' | 'inventory' | 'dialogue' | null>(null);
     private readonly prefs = inject(UserPrefsService);
+    readonly cameraMode = signal<'overhead' | 'follow'>('overhead');
     readonly hero = signal<'male' | 'female'>('female');
     readonly hit = signal(false);
     private hitTimer = 0;
@@ -49,10 +51,15 @@ export class MonstrocityComponent {
     readonly retrievingStone = signal(false);
     private retrievalTimer = 0;
     readonly flight = signal<{x:number;y:number;scale:number}|null>(null);
-    private pendingThrow: {x:number;y:number;encounterId:string}|null = null;
+    private aimLocked = false;
+    private pendingThrow: {x:number;y:number;encounterId:string;assisted:boolean}|null = null;
     private flightStarted = 0;
     readonly joystick = signal({ x: 0, y: 0 });
-    readonly buildings = BUILDINGS;
+    get cityMap() { return mapFor(this.run?.mapVersion ?? this.config()?.mapVersion); }
+    readonly mapZoom=signal(1);
+    zoomMap(delta:number){this.mapZoom.update(z=>Math.max(1,Math.min(4,z+delta)));}
+    get mapViewBox(){const e=this.cityMap.extent+5,size=e*2/this.mapZoom();const clamp=(v:number)=>Math.max(-e+size/2,Math.min(e-size/2,v));return `${clamp(this.run?.position.x??0)-size/2} ${clamp(this.run?.position.z??0)-size/2} ${size} ${size}`;}
+    get buildings() { return this.cityMap.buildings; }
     readonly musicMuted = signal(false);
     private music = new MonstrocityMusic();
     private sharedMusic = inject(MusicService);
@@ -91,6 +98,7 @@ export class MonstrocityComponent {
     get recovery() { return Math.ceil((this.run?.recoveryRemainingActiveMs ?? 0) / 1000); }
     get combat() { return this.run?.combat; }
     get approach() { const m = this.config()?.monsters.find(m => m.id === this.combat?.monsterId); return Math.min(1, (this.combat?.elapsedActiveMs ?? 0) / ((m?.approachSeconds ?? 24) * 1000)); }
+    get targetLocked() { return this.aimLocked && !!this.aiming(); }
     get monsterArt() { return this.config()?.monsters.find(m => m.id === this.combat?.monsterId)?.artId ?? 'mossback'; }
     get monsterName() { return this.monsterArt === 'twigwalker' ? 'Twigwalker' : 'Mossback'; }
     get monsterSize() { if (!this.combat)
@@ -112,7 +120,9 @@ export class MonstrocityComponent {
             this.state.set(b.snapshot);
             this.config.set(b.config);
             this.hero.set(b.snapshot.run?.status === 'active' ? b.snapshot.profile.character : this.prefs.avatar(this.api.local) ?? b.snapshot.profile.character);
-            this.scene = new MonstrocityScene(this.canvas().nativeElement);
+            this.scene = new MonstrocityScene(this.canvas().nativeElement,this.cityMap.version);
+            this.cameraMode.set(this.prefs.camera(this.api.local));
+            this.scene.setCameraMode(this.cameraMode());
             this.scene.setCharacter(this.hero() === 'female');
             this.observer = new ResizeObserver(entries => { const r = entries[0].contentRect; this.scene?.resize(r.width, r.height); });
             this.observer.observe(this.canvas().nativeElement);
@@ -129,6 +139,7 @@ export class MonstrocityComponent {
             this.loading.set(false);
         }
     }
+    toggleCamera() { const mode=this.cameraMode()==='overhead'?'follow':'overhead';this.cameraMode.set(mode);this.prefs.setCamera(mode,this.api.local);this.scene?.setCameraMode(mode); }
     choose(value: 'male' | 'female') { if (this.run?.status === 'active' || this.busy() || this.loading()) return; this.hero.set(value); this.prefs.setAvatar(value, this.api.local); this.scene?.setCharacter(value === 'female'); }
     private apply(s: Snapshot) {
         if (this.disposed)
@@ -145,6 +156,10 @@ export class MonstrocityComponent {
         if(rewards.length){this.foundLoot.set(rewards);clearTimeout(this.lootTimer);this.lootTimer=window.setTimeout(()=>this.foundLoot.set([]),3200);}
         if(previous?.run?.id!==s.run?.id || s.run?.status==='dead'){this.foundLoot.set([]);clearTimeout(this.lootTimer);}
         this.state.set(s);
+        if(this.scene && this.scene.mapVersion!==this.cityMap.version){
+            this.scene.destroy();const canvas=this.canvas().nativeElement;
+            this.scene=new MonstrocityScene(canvas,this.cityMap.version);this.scene.setCharacter(s.profile.character==='female');this.scene.setCameraMode(this.cameraMode());this.scene.resize(canvas.clientWidth,canvas.clientHeight);
+        }
         if (s.run?.status === 'dead') { this.clearInput(); this.modal.set(null); }
         if (s.run?.dialogue)
             this.modal.set('dialogue');
@@ -246,7 +261,7 @@ export class MonstrocityComponent {
                         y = 0;
                     }
                     if (this.frames.length < 10)
-                        this.frames.push({ sequence: ++this.sequence, ...worldInput(x, y) });
+                        this.frames.push({ sequence: ++this.sequence, ...(this.scene?.movementInput(x,y) ?? worldInput(x, y)) });
                 }
                 if (time - this.lastSync >= 250 && !this.syncing && !this.busy()) {
                     this.lastSync = time;
@@ -275,14 +290,18 @@ export class MonstrocityComponent {
     } }
     aimDown(e: PointerEvent) {
         if (!this.canAim || !e.isPrimary || e.button !== 0 || !this.combat || !['approaching','sword-window'].includes(this.combat.phase) || this.aimPointer !== null) return;
-        e.preventDefault(); this.aimPointer=e.pointerId;
+        e.preventDefault(); this.aimLocked=false; this.aimPointer=e.pointerId;
         const arena=e.currentTarget as HTMLElement,hand=arena.querySelector<HTMLElement>('.throwing-hand');
         if(hand){const r=arena.getBoundingClientRect(),h=hand.getBoundingClientRect();this.launchOrigin.set({x:(h.left+h.width*.28-r.left)/r.width,y:(h.top+h.height*.25-r.top)/r.height});}
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); this.aimMove(e);
     }
     aimMove(e: PointerEvent) {
         if (e.pointerId !== this.aimPointer) return;
-        const r=(e.currentTarget as HTMLElement).getBoundingClientRect();
+        const arena=e.currentTarget as HTMLElement,r=arena.getBoundingClientRect();
+        const monster=arena.querySelector('.monster')?.getBoundingClientRect();
+        // Keep a target acquired by a beginner through the release/flick gesture.
+        if(monster && (this.run?.survivedDays ?? 0)<30 && e.clientX>=monster.left-20 && e.clientX<=monster.right+20 && e.clientY>=monster.top-20 && e.clientY<=monster.bottom+20)this.aimLocked=true;
+        if(this.aimLocked && this.run?.combat && this.config()){this.aiming.set(assistedAim(this.run,this.config()!));return;}
         this.aiming.set({x:Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),y:Math.max(0,Math.min(1,(e.clientY-r.top)/r.height))});
     }
     aimUp(e: PointerEvent) {
@@ -291,7 +310,7 @@ export class MonstrocityComponent {
         const aim=this.aiming();this.aimPointer=null;this.aiming.set(null);
         if(e.type!=='pointerup'||!aim||this.paused||!this.combat)return;
         // Keep exactly one release until accepted or the encounter ends; network latency must not discard it.
-        this.pendingThrow={...aim,encounterId:this.combat.encounterId};
+        this.pendingThrow={...aim,encounterId:this.combat.encounterId,assisted:this.aimLocked};
         this.throwQueued.set(true);void this.sendThrow();
     }
     private async sendThrow() {
@@ -300,16 +319,19 @@ export class MonstrocityComponent {
         this.busy.set(true);
         try {
             await this.queue(async()=>{
+                const syncStarted=performance.now();
                 await this.flush();
+                const latency=(performance.now()-syncStarted)/2000;
                 const s=this.state()!,combat=s.run?.combat;
                 if(!combat||combat.encounterId!==pending.encounterId||!['approaching','sword-window'].includes(combat.phase)) {this.pendingThrow=null;this.throwQueued.set(false);return;}
                 if(combat.elapsedActiveMs<combat.nextThrowActiveMs)return;
                 this.pendingThrow=null;
-                const result=await this.api.command(s.run!.id,'throw',{sessionId:s.session!.id,expectedRevision:s.run!.revision,encounterId:pending.encounterId,aimX:pending.x,aimY:pending.y},crypto.randomUUID());
+                const aim=pending.assisted ? assistedAim(s.run!,this.config()!,latency) : pending;
+                const result=await this.api.command(s.run!.id,'throw',{sessionId:s.session!.id,expectedRevision:s.run!.revision,encounterId:pending.encounterId,aimX:aim.x,aimY:aim.y},crypto.randomUUID());
                 this.apply(result);
                 this.throwQueued.set(false);
                 if(this.disposed)return;
-                const origin=this.launchOrigin();this.projectile.set({x:pending.x,y:pending.y,originX:origin.x,originY:origin.y});this.flightStarted=performance.now();
+                const origin=this.launchOrigin();this.projectile.set({x:aim.x,y:aim.y,originX:origin.x,originY:origin.y});this.flightStarted=performance.now();
                 this.flight.set({...origin,scale:1.4});
                 clearTimeout(this.shotTimer);this.shotTimer=window.setTimeout(()=>{this.projectile.set(null);this.flight.set(null);this.beginRetrieval()},(this.config()?.stoneFlightSeconds??.45)*1000);
             });

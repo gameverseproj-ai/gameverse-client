@@ -1,0 +1,247 @@
+{
+  "version": "city-v2",
+  "districts": [
+    {
+      "id": "old-town",
+      "name": "Old town",
+      "x": 0,
+      "z": 0
+    },
+    {
+      "id": "market",
+      "name": "Market quarter",
+      "x": -42,
+      "z": 0
+    },
+    {
+      "id": "workshops",
+      "name": "Workshop quarter",
+      "x": 42,
+      "z": 0
+    },
+    {
+      "id": "gardens",
+      "name": "City gardens",
+      "x": 42,
+      "z": -42,
+      "park": true
+    },
+    {
+      "id": "station",
+      "name": "Station quarter",
+      "x": -42,
+      "z": 42
+    },
+    {
+      "id": "library-quarter",
+      "name": "Library quarter",
+      "x": 0,
+      "z": -42
+    },
+    {
+      "id": "canal",
+      "name": "Canal quarter",
+      "x": 0,
+      "z": 42
+    },
+    {
+      "id": "north-gate",
+      "name": "North gate",
+      "x": -42,
+      "z": -42
+    },
+    {
+      "id": "south-gate",
+      "name": "South gate",
+      "x": 42,
+      "z": 42
+    }
+  ],
+  "enterableBuildingIds": [
+    "room",
+    "city-market-0",
+    "city-workshops-0",
+    "city-workshops-3",
+    "city-gardens-0",
+    "city-station-0",
+    "city-library-quarter-0",
+    "city-library-quarter-3",
+    "city-canal-0",
+    "city-north-gate-0",
+    "city-south-gate-0",
+    "city-south-gate-3"
+  ],
+  "guaranteedContainerIds": [
+    "pantry",
+    "city-market-0-cupboard",
+    "city-workshops-0-cupboard",
+    "city-workshops-3-cupboard",
+    "city-gardens-0-cupboard",
+    "city-station-0-cupboard",
+    "city-library-quarter-0-cupboard",
+    "city-library-quarter-3-cupboard",
+    "city-canal-0-cupboard",
+    "city-north-gate-0-cupboard",
+    "city-south-gate-0-cupboard",
+    "city-south-gate-3-cupboard"
+  ],
+  "indoorLoot": {
+    "minimumItems": 1,
+    "searchOncePerRun": true,
+    "resetCollectedOnDeath": true
+  },
+  "residentRoutes": [
+    {
+      "id": "gardener",
+      "from": {
+        "x": 3,
+        "z": 3
+      },
+      "to": {
+        "x": 8.000000000000002,
+        "z": 3
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 115.08000000000001
+    },
+    {
+      "id": "keeper",
+      "from": {
+        "x": -5,
+        "z": -6
+      },
+      "to": {
+        "x": 1.7763568394002505e-15,
+        "z": -6
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 87.132
+    },
+    {
+      "id": "market-resident",
+      "from": {
+        "x": -44,
+        "z": 1
+      },
+      "to": {
+        "x": -44,
+        "z": -4.000000000000002
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 212.48700000000002
+    },
+    {
+      "id": "workshops-resident",
+      "from": {
+        "x": 40,
+        "z": 1
+      },
+      "to": {
+        "x": 40,
+        "z": -4.000000000000002
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 262.355
+    },
+    {
+      "id": "gardens-resident",
+      "from": {
+        "x": 40,
+        "z": -41
+      },
+      "to": {
+        "x": 40,
+        "z": -46
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 225.639
+    },
+    {
+      "id": "station-resident",
+      "from": {
+        "x": -44,
+        "z": 43
+      },
+      "to": {
+        "x": -44,
+        "z": 48
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 229.74900000000002
+    },
+    {
+      "id": "library-quarter-resident",
+      "from": {
+        "x": -2,
+        "z": -41
+      },
+      "to": {
+        "x": -2,
+        "z": -36
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 339.89700000000005
+    },
+    {
+      "id": "canal-resident",
+      "from": {
+        "x": -2,
+        "z": 43
+      },
+      "to": {
+        "x": -7.000000000000002,
+        "z": 43
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 194.26600000000002
+    },
+    {
+      "id": "north-gate-resident",
+      "from": {
+        "x": -44,
+        "z": -41
+      },
+      "to": {
+        "x": -39,
+        "z": -41
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 263.588
+    },
+    {
+      "id": "south-gate-resident",
+      "from": {
+        "x": 40,
+        "z": 43
+      },
+      "to": {
+        "x": 45,
+        "z": 43
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 264.684
+    }
+  ],
+  "residentClock": "run.activeElapsedMs; paused during menus; render hidden in combat",
+  "residentInteraction": "nearby.position and distance validation must use the same route position; dialogue freezes the resident with the world"
+}

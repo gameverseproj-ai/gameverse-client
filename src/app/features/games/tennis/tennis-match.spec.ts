@@ -52,4 +52,14 @@ describe('Tennis practice model', () => {
     }
     expect(b.state.stamina).toBeGreaterThan(a.state.stamina);
   });
+  it('returns an incoming ball within reach without a tap and charges one hit',()=>{
+    const m=new TennisMatch(profile);m.state.phase='rally';m.state.x=.5;m.state.z=6.59;m.state.player=.5;(m as any).vz=8;
+    m.tick(.02);expect(m.state.rally).toBe(1);expect((m as any).vz).toBeLessThan(0);expect(m.state.stamina).toBeLessThan(98);
+    m.tick(.02);expect(m.state.rally).toBe(1);
+  });
+  it('still loses the point when the avatar cannot reach the ball',()=>{
+    const m=new TennisMatch(profile);m.state.phase='rally';m.state.x=4;m.state.z=8.39;m.state.player=-4;m.move(-4);(m as any).vz=8;
+    m.tick(.02);expect(m.state.rivalScore).toBe(1);expect(m.state.rally).toBe(0);
+  });
+
 });

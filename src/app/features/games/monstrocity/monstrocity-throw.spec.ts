@@ -1,3 +1,4 @@
+import { assistedAim } from './monstrocity-aim';
 import { signal } from '@angular/core';
 import { MonstrocityComponent } from './monstrocity.component';
 import { MonstrocityError } from './monstrocity.api';
@@ -69,6 +70,24 @@ describe('Monstrocity throw input',()=>{
   expect(c.throwQueued()).toBeTrue();expect(c.api.command).not.toHaveBeenCalled();
   expect(c.pendingThrow.expires).toBeUndefined();finish();await c.tail;
   expect(c.api.command).toHaveBeenCalledTimes(1);expect(c.projectile()).not.toBeNull();
+ });
+
+ it('locks a beginner tap to the visible monster and leads it after sync',async()=>{
+  const config:any={stoneFlightSeconds:.45,phaseSeconds:{day:240,night:240,dawn:120,dusk:120},monsters:[{id:'twig',motion:'zigzag',motionAmplitude:.22,motionPeriodSeconds:3,approachSeconds:20}]};
+  c.config=()=>config;Object.assign(state.run,{activeElapsedMs:2000,configVersion:'monstrocity-v2',survivedDays:0});
+  Object.assign(state.run.combat,{monsterId:'twig',target:{x:.3,y:.47}});
+  target.querySelector=(selector:string)=>selector==='.monster'?{getBoundingClientRect:()=>({left:140,right:240,top:70,bottom:180})}:null;
+  c.flush=async()=>{state.run.combat.elapsedActiveMs=2000};
+  c.aimDown(event('pointerdown'));c.aimUp(event('pointerup',280,230));await c.tail;
+  const aim=assistedAim(state.run,config),sent=c.api.command.calls.mostRecent().args[2];
+  expect(sent.aimX).toBeCloseTo(aim.x,2);expect(sent.aimY).toBeCloseTo(aim.y,2);
+  expect(c.projectile().x).toBe(sent.aimX);expect(c.projectile().y).toBe(sent.aimY);
+ });
+ it('does not assist an off-target tap or an advanced encounter',async()=>{
+  state.run.survivedDays=30;
+  target.querySelector=(selector:string)=>selector==='.monster'?{getBoundingClientRect:()=>({left:140,right:240,top:70,bottom:180})}:null;
+  c.aimDown(event('pointerdown'));c.aimUp(event('pointerup'));await c.tail;
+  expect(c.api.command.calls.mostRecent().args[2]).toEqual(jasmine.objectContaining({aimX:.4,aimY:.35}));
  });
 
 });

@@ -1,7 +1,9 @@
 .loot-reveal{position:absolute;z-index:8;top:22%;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none;color:#f9e7ba;filter:drop-shadow(0 3px 12px #0b171b);animation:loot-reveal 3.2s both}
 .loot-reveal>strong{font-size:14px;letter-spacing:.03em}.loot-reveal>small{display:block;margin-top:8px;color:#d0d8c3;font-size:12px}
-.loot-rewards{display:flex;gap:12px;justify-content:center;margin-top:12px}.loot-reward{display:grid;grid-template-columns:48px auto;gap:3px 8px;align-items:center;background:#18372ded;border:1px solid #bda36888;border-radius:14px;padding:10px 14px;animation:loot-rise .5s cubic-bezier(.2,.8,.2,1) both}.loot-reward svg{width:48px;height:48px;grid-row:span 2}.loot-reward span{font-size:12px}.loot-reward b{font-size:20px;color:#ffe0a2}
+.loot-rewards{display:flex;gap:12px;justify-content:center;margin-top:12px}.loot-reward{display:grid;grid-template-columns:48px auto;gap:3px 8px;align-items:center;background:#18372ded;border:1px solid #bda36888;border-radius:14px;padding:10px 14px;animation:loot-rise .5s cubic-bezier(.2,.8,.2,1) both}.loot-reward .supply-art{width:48px;height:48px;grid-row:span 2}.loot-reward span{font-size:12px}.loot-reward b{font-size:20px;color:#ffe0a2}
 @keyframes loot-rise{from{opacity:0;transform:translateY(28px) scale(.75)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes loot-reveal{0%{opacity:0}12%,82%{opacity:1;transform:translateX(-50%)}100%{opacity:0;transform:translate(-30%,-30px) scale(.85)}}
-@media(max-width:600px){.loot-rewards{gap:6px}.loot-reward{padding:8px;grid-template-columns:36px auto}.loot-reward svg{width:36px;height:36px}.loot-reveal{width:94%;top:24%}}
+@media(max-width:600px){.loot-rewards{gap:6px}.loot-reward{padding:8px;grid-template-columns:36px auto}.loot-reward .supply-art{width:36px;height:36px}.loot-reveal{width:94%;top:24%}}
 @media(prefers-reduced-motion:reduce){.loot-reward{animation:none}.loot-reveal{animation:none}}
+
+.supply-art{display:block;background:url("/assets/monstrocity/loot-items.png") 0 50%/300% 100% no-repeat;filter:drop-shadow(0 3px 5px #07150b66)}.supply-art.water{background-position:50% 50%}.supply-art.sword{background-position:100% 50%}.items .item-icon.supply-art{width:100px;height:100px;margin:0 auto}
