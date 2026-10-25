@@ -31,7 +31,7 @@ import { TranslatePipe } from '../../../core/i18n/translate.pipe';
   `]
 })
 export class MonstrocityAvatarComponent {
-  readonly female = input(true); readonly disabled = input(false); readonly locked = input(false);
+  readonly female = input(true); readonly disabled = input(false);
   readonly changeAvatar = output<void>(); readonly enter = output<void>();
   readonly asset = computed(() => '/assets/monstrocity/heroes/' + (this.female() ? 'female' : 'male'));
   readonly reduced = signal(true);
@@ -73,11 +73,11 @@ export class MonstrocityAvatarComponent {
     const p=this.pointer;if(!p||p.id!==e.pointerId)return;this.pointer=undefined;
     if(this.disabled()){this.tap=undefined;return;}
     const dx=e.clientX-p.x,dy=e.clientY-p.y,now=performance.now();
-    if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.3){this.tap=undefined;if(!this.locked())this.changeAvatar.emit();return;}
+    if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.3){this.tap=undefined;this.changeAvatar.emit();return;}
     if(Math.hypot(dx,dy)>16||now-p.time>400){this.tap=undefined;return;}
     if(this.tap&&now-this.tap.time<360&&Math.hypot(e.clientX-this.tap.x,e.clientY-this.tap.y)<28){this.tap=undefined;this.enter.emit();}
     else this.tap={x:e.clientX,y:e.clientY,time:now};
   }
   cancel(){if(this.pointer)this.tap=undefined;this.pointer=undefined;}
-  key(e:KeyboardEvent){if(this.disabled()||e.repeat)return;if(['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();if(!this.locked())this.changeAvatar.emit();}else if(e.key==='Enter'||e.key===' '){e.preventDefault();this.enter.emit();}}
+  key(e:KeyboardEvent){if(this.disabled()||e.repeat)return;if(['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();this.changeAvatar.emit();}else if(e.key==='Enter'||e.key===' '){e.preventDefault();this.enter.emit();}}
 }

@@ -1,139 +1,3 @@
-// src/app/features/games/monstrocity/monstrocity.map.ts
-var BUILDINGS = [
-  { id: "bakery", x: -10, z: -11, w: 7, d: 6, h: 7, color: 12558720 },
-  { id: "home", x: 0, z: -12, w: 7, d: 5, h: 8, color: 13088154 },
-  { id: "workshop", x: 10, z: -11, w: 7, d: 6, h: 6, color: 11046006 },
-  { id: "library", x: -12, z: 0, w: 5, d: 8, h: 6, color: 12628636 },
-  { id: "house-east", x: 12, z: 0, w: 5, d: 8, h: 8, color: 11182731 },
-  { id: "room", x: -10, z: 11, w: 7, d: 6, h: 5, color: 12164221, interior: true },
-  { id: "house-south", x: 1, z: 13, w: 7, d: 4, h: 7, color: 12692874 },
-  { id: "atelier", x: 11, z: 11, w: 6, d: 6, h: 5.5, color: 11903886 }
-];
-var SHELTER_CANDIDATES = [{ x: -9, z: -6.8 }, { x: 0, z: -8.2 }, { x: 10, z: -6.8 }, { x: -10, z: 11 }, { x: 11, z: 6.8 }];
-var CONTAINERS = [{ id: "crate-start", x: -7, z: -5.8 }, { id: "pantry", x: -9, z: 11 }, { id: "crate-east", x: 8, z: -5.5 }, { id: "crate-south", x: 7, z: 7 }, { id: "crate-west", x: -8, z: 3 }, { id: "cabinet", x: 2, z: -8 }];
-var RESIDENTS = [{ id: "gardener", x: 3, z: 3 }, { id: "keeper", x: -5, z: -6 }];
-var DISTRICTS = [
-  { id: "old-town", name: "Old town", x: 0, z: 0 },
-  { id: "market", name: "Market quarter", x: -42, z: 0 },
-  { id: "workshops", name: "Workshop quarter", x: 42, z: 0 },
-  { id: "gardens", name: "City gardens", x: 42, z: -42, park: true },
-  { id: "station", name: "Station quarter", x: -42, z: 42 },
-  { id: "library-quarter", name: "Library quarter", x: 0, z: -42 },
-  { id: "canal", name: "Canal quarter", x: 0, z: 42 },
-  { id: "north-gate", name: "North gate", x: -42, z: -42 },
-  { id: "south-gate", name: "South gate", x: 42, z: 42 }
-];
-var cityBuildings = [...BUILDINGS];
-var cityContainers = [...CONTAINERS];
-var cityResidents = [...RESIDENTS];
-var cityShelters = [...SHELTER_CANDIDATES];
-for (const [index, q] of DISTRICTS.slice(1).entries()) {
-  const palette = [12364171, 11187104, 12035735, 12759956];
-  for (const [i, [dx, dz]] of [[-11, -11], [11, -11], [-11, 11], [11, 11]].entries()) {
-    if (q.park && i > 1) continue;
-    cityBuildings.push({ id: "city-" + q.id + "-" + i, x: q.x + dx, z: q.z + dz, w: 8 + index % 3, d: 7 + i % 2 * 2, h: 4.8 + (index + i) % 3 * 1.2, color: palette[(index + i) % 4], interior: i === 0 || index % 3 === 1 && i === 3 });
-  }
-  for (const [i, [dx, dz]] of [[-5, -3], [5, 4], [-4, 7], [6, -5]].entries()) cityContainers.push({ id: q.id + "-cache-" + i, x: q.x + dx, z: q.z + dz });
-  cityResidents.push({ id: q.id + "-resident", x: q.x - 2, z: q.z + 1 });
-  cityShelters.push({ x: q.x + 2, z: q.z + 5 });
-}
-for (const b of cityBuildings) if (b.interior && b.id !== "room") cityContainers.push({ id: b.id + "-cupboard", x: b.x + 1, z: b.z - 1 });
-var CITY_MAP_VERSION = "city-v2";
-function mapFor(version = "courtyard-v1") {
-  const expanded = version === CITY_MAP_VERSION;
-  return { version, extent: expanded ? 67 : 17, buildings: expanded ? cityBuildings : BUILDINGS, containers: expanded ? cityContainers : CONTAINERS, residents: expanded ? cityResidents : RESIDENTS, shelters: expanded ? cityShelters : SHELTER_CANDIDATES, districts: expanded ? DISTRICTS : DISTRICTS.slice(0, 1) };
-}
-function blocked(p, map3 = mapFor()) {
-  if (Math.abs(p.x) > map3.extent || Math.abs(p.z) > map3.extent)
-    return true;
-  for (const b of map3.buildings) {
-    if (b.interior) {
-      const dx = p.x - b.x, dz = p.z - b.z;
-      if (Math.abs(dx) < b.w / 2 + 0.25 && Math.abs(dz) < b.d / 2 + 0.25) {
-        if (Math.abs(dx) > b.w / 2 - 0.35 || dz > b.d / 2 - 0.35)
-          return true;
-        if (dz < -b.d / 2 + 0.35 && Math.abs(dx) > 1)
-          return true;
-      }
-    } else if (Math.abs(p.x - b.x) < b.w / 2 + 0.28 && Math.abs(p.z - b.z) < b.d / 2 + 0.28)
-      return true;
-  }
-  if (map3.containers.some((c) => distance(c, p) < 0.5))
-    return true;
-  if (Math.abs(p.x - 15) < 1.35 && Math.abs(p.z + 7) < 2.85)
-    return true;
-  for (const [x, z] of [[-5, 1], [5, 1], [-4, 6], [7, -4]])
-    if (Math.abs(p.x - x) < 1.1 && Math.abs(p.z - z) < 1.1)
-      return true;
-  return Math.hypot(p.x, p.z) < 1.5;
-}
-var distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
-function movePoint(p, x, z, map3 = mapFor()) {
-  const next = { ...p };
-  if (!blocked({ x: p.x + x, z: p.z }, map3))
-    next.x += x;
-  if (!blocked({ x: next.x, z: p.z + z }, map3))
-    next.z += z;
-  return next;
-}
-function lineBlocked(a, b, map3 = mapFor()) {
-  const steps = Math.max(20, Math.ceil(distance(a, b) / 0.4));
-  for (let i = 1; i < steps; i++)
-    if (blocked({ x: a.x + (b.x - a.x) * i / steps, z: a.z + (b.z - a.z) * i / steps }, map3))
-      return true;
-  return false;
-}
-
-// src/app/features/games/monstrocity/monstrocity-residents.ts
-var routes = /* @__PURE__ */ new Map();
-function residentRoute(p, map3) {
-  const key = `${map3.version}:${p.id}:${p.x}:${p.z}`;
-  const cached = routes.get(key);
-  if (cached) return cached;
-  let to = { x: p.x, z: p.z };
-  const hash = Array.from(p.id).reduce((v, c) => v + c.charCodeAt(0), 0);
-  const directions = [[1, 0], [0, 1], [-1, 0], [0, -1]];
-  for (let n = 0; n < 4; n++) {
-    const [x, z] = directions[(n + hash) % 4];
-    let length = 0;
-    for (let d = 0.2; d <= 5.2; d += 0.2) {
-      if (blocked({ x: p.x + x * d, z: p.z + z * d }, map3)) break;
-      length = d;
-    }
-    if (length >= 2.4) {
-      to = { x: p.x + x * length, z: p.z + z * length };
-      break;
-    }
-  }
-  const route = { id: p.id, from: { x: p.x, z: p.z }, to, speed: 2.8, waitA: 1.5, waitB: 2.3, offsetSeconds: hash * 0.137 };
-  routes.set(key, route);
-  return route;
-}
-function residentPose(route, seconds) {
-  const length = Math.hypot(route.to.x - route.from.x, route.to.z - route.from.z), travel = length / route.speed;
-  const period = travel * 2 + route.waitA + route.waitB;
-  const phase = ((seconds + route.offsetSeconds) % period + period) % period;
-  let progress = 0, running2 = false, direction = 1;
-  if (phase >= route.waitA && phase < route.waitA + travel) {
-    progress = (phase - route.waitA) / travel;
-    running2 = true;
-  } else if (phase >= route.waitA + travel && phase < route.waitA + travel + route.waitB) progress = 1;
-  else if (phase >= route.waitA + travel + route.waitB) {
-    progress = 1 - (phase - route.waitA - travel - route.waitB) / travel;
-    running2 = true;
-    direction = -1;
-  }
-  progress = progress * progress * (3 - 2 * progress);
-  return { x: route.from.x + (route.to.x - route.from.x) * progress, z: route.from.z + (route.to.z - route.from.z) * progress, running: running2, facing: Math.atan2((route.to.x - route.from.x) * direction, (route.to.z - route.from.z) * direction), stride: seconds * 13 + route.offsetSeconds };
-}
-
-// src/app/features/games/monstrocity/monstrocity.input.ts
-function worldInput(x, y) {
-  const scale = Math.max(1, Math.hypot(x, y)) * Math.hypot(0.785, 0.62);
-  const bound = (value) => Math.max(-1, Math.min(1, value / scale));
-  return { moveX: bound(x * 0.785 + y * 0.62), moveZ: bound(-x * 0.62 + y * 0.785) };
-}
-
 // node_modules/three/build/three.core.js
 var REVISION = "184";
 var CullFaceNone = 0;
@@ -31371,10 +31235,10 @@ function mergeAttributes(attributes) {
 }
 
 // src/app/features/games/monstrocity/monstrocity-explorer.ts
-function createExplorer(female, material, npc = false) {
+function createExplorer(female, material) {
   const root = new Group();
   const skin = 13210738, skinLight = 14725516, hair = female ? 5321513 : 3418660;
-  const coat = female ? 8409156 : 3957339, seam = female ? 12091232 : 7442820;
+  const coat = female ? 7176565 : 3957339, seam = female ? 10332561 : 7442820;
   const leather = 4862761, brass = 12296298, pants = 3687242;
   const mesh = (g, x, y, z, c, p = root) => {
     const m = new Mesh(g, material(c));
@@ -31396,9 +31260,9 @@ function createExplorer(female, material, npc = false) {
     m.scale.z = depth;
     return m;
   };
-  form([[0, 0], [0.22, 0.015], [0.25, 0.08], [0.205, 0.25], [0.25, 0.43], [0.28, 0.52], [0.19, 0.59], [0.09, 0.63], [0, 0.63]], 0.64, 0, 0.78, 0, coat);
+  form(female ? [[0, 0], [0.19, 0.015], [0.215, 0.08], [0.18, 0.25], [0.22, 0.43], [0.245, 0.52], [0.17, 0.59], [0.08, 0.63], [0, 0.63]] : [[0, 0], [0.22, 0.015], [0.25, 0.08], [0.205, 0.25], [0.25, 0.43], [0.28, 0.52], [0.19, 0.59], [0.09, 0.63], [0, 0.63]], 0.64, 0, 0.78, 0, coat);
   oval(0, 0.79, 0, 0.205, 0.14, 0.14, pants);
-  oval(0, 1.44, 0, 0.085, 0.12, 0.078, skin);
+  oval(0, 1.44, 0, female ? 0.066 : 0.085, female ? 0.095 : 0.12, female ? 0.063 : 0.078, skin);
   box(0, 1.31, 0.13, 0.16, 0.19, 0.045, 13352350);
   for (const s of [-1, 1]) {
     const collar = box(s * 0.11, 1.36, 0.13, 0.115, 0.18, 0.045, seam);
@@ -31422,40 +31286,71 @@ function createExplorer(female, material, npc = false) {
   box(0, 0.854, 0.179, 0.043, 0.028, 0.012, leather, root, 5e-3);
   box(0.245, 0.79, 0.035, 0.1, 0.16, 0.12, leather);
   const head = new Group();
+  head.name = "head";
   head.position.set(0, 1.69, 0);
   root.add(head);
-  oval(0, 0, 0, 0.185, 0.235, 0.165, skin, head);
-  oval(0, -0.115, 0.035, 0.132, 0.118, 0.125, skin, head);
-  for (const s of [-1, 1]) {
-    oval(s * 0.18, -0.012, 0, 0.033, 0.065, 0.035, skin, head);
-    oval(s * 0.193, -0.015, 0.014, 0.014, 0.038, 0.018, 11367515, head);
-    oval(s * 0.1, -0.055, 0.112, 0.069, 0.053, 0.043, skinLight, head);
-    oval(s * 0.073, 0.025, 0.147, 0.057, 0.038, 0.026, 7097146, head);
-    oval(s * 0.073, 0.024, 0.159, 0.047, 0.027, 0.018, 15787210, head);
-    oval(s * 0.07, 0.024, 0.176, 0.021, 0.023, 9e-3, female ? 6060126 : 7305047, head);
-    oval(s * 0.07, 0.024, 0.182, 0.011, 0.016, 6e-3, 2370344, head);
-    oval(s * 0.063, 0.033, 0.188, 6e-3, 7e-3, 3e-3, 16777215, head);
-    line([[s * 0.12, 0.078, 0.143], [s * 0.077, 0.091, 0.16], [s * 0.037, 0.078, 0.154]], 0.011, hair, head);
-    line([[s * 0.118, 0.043, 0.156], [s * 0.076, 0.055, 0.176], [s * 0.031, 0.038, 0.16]], 6e-3, 6833719, head);
-  }
-  oval(0, -0.018, 0.153, 0.027, 0.063, 0.033, skinLight, head);
-  oval(0, -0.055, 0.182, 0.037, 0.028, 0.035, skinLight, head);
-  line([[-0.047, -0.112, 0.147], [0, -0.12, 0.159], [0.047, -0.108, 0.147]], 6e-3, 9001034, head);
-  oval(0, -0.13, 0.15, 0.035, 9e-3, 9e-3, 13012081, head);
-  oval(0, 0.143, -0.04, 0.194, 0.125, 0.163, hair, head);
-  for (let i = 0; i < 7; i++) {
-    const x = -0.15 + i * 0.047;
-    const lock = oval(x, 0.163 - Math.abs(x) * 0.16, 0.073, 0.061, 0.083, 0.115, i % 2 ? hair : female ? 6701363 : 4798252, head);
-    lock.rotation.z = -0.45;
-    lock.rotation.x = -0.2;
-  }
-  for (const s of [-1, 1]) oval(s * 0.16, 0.045, -0.027, 0.038, 0.12, 0.11, hair, head);
   if (female) {
-    oval(0, 0.025, -0.14, 0.175, 0.17, 0.065, hair, head);
-    for (let i = 0; i < 6; i++) oval(i % 2 ? 0.025 : -0.025, -0.065 - i * 0.055, -0.18, 0.064 - i * 5e-3, 0.05, 0.057, hair, head);
-    oval(0, -0.31, -0.18, 0.045, 0.018, 0.04, 12161617, head);
+    const face = new SphereGeometry(1, 28, 22);
+    const positions = face.attributes["position"];
+    for (let i = 0; i < positions.count; i++) {
+      const y = positions.getY(i);
+      const taper = y < -0.15 ? 1 + (y + 0.15) * 0.24 : 1;
+      positions.setX(i, positions.getX(i) * taper);
+    }
+    face.computeVertexNormals();
+    const faceMesh = mesh(face, 0, 0, 0, skin, head);
+    faceMesh.scale.set(0.153, 0.19, 0.137);
+    for (const side of [-1, 1]) {
+      oval(side * 0.153, -5e-3, -0.012, 0.023, 0.043, 0.023, skin, head);
+      oval(side * 0.059, 0.018, 0.122, 0.033, 0.014, 8e-3, 14800316, head);
+      oval(side * 0.059, 0.018, 0.13, 0.011, 0.012, 3e-3, 5466971, head);
+      oval(side * 0.059, 0.018, 0.133, 55e-4, 9e-3, 2e-3, 2634287, head);
+      line([[side * 0.09, 0.024, 0.127], [side * 0.06, 0.033, 0.133], [side * 0.027, 0.024, 0.128]], 45e-4, 6573120, head);
+      line([[side * 0.09, 0.06, 0.115], [side * 0.06, 0.065, 0.126], [side * 0.032, 0.058, 0.122]], 6e-3, 5126189, head);
+    }
+    oval(0, -0.015, 0.128, 0.017, 0.04, 0.02, 13803908, head);
+    oval(0, -0.043, 0.143, 0.021, 0.015, 0.018, skinLight, head);
+    line([[-0.034, -0.085, 0.118], [0, -0.09, 0.132], [0.034, -0.083, 0.118]], 45e-4, 9592401, head);
+    const cap = mesh(new SphereGeometry(1, 28, 18, 0, Math.PI * 2, 0, Math.PI * 0.51), 0, 0.035, -0.015, 4797741, head);
+    cap.scale.set(0.162, 0.185, 0.15);
+    for (const side of [-1, 1]) {
+      const lock = oval(side * 0.132, 0.02, -0.015, 0.028, 0.115, 0.114, 4797741, head);
+      lock.rotation.z = side * 0.12;
+    }
+    line([[-0.12, 0.132, 0.069], [-0.064, 0.19, 0.035], [0.02, 0.201, 0.012], [0.117, 0.127, 0.08]], 0.012, 5849397, head);
+    line([[0.015, 0.198, 7e-3], [0.045, 0.177, 0.077], [0.126, 0.102, 0.105]], 6e-3, 7689280, head);
+    line([[0, 0.02, -0.13], [0.026, -0.065, -0.174], [0.04, -0.21, -0.173], [0.025, -0.32, -0.149]], 0.035, 4797741, head);
+    oval(0.025, -0.285, -0.155, 0.029, 0.058, 0.028, 4797741, head);
+    oval(0.022, -0.052, -0.164, 0.044, 0.013, 0.038, 10853496, head);
+    head.scale.setScalar(0.94);
   } else {
-    for (const s of [-1, 1]) line([[s * 0.153, -0.06, 0.06], [s * 0.13, -0.125, 0.085], [s * 0.085, -0.16, 0.1]], 0.012, 7952196, head);
+    oval(0, 0, 0, 0.185, 0.235, 0.165, skin, head);
+    oval(0, -0.115, 0.035, 0.132, 0.118, 0.125, skin, head);
+    for (const s of [-1, 1]) {
+      oval(s * 0.18, -0.012, 0, 0.033, 0.065, 0.035, skin, head);
+      oval(s * 0.193, -0.015, 0.014, 0.014, 0.038, 0.018, 11367515, head);
+      oval(s * 0.1, -0.055, 0.112, 0.069, 0.053, 0.043, skinLight, head);
+      oval(s * 0.073, 0.025, 0.147, 0.057, 0.038, 0.026, 7097146, head);
+      oval(s * 0.073, 0.024, 0.159, 0.047, 0.027, 0.018, 15787210, head);
+      oval(s * 0.07, 0.024, 0.176, 0.021, 0.023, 9e-3, female ? 6060126 : 7305047, head);
+      oval(s * 0.07, 0.024, 0.182, 0.011, 0.016, 6e-3, 2370344, head);
+      oval(s * 0.063, 0.033, 0.188, 6e-3, 7e-3, 3e-3, 16777215, head);
+      line([[s * 0.12, 0.078, 0.143], [s * 0.077, 0.091, 0.16], [s * 0.037, 0.078, 0.154]], 0.011, hair, head);
+      line([[s * 0.118, 0.043, 0.156], [s * 0.076, 0.055, 0.176], [s * 0.031, 0.038, 0.16]], 6e-3, 6833719, head);
+    }
+    oval(0, -0.018, 0.153, 0.027, 0.063, 0.033, skinLight, head);
+    oval(0, -0.055, 0.182, 0.037, 0.028, 0.035, skinLight, head);
+    line([[-0.047, -0.112, 0.147], [0, -0.12, 0.159], [0.047, -0.108, 0.147]], 6e-3, 9001034, head);
+    oval(0, -0.13, 0.15, 0.035, 9e-3, 9e-3, 13012081, head);
+    oval(0, 0.143, -0.04, 0.194, 0.125, 0.163, hair, head);
+    for (let i = 0; i < 7; i++) {
+      const x = -0.15 + i * 0.047;
+      const lock = oval(x, 0.163 - Math.abs(x) * 0.16, 0.073, 0.061, 0.083, 0.115, i % 2 ? hair : female ? 6701363 : 4798252, head);
+      lock.rotation.z = -0.45;
+      lock.rotation.x = -0.2;
+    }
+    for (const s of [-1, 1]) oval(s * 0.16, 0.045, -0.027, 0.038, 0.12, 0.11, hair, head);
+    for (const side of [-1, 1]) line([[side * 0.153, -0.06, 0.06], [side * 0.13, -0.125, 0.085], [side * 0.085, -0.16, 0.1]], 0.012, 7952196, head);
   }
   box(0, 1.105, -0.225, 0.38, 0.43, 0.2, 8877651, root, 0.055);
   box(0, 1.27, -0.258, 0.4, 0.16, 0.21, 10587237, root, 0.045);
@@ -31475,64 +31370,327 @@ function createExplorer(female, material, npc = false) {
   for (const s of [-1, 1]) {
     const arm = new Group();
     arm.name = "limb";
-    arm.position.set(s * 0.28, 1.31, 0);
+    arm.position.set(s * (female ? 0.245 : 0.28), 1.31, 0);
     root.add(arm);
-    oval(s * 0.018, -0.075, 0, 0.102, 0.145, 0.104, coat, arm);
-    const sleeve = oval(s * 0.035, -0.225, 0.018, 0.079, 0.15, 0.085, coat, arm);
-    sleeve.rotation.z = s * 0.08;
+    if (female) {
+      form([[0, -0.36], [0.04, -0.36], [0.064, -0.345], [0.071, -0.25], [0.076, -0.12], [0.083, -0.03], [0.08, 0.015], [0.055, 0.065], [0, 0.085]], 1, s * 0.025, 0, 8e-3, coat, arm);
+    } else {
+      oval(s * 0.018, -0.075, 0, 0.102, 0.145, 0.104, coat, arm);
+      const sleeve = oval(s * 0.035, -0.225, 0.018, 0.079, 0.15, 0.085, coat, arm);
+      sleeve.rotation.z = s * 0.08;
+    }
     form([[0.075, 0], [0.078, 0.045]], 1, s * 0.04, -0.36, 0.027, seam, arm);
-    oval(s * 0.04, -0.405, 0.032, 0.059, 0.08, 0.047, skinLight, arm);
+    oval(s * 0.04, -0.405, 0.032, female ? 0.049 : 0.059, 0.075, female ? 0.041 : 0.047, skinLight, arm);
     oval(s * -5e-3, -0.4, 0.062, 0.025, 0.045, 0.026, skin, arm);
     line([[s * 0.02, -0.443, 0.071], [s * 0.05, -0.447, 0.071]], 4e-3, 10382417, arm);
     const leg = new Group();
     leg.name = "limb";
     leg.position.set(s * 0.125, 0.79, 0);
     root.add(leg);
-    oval(0, -0.145, 0, 0.103, 0.205, 0.106, pants, leg);
+    if (female) form([[0, -0.34], [0.073, -0.33], [0.087, -0.24], [0.094, -0.08], [0.075, 0.025], [0, 0.035]], 1, 0, 0, 0, pants, leg);
+    else oval(0, -0.145, 0, 0.103, 0.205, 0.106, pants, leg);
     line([[s * 0.08, -0.04, 0.025], [s * 0.085, -0.25, 0.026]], 5e-3, 6647921, leg);
     const knee = new Group();
     knee.name = "knee";
     knee.position.y = -0.34;
     leg.add(knee);
-    oval(0, -0.105, 0, 0.083, 0.15, 0.087, pants, knee);
+    if (female) form([[0, -0.24], [0.063, -0.23], [0.073, -0.1], [0.077, 0.015], [0, 0.025]], 1, 0, 0, 0, pants, knee);
+    else oval(0, -0.105, 0, 0.083, 0.15, 0.087, pants, knee);
     form([[0.09, 0], [0.095, 0.06], [0.08, 0.2], [0.09, 0.235]], 0.93, 0, -0.32, 5e-3, leather, knee);
-    box(0, -0.335, 0.055, 0.197, 0.14, 0.31, leather, knee, 0.05);
-    box(0, -0.395, 0.06, 0.207, 0.045, 0.325, 2698281, knee, 0.015);
+    box(0, -0.335, 0.055, female ? 0.173 : 0.197, 0.14, female ? 0.28 : 0.31, leather, knee, 0.045);
+    box(0, -0.395, 0.06, female ? 0.183 : 0.207, 0.045, female ? 0.295 : 0.325, 2698281, knee, 0.015);
     for (let i = 0; i < 3; i++) line([[-0.047, -0.23 - i * 0.032, 0.093], [0.047, -0.245 - i * 0.032, 0.095]], 6e-3, 11114098, knee);
     line([[-0.075, -0.34, 0.183], [0, -0.35, 0.2], [0.075, -0.34, 0.183]], 5e-3, 9073498, knee);
   }
-  const batch = (group) => {
-    for (const child of [...group.children]) if (child instanceof Group) batch(child);
-    const buckets = /* @__PURE__ */ new Map();
-    for (const child of group.children) if (child instanceof Mesh) {
-      const m = child.material;
-      const list = buckets.get(m) ?? [];
-      list.push(child);
-      buckets.set(m, list);
-    }
-    for (const [mat, parts] of buckets) {
-      if (parts.length < 2) continue;
-      const gs = parts.map((p) => {
-        p.updateMatrix();
-        const g = p.geometry.index ? p.geometry.toNonIndexed() : p.geometry.clone();
-        return g.applyMatrix4(p.matrix);
-      });
-      const merged = mergeGeometries(gs);
-      gs.forEach((g) => g.dispose());
-      if (!merged) continue;
-      parts.forEach((p) => {
-        group.remove(p);
-        p.geometry.dispose();
-      });
-      const m = new Mesh(merged, mat);
-      m.castShadow = true;
-      m.receiveShadow = true;
-      group.add(m);
-    }
-  };
-  batch(root);
-  if (npc) root.rotation.y = Math.PI * 0.7;
+  batchRigidParts(root);
   return root;
+}
+function batchRigidParts(group) {
+  for (const child of [...group.children]) if (child instanceof Group) batchRigidParts(child);
+  const buckets = /* @__PURE__ */ new Map();
+  for (const child of group.children) if (child instanceof Mesh) {
+    const m = child.material;
+    const list = buckets.get(m) ?? [];
+    list.push(child);
+    buckets.set(m, list);
+  }
+  for (const [mat, parts] of buckets) {
+    if (parts.length < 2) continue;
+    const gs = parts.map((p) => {
+      p.updateMatrix();
+      const g = p.geometry.index ? p.geometry.toNonIndexed() : p.geometry.clone();
+      return g.applyMatrix4(p.matrix);
+    });
+    const merged = mergeGeometries(gs);
+    gs.forEach((g) => g.dispose());
+    if (!merged) continue;
+    parts.forEach((p) => {
+      group.remove(p);
+      p.geometry.dispose();
+    });
+    const m = new Mesh(merged, mat);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    group.add(m);
+  }
+}
+
+// src/app/features/games/monstrocity/monstrocity-citizen.ts
+var CITIZEN_STYLES = [
+  { id: "courier", skin: 12157024, hair: 3418917, coat: 5729160, trim: 11122107, pants: 3425098, width: 0.23, height: 1.02, hat: "cap", accessory: "satchel" },
+  { id: "gardener", skin: 13672832, hair: 9205601, coat: 9015660, trim: 14075034, pants: 6115650, width: 0.28, height: 0.97, hat: "brim", accessory: "apron" },
+  { id: "mechanic", skin: 9790537, hair: 2696997, coat: 6716028, trim: 13413744, pants: 3423044, width: 0.27, height: 1.05, hat: "beanie", accessory: "vest" },
+  { id: "teacher", skin: 13806218, hair: 5981242, coat: 9071746, trim: 13286823, pants: 4276299, width: 0.2, height: 1.03, hat: "bob", accessory: "satchel" },
+  { id: "baker", skin: 12225390, hair: 6770756, coat: 11905163, trim: 14800052, pants: 6120793, width: 0.29, height: 1, hat: "cap", accessory: "apron" },
+  { id: "night-watch", skin: 8413257, hair: 3289132, coat: 4609376, trim: 10134944, pants: 3423811, width: 0.28, height: 1.08, hat: "brim", accessory: "vest" },
+  { id: "student", skin: 14003080, hair: 3681576, coat: 12359256, trim: 14734771, pants: 5071218, width: 0.21, height: 0.94, hat: "hood", accessory: "none" },
+  { id: "neighbour", skin: 10975580, hair: 10261893, coat: 9729637, trim: 13350817, pants: 5528662, width: 0.25, height: 0.96, hat: "bun", accessory: "scarf" },
+  { id: "traveller", skin: 14329738, hair: 6635570, coat: 6258557, trim: 12630169, pants: 3884364, width: 0.22, height: 1.04, hat: "scarf", accessory: "satchel" },
+  { id: "caretaker", skin: 10450779, hair: 7829871, coat: 8352597, trim: 11842965, pants: 4279106, width: 0.26, height: 1, hat: "beanie", accessory: "vest" }
+];
+function createCitizen(index, material) {
+  const style = CITIZEN_STYLES[index % CITIZEN_STYLES.length], root = new Group();
+  root.name = "citizen-" + style.id;
+  root.userData["appearance"] = style.id;
+  const mesh = (geometry, x, y, z, color, parent = root) => {
+    const m = new Mesh(geometry, material(color));
+    m.position.set(x, y, z);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    parent.add(m);
+    return m;
+  };
+  const oval = (x, y, z, w, h, d, color, parent = root) => {
+    const m = mesh(new SphereGeometry(1, 14, 10), x, y, z, color, parent);
+    m.scale.set(w, h, d);
+    return m;
+  };
+  const box = (x, y, z, w, h, d, color, parent = root) => mesh(new RoundedBoxGeometry(w, h, d, 2, Math.min(0.035, w / 5, h / 5, d / 5)), x, y, z, color, parent);
+  const tube = (points, width, color, parent = root) => mesh(new TubeGeometry(new CatmullRomCurve3(points.map((p) => new Vector3(p[0], p[1], p[2]))), 10, width, 5, false), 0, 0, 0, color, parent);
+  const coat = new LatheGeometry([[0, 0], [style.width * 0.9, 0.015], [style.width, 0.07], [style.width * 0.84, 0.3], [style.width, 0.52], [style.width * 0.68, 0.6], [0, 0.61]].map(([r, y]) => new Vector2(r, y)), 18);
+  const body = mesh(coat, 0, 0.77, 0, style.coat);
+  body.scale.z = 0.7;
+  oval(0, 0.79, 0, style.width * 0.8, 0.12, 0.13, style.pants);
+  oval(0, 1.42, 0, 0.07, 0.1, 0.067, style.skin);
+  box(0, 1.16, 0.155, 0.085, 0.35, 0.025, style.trim);
+  for (const side of [-1, 1]) {
+    const collar = box(side * 0.075, 1.35, 0.13, 0.1, 0.13, 0.035, style.trim);
+    collar.rotation.z = side * 0.45;
+  }
+  if (style.accessory === "apron") {
+    box(0, 0.94, 0.18, style.width * 1.55, 0.48, 0.035, style.trim);
+    box(0, 1.23, 0.16, 0.2, 0.23, 0.025, style.trim);
+    box(0.06, 0.95, 0.205, 0.14, 0.11, 0.018, style.coat);
+  } else if (style.accessory === "vest") {
+    for (const side of [-1, 1]) {
+      box(side * 0.13, 1.12, 0.14, 0.18, 0.39, 0.06, style.trim);
+      box(side * 0.13, 0.99, 0.18, 0.13, 0.085, 0.025, style.pants);
+    }
+  } else if (style.accessory === "satchel") {
+    box(-style.width - 0.025, 0.88, -0.02, 0.19, 0.25, 0.13, 7163960);
+    tube([[-style.width, 0.9, 0.05], [0, 1.17, 0.18], [style.width * 0.75, 1.36, 0.06]], 0.018, 5915700);
+  } else if (style.accessory === "scarf") {
+    oval(0, 1.39, 0.02, 0.12, 0.045, 0.1, 12229492);
+    box(-0.07, 1.2, 0.18, 0.1, 0.3, 0.025, 12229492);
+  }
+  const head = new Group();
+  head.name = "head";
+  head.position.y = 1.65;
+  root.add(head);
+  oval(0, 0, 0, 0.146, 0.19, 0.132, style.skin, head);
+  oval(0, -0.09, 0.01, 0.11, 0.1, 0.1, style.skin, head);
+  for (const side of [-1, 1]) {
+    oval(side * 0.145, 0, -5e-3, 0.022, 0.04, 0.023, style.skin, head);
+    oval(side * 0.052, 0.025, 0.125, 9e-3, 0.01, 4e-3, 3420717, head);
+    tube([[side * 0.082, 0.065, 0.105], [side * 0.05, 0.071, 0.12], [side * 0.025, 0.064, 0.113]], 5e-3, style.hair, head);
+  }
+  oval(0, -0.025, 0.126, 0.019, 0.035, 0.023, style.skin, head);
+  tube([[-0.028, -0.084, 0.112], [0, -0.087, 0.123], [0.028, -0.081, 0.112]], 35e-4, 8477772, head);
+  const cap = mesh(new SphereGeometry(1, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.57), 0, 0.025, -0.014, style.hair, head);
+  cap.scale.set(0.153, 0.185, 0.145);
+  if (style.hat === "bob") {
+    for (const side of [-1, 1]) oval(side * 0.13, -0.02, -0.045, 0.035, 0.14, 0.1, style.hair, head);
+  } else if (style.hat === "bun") {
+    oval(0, 0.02, -0.13, 0.14, 0.14, 0.045, style.hair, head);
+    oval(0, 0.045, -0.18, 0.074, 0.075, 0.06, style.hair, head);
+  } else if (style.hat === "cap") {
+    oval(0, 0.14, 0, 0.163, 0.1, 0.15, style.coat, head);
+    const bill = box(0, 0.105, 0.16, 0.24, 0.026, 0.15, style.coat, head);
+    bill.rotation.x = -0.12;
+  } else if (style.hat === "brim") {
+    mesh(new CylinderGeometry(0.21, 0.21, 0.035, 24), 0, 0.105, 0, style.trim, head);
+    mesh(new CylinderGeometry(0.13, 0.15, 0.15, 20), 0, 0.18, 0, style.trim, head);
+  } else if (style.hat === "beanie") {
+    oval(0, 0.13, -0.015, 0.16, 0.12, 0.15, style.trim, head);
+    mesh(new CylinderGeometry(0.16, 0.16, 0.055, 20), 0, 0.095, -0.01, style.trim, head);
+  } else if (style.hat === "hood") {
+    oval(0, 0.025, -0.1, 0.19, 0.235, 0.14, style.coat, head);
+    tube([[-0.15, -0.08, 0.05], [-0.16, 0.1, 0.07], [0, 0.22, 0.05], [0.16, 0.1, 0.07], [0.15, -0.08, 0.05]], 0.027, style.trim, head);
+  } else if (style.hat === "scarf") {
+    tube([[-0.13, -0.06, 0.08], [-0.15, 0.13, 0.05], [0, 0.21, 0.01], [0.15, 0.13, 0.05], [0.13, -0.06, 0.08]], 0.036, style.trim, head);
+    oval(0, -0.12, -0.12, 0.14, 0.14, 0.055, style.trim, head);
+  }
+  for (const side of [-1, 1]) {
+    const arm = new Group();
+    arm.name = "limb";
+    arm.position.set(side * (style.width + 0.025), 1.3, 0);
+    root.add(arm);
+    oval(side * 0.015, -0.12, 0, 0.078, 0.17, 0.078, style.coat, arm);
+    oval(side * 0.025, -0.29, 0.01, 0.065, 0.12, 0.068, style.coat, arm);
+    box(side * 0.025, -0.36, 0.012, 0.12, 0.045, 0.13, style.trim, arm);
+    oval(side * 0.025, -0.42, 0.015, 0.047, 0.067, 0.04, style.skin, arm);
+    const leg = new Group();
+    leg.name = "limb";
+    leg.position.set(side * 0.115, 0.77, 0);
+    root.add(leg);
+    oval(0, -0.15, 0, 0.09, 0.19, 0.095, style.pants, leg);
+    const knee = new Group();
+    knee.name = "knee";
+    knee.position.y = -0.33;
+    leg.add(knee);
+    oval(0, -0.13, 0, 0.073, 0.16, 0.077, style.pants, knee);
+    box(0, -0.31, 0.04, 0.16, 0.14, 0.27, 4801595, knee);
+    box(0, -0.37, 0.05, 0.17, 0.035, 0.28, 3160113, knee);
+  }
+  root.scale.set(style.id === "baker" ? 1.06 : 1, style.height, 1);
+  batchRigidParts(root);
+  return root;
+}
+
+// src/app/features/games/monstrocity/monstrocity.map.ts
+var BUILDINGS = [
+  { id: "bakery", x: -10, z: -11, w: 7, d: 6, h: 7, color: 12558720 },
+  { id: "home", x: 0, z: -12, w: 7, d: 5, h: 8, color: 13088154 },
+  { id: "workshop", x: 10, z: -11, w: 7, d: 6, h: 6, color: 11046006 },
+  { id: "library", x: -12, z: 0, w: 5, d: 8, h: 6, color: 12628636 },
+  { id: "house-east", x: 12, z: 0, w: 5, d: 8, h: 8, color: 11182731 },
+  { id: "room", x: -10, z: 11, w: 7, d: 6, h: 5, color: 12164221, interior: true },
+  { id: "house-south", x: 1, z: 13, w: 7, d: 4, h: 7, color: 12692874 },
+  { id: "atelier", x: 11, z: 11, w: 6, d: 6, h: 5.5, color: 11903886 }
+];
+var SHELTER_CANDIDATES = [{ x: -9, z: -6.8 }, { x: 0, z: -8.2 }, { x: 10, z: -6.8 }, { x: -10, z: 11 }, { x: 11, z: 6.8 }];
+var CONTAINERS = [{ id: "crate-start", x: -7, z: -5.8 }, { id: "pantry", x: -9, z: 11 }, { id: "crate-east", x: 8, z: -5.5 }, { id: "crate-south", x: 7, z: 7 }, { id: "crate-west", x: -8, z: 3 }, { id: "cabinet", x: 2, z: -8 }];
+var RESIDENTS = [{ id: "gardener", x: 3, z: 3 }, { id: "keeper", x: -5, z: -6 }];
+var DISTRICTS = [
+  { id: "old-town", name: "Old town", x: 0, z: 0 },
+  { id: "market", name: "Market quarter", x: -42, z: 0 },
+  { id: "workshops", name: "Workshop quarter", x: 42, z: 0 },
+  { id: "gardens", name: "City gardens", x: 42, z: -42, park: true },
+  { id: "station", name: "Station quarter", x: -42, z: 42 },
+  { id: "library-quarter", name: "Library quarter", x: 0, z: -42 },
+  { id: "canal", name: "Canal quarter", x: 0, z: 42 },
+  { id: "north-gate", name: "North gate", x: -42, z: -42 },
+  { id: "south-gate", name: "South gate", x: 42, z: 42 }
+];
+var cityBuildings = [...BUILDINGS];
+var cityContainers = [...CONTAINERS];
+var cityResidents = [...RESIDENTS];
+var cityShelters = [...SHELTER_CANDIDATES];
+for (const [index, q] of DISTRICTS.slice(1).entries()) {
+  const palette = [12364171, 11187104, 12035735, 12759956];
+  for (const [i, [dx, dz]] of [[-11, -11], [11, -11], [-11, 11], [11, 11]].entries()) {
+    if (q.park && i > 1) continue;
+    cityBuildings.push({ id: "city-" + q.id + "-" + i, x: q.x + dx, z: q.z + dz, w: 8 + index % 3, d: 7 + i % 2 * 2, h: 4.8 + (index + i) % 3 * 1.2, color: palette[(index + i) % 4], interior: i === 0 || index % 3 === 1 && i === 3 });
+  }
+  for (const [i, [dx, dz]] of [[-5, -3], [5, 4], [-4, 7], [6, -5]].entries()) cityContainers.push({ id: q.id + "-cache-" + i, x: q.x + dx, z: q.z + dz });
+  cityResidents.push({ id: q.id + "-resident", x: q.x - 2, z: q.z + 1 });
+  cityShelters.push({ x: q.x + 2, z: q.z + 5 });
+}
+for (const b of cityBuildings) if (b.interior && b.id !== "room") cityContainers.push({ id: b.id + "-cupboard", x: b.x + 1, z: b.z - 1 });
+var CITY_MAP_VERSION = "city-v2";
+function mapFor(version = "courtyard-v1") {
+  const expanded = version === CITY_MAP_VERSION;
+  return { version, extent: expanded ? 67 : 17, buildings: expanded ? cityBuildings : BUILDINGS, containers: expanded ? cityContainers : CONTAINERS, residents: expanded ? cityResidents : RESIDENTS, shelters: expanded ? cityShelters : SHELTER_CANDIDATES, districts: expanded ? DISTRICTS : DISTRICTS.slice(0, 1) };
+}
+function blocked(p, map3 = mapFor()) {
+  if (Math.abs(p.x) > map3.extent || Math.abs(p.z) > map3.extent)
+    return true;
+  for (const b of map3.buildings) {
+    if (b.interior) {
+      const dx = p.x - b.x, dz = p.z - b.z;
+      if (Math.abs(dx) < b.w / 2 + 0.25 && Math.abs(dz) < b.d / 2 + 0.25) {
+        if (Math.abs(dx) > b.w / 2 - 0.35 || dz > b.d / 2 - 0.35)
+          return true;
+        if (dz < -b.d / 2 + 0.35 && Math.abs(dx) > 1)
+          return true;
+      }
+    } else if (Math.abs(p.x - b.x) < b.w / 2 + 0.28 && Math.abs(p.z - b.z) < b.d / 2 + 0.28)
+      return true;
+  }
+  if (map3.containers.some((c) => distance(c, p) < 0.5))
+    return true;
+  if (Math.abs(p.x - 15) < 1.35 && Math.abs(p.z + 7) < 2.85)
+    return true;
+  for (const [x, z] of [[-5, 1], [5, 1], [-4, 6], [7, -4]])
+    if (Math.abs(p.x - x) < 1.1 && Math.abs(p.z - z) < 1.1)
+      return true;
+  return Math.hypot(p.x, p.z) < 1.5;
+}
+var distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
+function movePoint(p, x, z, map3 = mapFor()) {
+  const next = { ...p };
+  if (!blocked({ x: p.x + x, z: p.z }, map3))
+    next.x += x;
+  if (!blocked({ x: next.x, z: p.z + z }, map3))
+    next.z += z;
+  return next;
+}
+function lineBlocked(a, b, map3 = mapFor()) {
+  const steps = Math.max(20, Math.ceil(distance(a, b) / 0.4));
+  for (let i = 1; i < steps; i++)
+    if (blocked({ x: a.x + (b.x - a.x) * i / steps, z: a.z + (b.z - a.z) * i / steps }, map3))
+      return true;
+  return false;
+}
+
+// src/app/features/games/monstrocity/monstrocity-residents.ts
+var routes = /* @__PURE__ */ new Map();
+function residentRoute(p, map3) {
+  const key = `${map3.version}:${p.id}:${p.x}:${p.z}`;
+  const cached = routes.get(key);
+  if (cached) return cached;
+  let to = { x: p.x, z: p.z };
+  const hash = Array.from(p.id).reduce((v, c) => v + c.charCodeAt(0), 0);
+  const directions = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+  for (let n = 0; n < 4; n++) {
+    const [x, z] = directions[(n + hash) % 4];
+    let length = 0;
+    for (let d = 0.2; d <= 5.2; d += 0.2) {
+      if (blocked({ x: p.x + x * d, z: p.z + z * d }, map3)) break;
+      length = d;
+    }
+    if (length >= 2.4) {
+      to = { x: p.x + x * length, z: p.z + z * length };
+      break;
+    }
+  }
+  const route = { id: p.id, from: { x: p.x, z: p.z }, to, speed: 2.8, waitA: 1.5, waitB: 2.3, offsetSeconds: hash * 0.137 };
+  routes.set(key, route);
+  return route;
+}
+function residentPose(route, seconds) {
+  const length = Math.hypot(route.to.x - route.from.x, route.to.z - route.from.z), travel = length / route.speed;
+  const period = travel * 2 + route.waitA + route.waitB;
+  const phase = ((seconds + route.offsetSeconds) % period + period) % period;
+  let progress = 0, running2 = false, direction = 1;
+  if (phase >= route.waitA && phase < route.waitA + travel) {
+    progress = (phase - route.waitA) / travel;
+    running2 = true;
+  } else if (phase >= route.waitA + travel && phase < route.waitA + travel + route.waitB) progress = 1;
+  else if (phase >= route.waitA + travel + route.waitB) {
+    progress = 1 - (phase - route.waitA - travel - route.waitB) / travel;
+    running2 = true;
+    direction = -1;
+  }
+  progress = progress * progress * (3 - 2 * progress);
+  return { x: route.from.x + (route.to.x - route.from.x) * progress, z: route.from.z + (route.to.z - route.from.z) * progress, running: running2, facing: Math.atan2((route.to.x - route.from.x) * direction, (route.to.z - route.from.z) * direction), stride: seconds * 13 + route.offsetSeconds };
+}
+
+// src/app/features/games/monstrocity/monstrocity.input.ts
+function worldInput(x, y) {
+  const scale = Math.max(1, Math.hypot(x, y)) * Math.hypot(0.785, 0.62);
+  const bound = (value) => Math.max(-1, Math.min(1, value / scale));
+  return { moveX: bound(x * 0.785 + y * 0.62), moveZ: bound(-x * 0.62 + y * 0.785) };
 }
 
 // src/app/features/games/monstrocity/monstrocity.scene.ts
@@ -31580,12 +31738,16 @@ var MonstrocityScene = class {
       this.tree(x, this.map.extent + 5);
     }
     if (this.map.extent > 17) {
+      const plaza = this.mat(12367517);
+      plaza.map = ground.map.clone();
+      plaza.map.repeat.set(5, 5);
+      this.textures.push(plaza.map);
       for (const axis of [-63, -21, 21, 63]) {
         this.box(5, 0.025, 134, axis, -0.04, 0, 8093815);
         this.box(134, 0.025, 5, 0, -0.04, axis, 8093815);
       }
       for (const q of this.map.districts.slice(1)) {
-        this.box(15, 0.06, 16, q.x, -0.025, q.z, q.park ? 9214328 : 10591626);
+        this.box(15, 0.06, 16, q.x, -0.025, q.z, q.park ? 9214328 : plaza);
         for (const dx of [-7, 7]) {
           this.lamp(q.x + dx, q.z - 1);
           this.bench(q.x + dx, q.z + 5);
@@ -31635,8 +31797,8 @@ var MonstrocityScene = class {
     this.world.add(this.playerMarker);
     this.limbs = this.player.children.filter((c) => c.name === "limb");
     for (let i = 0; i < this.map.residents.length; i++) {
-      const person = this.human(i === 1, true);
-      person.scale.setScalar(0.94);
+      const person = createCitizen(i, (color) => this.mat(color));
+      person.scale.multiplyScalar(0.94);
       this.world.add(person);
       this.npcs.push(person);
     }
@@ -31932,8 +32094,8 @@ var MonstrocityScene = class {
         this.sphere(x + dx, 0.42, z + dz, 0.28, 0.43, 0.43, 4014654);
     this.box(1.8, 0.75, 0.06, x, 1.8, z + 2.63, 4744300);
   }
-  human(female, npc = false) {
-    return createExplorer(female, (color) => this.mat(color), npc);
+  human(female) {
+    return createExplorer(female, (color) => this.mat(color));
   }
   batch() {
     const groups = /* @__PURE__ */ new Map();
@@ -32243,10 +32405,10 @@ var LOCAL_CONFIG = {
   "mapVersion": "city-v2",
   "assetManifestVersion": "art-v1",
   "phaseSeconds": {
-    "day": 240,
-    "evening": 120,
-    "night": 240,
-    "morning": 120
+    "day": 120,
+    "evening": 60,
+    "night": 120,
+    "morning": 60
   },
   "energyMax": 100,
   "onlineEnergyPerSecond": 0.08,
@@ -54609,7 +54771,7 @@ var LocalMonstrocityApi = class {
       this.data.nextEncounter = 18e3;
       this.data.hiddenFor = 0;
       const p = this.map.shelters[start];
-      this.s.run = { id: crypto.randomUUID(), revision: 0, configVersion: this.config.version, mapVersion: this.config.mapVersion, status: "active", activeElapsedMs: 0, survivedDays: 0, phase: "day", phaseRemainingMs: 24e4, energy: this.config.energyMax, position: { ...p }, shelterId: "shelter-" + start, recoveryRemainingActiveMs: null, knownShelters: [{ id: "shelter-" + start, position: { ...p }, source: "start" }], nearby: [], notice: null, search: null, dialogue: null, combat: null, fogRemainingActiveMs: 0, deathReason: null };
+      this.s.run = { id: crypto.randomUUID(), revision: 0, configVersion: this.config.version, mapVersion: this.config.mapVersion, status: "active", activeElapsedMs: 0, survivedDays: 0, phase: "day", phaseRemainingMs: this.config.phaseSeconds.day * 1e3, energy: this.config.energyMax, position: { ...p }, shelterId: "shelter-" + start, recoveryRemainingActiveMs: null, knownShelters: [{ id: "shelter-" + start, position: { ...p }, source: "start" }], nearby: [], notice: null, search: null, dialogue: null, combat: null, fogRemainingActiveMs: 0, deathReason: null };
       this.openSession();
       this.nearby();
       return this.bump();

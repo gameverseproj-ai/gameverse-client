@@ -1,0 +1,14 @@
+import * as T from 'three';
+import { createExplorer } from '../../../src/app/features/games/monstrocity/monstrocity-explorer';
+import { createCitizen,CITIZEN_STYLES } from '../../../src/app/features/games/monstrocity/monstrocity-citizen';
+import { createExplorer as before } from '../character-review/explorer-before';
+const materials=new Map<number,T.MeshStandardMaterial>();
+const mat=(c:number)=>{if(!materials.has(c))materials.set(c,new T.MeshStandardMaterial({color:c,roughness:.88}));return materials.get(c)!};
+const renderer=new T.WebGLRenderer({canvas:document.querySelector('canvas')!,antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(1);renderer.setClearColor(0x273932);renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;
+const world=new T.Scene();world.add(new T.HemisphereLight(0xe4e9e0,0x6d6a5a,2.5));const sun=new T.DirectionalLight(0xffe9cb,3.5);sun.position.set(-4,7,6);world.add(sun);const fill=new T.DirectionalLight(0xb1cdd0,1.5);fill.position.set(3,3,-3);world.add(fill);
+const camera=new T.PerspectiveCamera(36,1,.1,100);let portrait=true,back=false,running=false;
+const old=before(true,mat),hero=createExplorer(true,mat);old.position.x=-.7;hero.position.x=.7;world.add(old,hero);
+const citizens=CITIZEN_STYLES.map((style,i)=>{const c=createCitizen(i,mat);c.position.x=(i-4.5)*.75;c.visible=false;world.add(c);return c;});
+function mode(){old.visible=hero.visible=portrait;citizens.forEach(c=>c.visible=!portrait);document.querySelector('#label')!.textContent=portrait?'Слева — предыдущая модель · справа — новая героиня':'Десять жителей: отдельные силуэты и одежда, без костюма игрового героя';}
+document.querySelector('#hero')!.addEventListener('click',()=>{portrait=true;mode()});document.querySelector('#citizens')!.addEventListener('click',()=>{portrait=false;mode()});document.querySelector('#back')!.addEventListener('click',()=>back=!back);document.querySelector('#run')!.addEventListener('click',()=>running=!running);
+let previous=0;function render(now:number){const canvas=renderer.domElement;renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);camera.aspect=canvas.clientWidth/canvas.clientHeight;camera.updateProjectionMatrix();camera.position.set(0,portrait?1.25:2.2,portrait?3.7:9.7);camera.lookAt(0,portrait?1.1:.9,0);for(const actor of [old,hero,...citizens]){actor.rotation.y=back?Math.PI:0;const limbs=actor.children.filter(c=>c.name==='limb');limbs.forEach((limb,i)=>{const stride=Math.sin(now*.013+(i===0||i===3?0:Math.PI));limb.rotation.x=running?stride*.8:0;const knee=limb.getObjectByName('knee');if(knee)knee.rotation.x=running?Math.max(0,-stride)*.8:0;});}renderer.render(world,camera);previous=now;requestAnimationFrame(render)}mode();requestAnimationFrame(render);

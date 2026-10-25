@@ -20,10 +20,10 @@
     <p class="controls-note">{{ 'Left thumb to walk. Drag on the right to look around.' | t }}</p>
    </div>
    <div class="avatar-selection">
-    <app-monstrocity-avatar [female]="hero() === 'female'" [disabled]="busy() || loading() || !!error()" [locked]="run?.status === 'active'" (changeAvatar)="choose(hero() === 'female' ? 'male' : 'female')" (enter)="begin()" />
+    <app-monstrocity-avatar [female]="hero() === 'female'" [disabled]="busy() || loading() || !!error()" (changeAvatar)="choose(hero() === 'female' ? 'male' : 'female')" (enter)="begin()" />
     <div class="avatar-caption" aria-live="polite"><strong>{{ (hero() === 'female' ? 'Female explorer' : 'Male explorer') | t }}</strong>
      <p>{{ (loading() ? 'Preparing the courtyard…' : busy() ? 'Opening your journey…' : run?.status === 'active' ? 'Double tap your explorer to continue' : 'Double tap your explorer to begin') | t }}</p>
-     @if (run?.status !== 'active') {<small>↔ {{ 'Swipe to change explorer' | t }}</small>}
+     <small>↔ {{ 'Swipe to change explorer' | t }}</small>
     </div>
    </div>
   </div>

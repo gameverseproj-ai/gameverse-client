@@ -1,3 +1,4 @@
+import { createCitizen } from './monstrocity-citizen';
 import { residentPose, residentRoute } from './monstrocity-residents';
 import { worldInput } from './monstrocity.input';
 import { createExplorer } from './monstrocity-explorer';
@@ -142,8 +143,8 @@ export class MonstrocityScene {
         const arrow=new T.Mesh(new T.ShapeGeometry(arrowShape),new T.MeshBasicMaterial({color:0xf0d494,side:T.DoubleSide}));arrow.rotation.x=Math.PI/2;arrow.position.y=.03;this.playerMarker.add(arrow);this.world.add(this.playerMarker);
         this.limbs = this.player.children.filter(c => c.name === 'limb') as T.Group[];
         for (let i = 0; i < this.map.residents.length; i++) {
-            const person = this.human(i === 1, true);
-            person.scale.setScalar(.94);
+            const person = createCitizen(i,color=>this.mat(color));
+            person.scale.multiplyScalar(.94);
             this.world.add(person);
             this.npcs.push(person);
         }
@@ -331,7 +332,7 @@ export class MonstrocityScene {
             this.box(.04, .75, .85, x + side * 1.12, 1.8, z - 1.7 + i * 1.05, 0x344f58); for (const dz of [-1.7, 1.7])
         for (const dx of [-1, 1])
             this.sphere(x + dx, .42, z + dz, .28, .43, .43, 0x3d423e); this.box(1.8, .75, .06, x, 1.8, z + 2.63, 0x48646c); }
-    private human(female: boolean, npc = false) { return createExplorer(female, color => this.mat(color), npc); }
+    private human(female: boolean) { return createExplorer(female, color => this.mat(color)); }
     private batch() {
         const groups = new Map<T.Material, T.BufferGeometry[]>();
         const buildingMaterials=new Map<string,T.Material>();

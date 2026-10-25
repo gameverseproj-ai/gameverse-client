@@ -119,7 +119,7 @@ export class MonstrocityComponent {
                 return;
             this.state.set(b.snapshot);
             this.config.set(b.config);
-            this.hero.set(b.snapshot.run?.status === 'active' ? b.snapshot.profile.character : this.prefs.avatar(this.api.local) ?? b.snapshot.profile.character);
+            this.hero.set(this.prefs.avatar(this.api.local) ?? b.snapshot.profile.character);
             this.scene = new MonstrocityScene(this.canvas().nativeElement,this.cityMap.version);
             this.cameraMode.set(this.prefs.camera(this.api.local));
             this.scene.setCameraMode(this.cameraMode());
@@ -140,7 +140,7 @@ export class MonstrocityComponent {
         }
     }
     toggleCamera() { const mode=this.cameraMode()==='overhead'?'follow':'overhead';this.cameraMode.set(mode);this.prefs.setCamera(mode,this.api.local);this.scene?.setCameraMode(mode); }
-    choose(value: 'male' | 'female') { if (this.run?.status === 'active' || this.busy() || this.loading()) return; this.hero.set(value); this.prefs.setAvatar(value, this.api.local); this.scene?.setCharacter(value === 'female'); }
+    choose(value: 'male' | 'female') { if (this.busy() || this.loading()) return; this.hero.set(value); this.prefs.setAvatar(value, this.api.local); this.scene?.setCharacter(value === 'female'); }
     private apply(s: Snapshot) {
         if (this.disposed)
             return;
@@ -158,7 +158,7 @@ export class MonstrocityComponent {
         this.state.set(s);
         if(this.scene && this.scene.mapVersion!==this.cityMap.version){
             this.scene.destroy();const canvas=this.canvas().nativeElement;
-            this.scene=new MonstrocityScene(canvas,this.cityMap.version);this.scene.setCharacter(s.profile.character==='female');this.scene.setCameraMode(this.cameraMode());this.scene.resize(canvas.clientWidth,canvas.clientHeight);
+            this.scene=new MonstrocityScene(canvas,this.cityMap.version);this.scene.setCharacter(this.hero()==='female');this.scene.setCameraMode(this.cameraMode());this.scene.resize(canvas.clientWidth,canvas.clientHeight);
         }
         if (s.run?.status === 'dead') { this.clearInput(); this.modal.set(null); }
         if (s.run?.dialogue)
@@ -181,7 +181,7 @@ export class MonstrocityComponent {
     toggleMusic() { this.musicMuted.update(v => !v); this.music.mute(this.musicMuted()); this.startMusic(); try { localStorage.setItem('monstrocity.music-muted', String(this.musicMuted())); } catch {} }
     async begin() { this.startMusic(); if (this.busy() || this.loading() || !!this.error())
         return; this.prefs.setAvatar(this.hero(), this.api.local); this.busy.set(true); this.error.set(''); try {
-        await this.queue(async () => { if (this.run?.status !== 'active') { const bootstrap = await this.api.bootstrap(); this.config.set(bootstrap.config); this.apply(bootstrap.snapshot); } const s = this.run?.status === 'active' ? await this.api.resume(this.run.id, false, crypto.randomUUID()) : await this.api.create({ character: this.hero(), configVersion: this.config()!.version }, crypto.randomUUID()); this.apply(s); this.sequence = s.session?.lastAcceptedInputSequence ?? 0; this.frames = []; this.started.set(true); this.modal.set(null); this.scene?.setCharacter(s.profile.character === 'female'); });
+        await this.queue(async () => { if (this.run?.status !== 'active') { const bootstrap = await this.api.bootstrap(); this.config.set(bootstrap.config); this.apply(bootstrap.snapshot); } const s = this.run?.status === 'active' ? await this.api.resume(this.run.id, false, crypto.randomUUID()) : await this.api.create({ character: this.hero(), configVersion: this.config()!.version }, crypto.randomUUID()); this.apply(s); this.sequence = s.session?.lastAcceptedInputSequence ?? 0; this.frames = []; this.started.set(true); this.modal.set(null); this.scene?.setCharacter(this.hero() === 'female'); });
     }
     catch (e) {
         this.handle(e);
