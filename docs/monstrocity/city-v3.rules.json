@@ -1,0 +1,643 @@
+{
+  "version": "city-v3",
+  "districts": [
+    {
+      "id": "old-town",
+      "name": "Old town",
+      "x": 0,
+      "z": 0
+    },
+    {
+      "id": "market",
+      "name": "Market quarter",
+      "x": -30,
+      "z": 0
+    },
+    {
+      "id": "workshops",
+      "name": "Workshop quarter",
+      "x": 30,
+      "z": 0
+    },
+    {
+      "id": "gardens",
+      "name": "City gardens",
+      "x": 30,
+      "z": -30,
+      "park": true
+    },
+    {
+      "id": "station",
+      "name": "Station quarter",
+      "x": -30,
+      "z": 30
+    },
+    {
+      "id": "library-quarter",
+      "name": "Library quarter",
+      "x": 0,
+      "z": -30
+    },
+    {
+      "id": "canal",
+      "name": "Canal quarter",
+      "x": 0,
+      "z": 30
+    },
+    {
+      "id": "north-gate",
+      "name": "North gate",
+      "x": -30,
+      "z": -30
+    },
+    {
+      "id": "south-gate",
+      "name": "South gate",
+      "x": 30,
+      "z": 30
+    },
+    {
+      "id": "northwest",
+      "name": "North gardens",
+      "x": -60,
+      "z": -60,
+      "park": true
+    },
+    {
+      "id": "north",
+      "name": "Water tower",
+      "x": -30,
+      "z": -60,
+      "park": false
+    },
+    {
+      "id": "northeast",
+      "name": "Watch post",
+      "x": 0,
+      "z": -60,
+      "park": false
+    },
+    {
+      "id": "west",
+      "name": "West gate",
+      "x": 30,
+      "z": -60,
+      "park": false
+    },
+    {
+      "id": "east",
+      "name": "Eastern promenade",
+      "x": 60,
+      "z": -60,
+      "park": false
+    },
+    {
+      "id": "southwest",
+      "name": "Orchards",
+      "x": -60,
+      "z": -30,
+      "park": true
+    },
+    {
+      "id": "south",
+      "name": "Southern market",
+      "x": 60,
+      "z": -30,
+      "park": false
+    },
+    {
+      "id": "southeast",
+      "name": "Mill quarter",
+      "x": -60,
+      "z": 0,
+      "park": false
+    },
+    {
+      "id": "foundry",
+      "name": "Foundry",
+      "x": 60,
+      "z": 0,
+      "park": false
+    },
+    {
+      "id": "hospital",
+      "name": "Hospital quarter",
+      "x": -60,
+      "z": 30,
+      "park": false
+    },
+    {
+      "id": "greenhouses",
+      "name": "Greenhouses",
+      "x": 60,
+      "z": 30,
+      "park": true
+    },
+    {
+      "id": "stoneworkers",
+      "name": "Stoneworkers",
+      "x": -60,
+      "z": 60,
+      "park": false
+    },
+    {
+      "id": "residential",
+      "name": "Residential lanes",
+      "x": -30,
+      "z": 60,
+      "park": false
+    },
+    {
+      "id": "civic",
+      "name": "Civic square",
+      "x": 0,
+      "z": 60,
+      "park": false
+    },
+    {
+      "id": "station-old",
+      "name": "Old station",
+      "x": 30,
+      "z": 60,
+      "park": false
+    },
+    {
+      "id": "canal-banks",
+      "name": "Canal banks",
+      "x": 60,
+      "z": 60,
+      "park": false
+    }
+  ],
+  "roads": [
+    -75,
+    -45,
+    -16.5,
+    16.5,
+    45,
+    75
+  ],
+  "enterableBuildingIds": [
+    "room",
+    "city3-market-0",
+    "city3-workshops-0",
+    "city3-workshops-3",
+    "city3-gardens-0",
+    "city3-station-0",
+    "city3-library-quarter-0",
+    "city3-canal-0",
+    "city3-canal-3",
+    "city3-north-gate-0",
+    "city3-south-gate-0",
+    "city3-northwest-0",
+    "city3-north-0",
+    "city3-north-3",
+    "city3-northeast-0",
+    "city3-west-0",
+    "city3-east-0",
+    "city3-southwest-0",
+    "city3-south-0",
+    "city3-southeast-0",
+    "city3-foundry-0",
+    "city3-hospital-0",
+    "city3-hospital-3",
+    "city3-greenhouses-0",
+    "city3-stoneworkers-0",
+    "city3-residential-0",
+    "city3-civic-0",
+    "city3-civic-3",
+    "city3-station-old-0",
+    "city3-canal-banks-0"
+  ],
+  "guaranteedContainerIds": [
+    "pantry",
+    "city3-market-0-cupboard",
+    "city3-workshops-0-cupboard",
+    "city3-workshops-3-cupboard",
+    "city3-gardens-0-cupboard",
+    "city3-station-0-cupboard",
+    "city3-library-quarter-0-cupboard",
+    "city3-canal-0-cupboard",
+    "city3-canal-3-cupboard",
+    "city3-north-gate-0-cupboard",
+    "city3-south-gate-0-cupboard",
+    "city3-northwest-0-cupboard",
+    "city3-north-0-cupboard",
+    "city3-north-3-cupboard",
+    "city3-northeast-0-cupboard",
+    "city3-west-0-cupboard",
+    "city3-east-0-cupboard",
+    "city3-southwest-0-cupboard",
+    "city3-south-0-cupboard",
+    "city3-southeast-0-cupboard",
+    "city3-foundry-0-cupboard",
+    "city3-hospital-0-cupboard",
+    "city3-hospital-3-cupboard",
+    "city3-greenhouses-0-cupboard",
+    "city3-stoneworkers-0-cupboard",
+    "city3-residential-0-cupboard",
+    "city3-civic-0-cupboard",
+    "city3-civic-3-cupboard",
+    "city3-station-old-0-cupboard",
+    "city3-canal-banks-0-cupboard"
+  ],
+  "indoorLoot": {
+    "minimumItems": 1,
+    "searchOncePerRun": true,
+    "resetCollectedOnDeath": true
+  },
+  "residentRoutes": [
+    {
+      "id": "gardener",
+      "from": {
+        "x": 3,
+        "z": 3
+      },
+      "to": {
+        "x": 8.000000000000002,
+        "z": 3
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 115.08000000000001
+    },
+    {
+      "id": "keeper",
+      "from": {
+        "x": -5,
+        "z": -6
+      },
+      "to": {
+        "x": 1.7763568394002505e-15,
+        "z": -6
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 87.132
+    },
+    {
+      "id": "city3-market-resident",
+      "from": {
+        "x": -31,
+        "z": 0
+      },
+      "to": {
+        "x": -26,
+        "z": 0
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 286.05600000000004
+    },
+    {
+      "id": "city3-workshops-resident",
+      "from": {
+        "x": 29,
+        "z": 0
+      },
+      "to": {
+        "x": 34,
+        "z": 0
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 335.92400000000004
+    },
+    {
+      "id": "city3-gardens-resident",
+      "from": {
+        "x": 29,
+        "z": -30
+      },
+      "to": {
+        "x": 34,
+        "z": -30
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 299.208
+    },
+    {
+      "id": "city3-station-resident",
+      "from": {
+        "x": -31,
+        "z": 30
+      },
+      "to": {
+        "x": -36,
+        "z": 30
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 303.31800000000004
+    },
+    {
+      "id": "city3-library-quarter-resident",
+      "from": {
+        "x": -1,
+        "z": -30
+      },
+      "to": {
+        "x": -6.000000000000002,
+        "z": -30
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 413.466
+    },
+    {
+      "id": "city3-canal-resident",
+      "from": {
+        "x": -1,
+        "z": 30
+      },
+      "to": {
+        "x": -1,
+        "z": 25
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 267.83500000000004
+    },
+    {
+      "id": "city3-north-gate-resident",
+      "from": {
+        "x": -31,
+        "z": -30
+      },
+      "to": {
+        "x": -31,
+        "z": -25
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 337.15700000000004
+    },
+    {
+      "id": "city3-south-gate-resident",
+      "from": {
+        "x": 29,
+        "z": 30
+      },
+      "to": {
+        "x": 29,
+        "z": 35
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 338.25300000000004
+    },
+    {
+      "id": "city3-northwest-resident",
+      "from": {
+        "x": -61,
+        "z": -60
+      },
+      "to": {
+        "x": -66,
+        "z": -60
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 335.65000000000003
+    },
+    {
+      "id": "city3-north-resident",
+      "from": {
+        "x": -31,
+        "z": -60
+      },
+      "to": {
+        "x": -31,
+        "z": -65
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 273.863
+    },
+    {
+      "id": "city3-northeast-resident",
+      "from": {
+        "x": -1,
+        "z": -60
+      },
+      "to": {
+        "x": 4.000000000000002,
+        "z": -60
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 332.636
+    },
+    {
+      "id": "city3-west-resident",
+      "from": {
+        "x": 29,
+        "z": -60
+      },
+      "to": {
+        "x": 29,
+        "z": -65
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 259.615
+    },
+    {
+      "id": "city3-east-resident",
+      "from": {
+        "x": 59,
+        "z": -60
+      },
+      "to": {
+        "x": 59,
+        "z": -55
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 256.601
+    },
+    {
+      "id": "city3-southwest-resident",
+      "from": {
+        "x": -61,
+        "z": -30
+      },
+      "to": {
+        "x": -66,
+        "z": -30
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 336.74600000000004
+    },
+    {
+      "id": "city3-south-resident",
+      "from": {
+        "x": 59,
+        "z": -30
+      },
+      "to": {
+        "x": 59,
+        "z": -35
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 274.959
+    },
+    {
+      "id": "city3-southeast-resident",
+      "from": {
+        "x": -61,
+        "z": 0
+      },
+      "to": {
+        "x": -56,
+        "z": 0
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 333.732
+    },
+    {
+      "id": "city3-foundry-resident",
+      "from": {
+        "x": 59,
+        "z": 0
+      },
+      "to": {
+        "x": 59,
+        "z": -5.000000000000002
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 304.00300000000004
+    },
+    {
+      "id": "city3-hospital-resident",
+      "from": {
+        "x": -61,
+        "z": 30
+      },
+      "to": {
+        "x": -56,
+        "z": 30
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 316.744
+    },
+    {
+      "id": "city3-greenhouses-resident",
+      "from": {
+        "x": 59,
+        "z": 30
+      },
+      "to": {
+        "x": 64,
+        "z": 30
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 361.132
+    },
+    {
+      "id": "city3-stoneworkers-resident",
+      "from": {
+        "x": -61,
+        "z": 60
+      },
+      "to": {
+        "x": -66,
+        "z": 60
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 380.586
+    },
+    {
+      "id": "city3-residential-resident",
+      "from": {
+        "x": -31,
+        "z": 60
+      },
+      "to": {
+        "x": -26,
+        "z": 60
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 358.39200000000005
+    },
+    {
+      "id": "city3-civic-resident",
+      "from": {
+        "x": -1,
+        "z": 60
+      },
+      "to": {
+        "x": -6.000000000000002,
+        "z": 60
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 269.89000000000004
+    },
+    {
+      "id": "city3-station-old-resident",
+      "from": {
+        "x": 29,
+        "z": 60
+      },
+      "to": {
+        "x": 24,
+        "z": 60
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 353.18600000000004
+    },
+    {
+      "id": "city3-canal-banks-resident",
+      "from": {
+        "x": 59,
+        "z": 60
+      },
+      "to": {
+        "x": 59,
+        "z": 55
+      },
+      "speed": 2.8,
+      "waitA": 1.5,
+      "waitB": 2.3,
+      "offsetSeconds": 346.199
+    }
+  ],
+  "residentClock": "run.activeElapsedMs; paused during menus; render hidden in combat",
+  "residentInteraction": "nearby.position and distance validation must use the same route position; dialogue freezes the resident with the world"
+}

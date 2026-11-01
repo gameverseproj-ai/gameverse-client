@@ -57,8 +57,16 @@ export class MonstrocityComponent {
     readonly joystick = signal({ x: 0, y: 0 });
     get cityMap() { return mapFor(this.run?.mapVersion ?? this.config()?.mapVersion); }
     readonly mapZoom=signal(1);
+    readonly mapDistrict=signal('');
+    private readonly mapFocus=signal<{x:number;z:number}|null>(null);
+    resetMap(){this.mapZoom.set(1);this.mapFocus.set(null);this.mapDistrict.set('');}
+    selectMapDistrict(event:Event){
+        const id=(event.target as HTMLSelectElement).value,q=this.cityMap.districts.find(q=>q.id===id);
+        if(!q){this.resetMap();return;}
+        this.mapDistrict.set(id);this.mapFocus.set({x:q.x,z:q.z});this.mapZoom.set(3);
+    }
     zoomMap(delta:number){this.mapZoom.update(z=>Math.max(1,Math.min(4,z+delta)));}
-    get mapViewBox(){const e=this.cityMap.extent+5,size=e*2/this.mapZoom();const clamp=(v:number)=>Math.max(-e+size/2,Math.min(e-size/2,v));return `${clamp(this.run?.position.x??0)-size/2} ${clamp(this.run?.position.z??0)-size/2} ${size} ${size}`;}
+    get mapViewBox(){const e=this.cityMap.extent+5,size=e*2/this.mapZoom();const clamp=(v:number)=>Math.max(-e+size/2,Math.min(e-size/2,v));return `${clamp(this.mapFocus()?.x??this.run?.position.x??0)-size/2} ${clamp(this.mapFocus()?.z??this.run?.position.z??0)-size/2} ${size} ${size}`;}
     get buildings() { return this.cityMap.buildings; }
     readonly musicMuted = signal(false);
     private music = new MonstrocityMusic();

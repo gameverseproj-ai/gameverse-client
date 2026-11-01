@@ -103,15 +103,15 @@ export class MonstrocityScene {
         if(this.map.extent>17){
             const plaza=this.mat(0xbcb69d);plaza.map=ground.map.clone();plaza.map.repeat.set(5,5);this.textures.push(plaza.map);
             // Broad boulevards connect the nine authored neighbourhoods.
-            for(const axis of [-63,-21,21,63]){
-                this.box(5,.025,134,axis,-.04,0,0x7b8077);
-                this.box(134,.025,5,0,-.04,axis,0x7b8077);
+            for(const axis of this.map.roads){
+                this.box(this.map.extent===77?2.8:5,.025,this.map.extent*2,axis,-.04,0,0x7b8077);
+                this.box(this.map.extent*2,.025,this.map.extent===77?2.8:5,0,-.04,axis,0x7b8077);
             }
             for(const q of this.map.districts.slice(1)){
-                this.box(15,.06,16,q.x,-.025,q.z, q.park?0x8c9978:plaza);
-                for(const dx of [-7,7]){this.lamp(q.x+dx,q.z-1);this.bench(q.x+dx,q.z+5);}
-                for(const dx of [-16,16])for(const dz of [-5,5])this.tree(q.x+dx,q.z+dz);
-                if(q.park){for(const dx of [-10,0,10])this.tree(q.x+dx,q.z+13);}
+                this.box(this.map.extent===77?9:15,.06,this.map.extent===77?11:16,q.x,-.025,q.z, q.park?0x8c9978:plaza);
+                for(const dx of (this.map.extent===77?[-4.4,4.4]:[-7,7])){this.lamp(q.x+dx,q.z-1);this.bench(q.x+dx,q.z+5.5);}
+                for(const dx of (this.map.extent===77?[-12,12]:[-16,16]))for(const dz of [-3,3])this.tree(q.x+dx,q.z+dz);
+                if(q.park){for(const dx of [-9,0,9])this.tree(q.x+dx,q.z+11);}
             }
         }
         this.fountain();
@@ -429,7 +429,8 @@ export class MonstrocityScene {
             this.playerMarker.visible=!r.combat;
             for(const interior of this.interiors){
                 const b=interior.building,inRoom=Math.abs(r.position.x-b.x)<b.w/2 && Math.abs(r.position.z-b.z)<b.d/2;
-                interior.roof.visible=!inRoom;
+                const close=Math.hypot(b.x-r.position.x,b.z-r.position.z)<58;
+                interior.roof.visible=!inRoom&&close;interior.walls.visible=close;
                 interior.walls.traverse(o=>{if(o instanceof T.Mesh){const mat=o.material as T.MeshStandardMaterial;if(mat.transparent){mat.opacity=inRoom?.18:1;mat.depthWrite=!inRoom;}}});
             }
             const insideKnown = new Set(r.knownShelters.map(x => x.id));
@@ -448,7 +449,7 @@ export class MonstrocityScene {
         if(r && !paused && !r.combat)this.npcTime+=dt;
         if(r && Math.abs(this.npcTime-r.activeElapsedMs/1000)>.6)this.npcTime=r.activeElapsedMs/1000;
         this.npcs.forEach((npc,i)=>{
-            npc.visible=!r?.combat;const p=this.map.residents[i],pose=residentPose(residentRoute(p,this.map),this.npcTime);
+            npc.visible=!r?.combat && Math.hypot(npc.position.x-this.player.position.x,npc.position.z-this.player.position.z)<48;const p=this.map.residents[i],pose=residentPose(residentRoute(p,this.map),this.npcTime);
             const near=r?.nearby.find(n=>n.kind==='resident' && n.id===p.id);
             // Authoritative interaction snapshots win over the ambient route.
             const position=near?.position ?? pose;

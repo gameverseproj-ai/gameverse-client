@@ -24,7 +24,7 @@ interface Saved {
         snapshot: Snapshot;
     }>;
 }
-export const LOCAL_SAVE_KEY = 'gameverse.monstrocity.preview.city-v2';
+export const LOCAL_SAVE_KEY = 'gameverse.monstrocity.preview.city-v3';
 export const freshState = (): Snapshot => ({ serverTime: new Date().toISOString(), profile: { character: 'female', bestSurvivedDays: 0, inventory: ['food', 'water', 'sword'].map(itemId => ({ itemId: itemId as ItemId, collected: 0, purchased: 0 })) }, run: null, session: null });
 /** Device-only playable preview. It never modifies the real account, purchases or backend. */
 export class LocalMonstrocityApi implements MonstrocityApi {

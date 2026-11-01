@@ -2,7 +2,7 @@ import { Config } from './monstrocity.types';
 /** Local preview only; the HTTP adapter receives all balance from bootstrap. */
 export const LOCAL_CONFIG: Config = {
     "version": "monstrocity-v2",
-    "mapVersion": "city-v2",
+    "mapVersion": "city-v3",
     "assetManifestVersion": "art-v1",
     "phaseSeconds": {
         "day": 120,

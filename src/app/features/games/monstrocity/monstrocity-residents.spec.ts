@@ -1,7 +1,7 @@
 import { blocked, mapFor } from './monstrocity.map';
 import { residentPose,residentRoute } from './monstrocity-residents';
 describe('residents dash between cover',()=>{
- for(const version of ['courtyard-v1','city-v2'])it(`keeps ${version} routes walkable, with running and waiting phases`,()=>{
+ for(const version of ['courtyard-v1','city-v2','city-v3'])it(`keeps ${version} routes walkable, with running and waiting phases`,()=>{
   const map=mapFor(version);
   for(const person of map.residents){
    const route=residentRoute(person,map);let running=0,waiting=0;

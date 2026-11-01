@@ -7,9 +7,14 @@ export interface CollectionSummary {
   coverImageUrl: string;
   totalCards: number;
   revealedCards: number;
+  /** Collection points earned toward the next card. */
   progress: number;
+  /** Points still needed for the next card; null when nothing is pending. */
   nextCardIn: number | null;
   state: CollectionState;
+  pointsPerCard: number;
+  /** The most one game can contribute per hour: rotate games for the next card. */
+  hourlyCapPerGame: number;
 }
 
 export interface CollectionFact {
@@ -34,6 +39,8 @@ export interface CollectionDetail {
   factPriceCoins: number;
   progress: number;
   nextCardIn: number | null;
+  pointsPerCard: number;
+  hourlyCapPerGame: number;
   cards: CollectionCard[];
 }
 

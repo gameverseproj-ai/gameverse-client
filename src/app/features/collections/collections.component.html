@@ -3,42 +3,66 @@
     <a class="back" routerLink="/worlds" [attr.aria-label]="'Worlds' | t"><span aria-hidden="true">←</span></a>
     <div class="titles">
       <small>{{ 'Collections' | t }}</small>
-      <h1>{{ facade.detail()?.name ?? ('Collections' | t) }}</h1>
+      <h1>{{ 'Collections' | t }}</h1>
     </div>
     <span class="coins" aria-live="polite" [attr.aria-label]="'Your coins' | t">🪙 {{ facade.coins() ?? '…' }}</span>
   </header>
 
-  @if (facade.collections().length > 1) {
-    <div class="collections__shelf" role="tablist" [attr.aria-label]="'Collections' | t">
-      @for (collection of facade.collections(); track collection.id) {
-        <button type="button" role="tab"
-          [attr.aria-selected]="facade.detail()?.id === collection.id"
-          [class.locked]="collection.state === 'locked'"
-          (click)="facade.loadDetail(collection.id)">
-          @if (collection.state === 'locked') { <span aria-hidden="true">🔒</span> {{ 'Locked' | t }} }
-          @else { {{ collection.name }} @if (collection.state === 'completed') { <span aria-hidden="true">✓</span> } }
-        </button>
-      }
-    </div>
-  }
+  <p class="hint">{{ 'Cards open with collection points: every finished run, match or survived day earns some, longer play earns more, and each game gives up to {0} points an hour, so play around.' | t: [capOf()] }}</p>
 
-  @if (facade.detail(); as album) {
-    @if (summaryOf(album.id); as summary) {
-      <p class="progress" aria-live="polite">
-        <b>{{ '{0} / {1}' | t: [summary.revealedCards, summary.totalCards] }}</b>
-        @if (summary.state === 'completed') { {{ 'Collection complete!' | t }} }
-        @else if (album.nextCardIn !== null) { {{ 'Play {0} more games to reveal the next card.' | t: [album.nextCardIn] }} }
-      </p>
+  <div class="collections__list">
+    @for (collection of facade.collections(); track collection.id) {
+      <section class="album" [class.locked]="collection.state === 'locked'" [class.open]="isOpen(collection.id)">
+        <h2>
+          <button type="button" class="album__toggle"
+            [attr.aria-expanded]="isOpen(collection.id)"
+            [attr.aria-controls]="'album-' + collection.id"
+            [disabled]="collection.state === 'locked'"
+            (click)="toggle(collection.id)">
+            <span class="album__name">
+              @if (collection.state === 'locked') { <span aria-hidden="true">🔒</span> {{ 'Locked' | t }} }
+              @else { {{ collection.name }} @if (collection.state === 'completed') { <span aria-hidden="true">✓</span> } }
+            </span>
+            <span class="album__meta">
+              <b>{{ '{0} / {1}' | t: [collection.revealedCards, collection.totalCards] }}</b>
+              @if (collection.state === 'active' && collection.nextCardIn !== null) {
+                <span class="album__bar" aria-hidden="true">
+                  <span class="album__fill" [style.width.%]="percentOf(collection)"></span>
+                </span>
+                <small>{{ '{0} points to the next card' | t: [collection.nextCardIn] }}</small>
+              } @else if (collection.state === 'completed') {
+                <small>{{ 'Collection complete!' | t }}</small>
+              } @else if (collection.state === 'locked') {
+                <small>{{ 'Complete the previous collection first.' | t }}</small>
+              }
+            </span>
+            <span class="album__chevron" aria-hidden="true">{{ isOpen(collection.id) ? '▴' : '▾' }}</span>
+          </button>
+        </h2>
+
+        @if (isOpen(collection.id)) {
+          <div class="album__body" [id]="'album-' + collection.id">
+            @if (facade.detail(); as album) {
+              @if (album.id === collection.id) {
+                <p class="album__description">{{ album.description }}</p>
+                <div class="collections__grid">
+                  @for (card of album.cards; track card.position) {
+                    <app-collection-card [card]="card" [price]="album.factPriceCoins" [collectionId]="album.id" [collectionName]="album.name" />
+                  }
+                </div>
+              } @else if (facade.loading()) {
+                <p class="status" role="status">{{ 'Loading…' | t }}</p>
+              }
+            } @else if (facade.loading()) {
+              <p class="status" role="status">{{ 'Loading…' | t }}</p>
+            }
+          </div>
+        }
+      </section>
+    } @empty {
+      @if (facade.loading()) { <p class="status" role="status">{{ 'Loading…' | t }}</p> }
     }
-
-    <div class="collections__grid">
-      @for (card of album.cards; track card.position) {
-        <app-collection-card [card]="card" [price]="album.factPriceCoins" [collectionId]="album.id" [collectionName]="album.name" />
-      }
-    </div>
-  } @else if (facade.loading()) {
-    <p class="status" role="status">{{ 'Loading…' | t }}</p>
-  }
+  </div>
 
   @if (facade.error()) {
     <p class="error" role="alert">{{ facade.error() | t }}</p>

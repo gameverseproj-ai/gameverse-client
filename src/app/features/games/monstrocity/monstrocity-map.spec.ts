@@ -3,8 +3,8 @@ describe('Monstrocity expanded city',()=>{
  const city=mapFor(CITY_MAP_VERSION);
  it('preserves the old authoritative boundary while expanding the new version',()=>{
   expect(blocked({x:20,z:20})).toBeTrue();expect(blocked({x:20,z:20},city)).toBeFalse();
-  expect(blocked({x:68,z:0},city)).toBeTrue();
-  expect(city.extent*city.extent/(17*17)).toBeGreaterThan(15);
+  expect(blocked({x:city.extent+1,z:0},city)).toBeTrue();
+  expect(city.extent*city.extent/(17*17)).toBeGreaterThan(20);
  });
  it('has unique interaction IDs and buildings entirely inside the bounds',()=>{
   const ids=[...city.containers,...city.residents,...city.buildings].map(x=>x.id);
@@ -29,6 +29,12 @@ describe('Monstrocity expanded city',()=>{
    expect(blocked({x:b.x,z:b.z-b.d/2},city)).withContext(b.id+' door').toBeFalse();
    expect(blocked({x:b.x-b.w/2,z:b.z},city)).withContext(b.id+' wall').toBeTrue();
   }
+ });
+
+ it('preserves old map versions and fills the new city with separate searchable districts',()=>{
+  expect(mapFor('city-v2').extent).toBe(67);expect(mapFor('courtyard-v1').buildings.length).toBe(8);
+  expect(city.districts.length).toBe(25);expect(city.buildings.length).toBeGreaterThan(90);expect(city.containers.length).toBeGreaterThan(120);
+  for(const q of city.districts)expect(city.containers.some(c=>Math.hypot(c.x-q.x,c.z-q.z)<12)).withContext(q.id).toBeTrue();
  });
 
 });

@@ -9,10 +9,10 @@ import { CollectionsFacade } from './collections.facade';
 
 const paris: CollectionSummary = {
   id: 'paris', name: 'Paris', coverImageUrl: '', totalCards: 10,
-  revealedCards: 1, progress: 0, nextCardIn: 2, state: 'active',
+  revealedCards: 1, progress: 0, nextCardIn: 100, state: 'active', pointsPerCard: 100, hourlyCapPerGame: 30,
 };
 const album: CollectionDetail = {
-  id: 'paris', name: 'Paris', description: '', factPriceCoins: 25, progress: 0, nextCardIn: 2,
+  id: 'paris', name: 'Paris', description: '', factPriceCoins: 25, progress: 0, nextCardIn: 100, pointsPerCard: 100, hourlyCapPerGame: 30,
   cards: [{
     position: 1, revealed: true, name: 'Eiffel Tower', imageUrl: '',
     facts: [
@@ -78,7 +78,7 @@ describe('Localized collection responses', () => {
   let details: Subject<CollectionDetail>[];
   let reveal: Subject<RevealFactResult>;
   let getCollection: jasmine.Spy;
-  const album = (name: string): CollectionDetail => ({id:'paris', name, description:'', factPriceCoins:25, progress:0, nextCardIn:2,
+  const album = (name: string): CollectionDetail => ({id:'paris', name, description:'', factPriceCoins:25, progress:0, nextCardIn:100, pointsPerCard:100, hourlyCapPerGame:30,
     cards:[{position:1, revealed:true, name:'Tower', imageUrl:null, facts:[{position:1, revealed:false, text:null}]}]});
   beforeEach(() => {
     language.set('en'); details = []; reveal = new Subject();

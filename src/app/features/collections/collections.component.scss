@@ -22,19 +22,32 @@
 }
 .coins { font-size: 15px; border: 1px solid #ffffff2d; background: #251d40b8; border-radius: 18px; padding: 7px 13px; white-space: nowrap; }
 
-.collections__shelf { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 4px; }
-.collections__shelf button {
-  font: inherit; color: #fff; cursor: pointer; padding: 8px 14px;
-  border-radius: 14px; border: 1px solid #ffffff2d; background: #221b36;
+.hint { margin: 10px 0 14px; color: #b9a4d6; font-size: 13px; line-height: 1.5; }
+
+.collections__list { display: flex; flex-direction: column; gap: 12px; }
+.album { border: 1px solid #ffffff2d; border-radius: 18px; background: #221b36; overflow: hidden; }
+.album.open { border-color: #edb4ff; background: #2a2042; }
+.album.locked { color: #9d92b5; filter: saturate(.4); }
+.album h2 { margin: 0; font-size: inherit; }
+.album__toggle {
+  width: 100%; display: flex; align-items: center; gap: 14px; text-align: start;
+  font: inherit; color: inherit; cursor: pointer; padding: 14px 18px; border: 0; background: none;
 }
-.collections__shelf button[aria-selected="true"] { border-color: #edb4ff; background: #38254e; }
-.collections__shelf button.locked { color: #9d92b5; filter: saturate(.4); }
+.album__toggle:disabled { cursor: default; }
+.album__name { font-size: 17px; font-weight: 700; min-width: 0; }
+.album__meta { margin-inline-start: auto; display: flex; align-items: center; gap: 10px; color: #e9b9ee; font-size: 13px; }
+.album__meta b { color: #f5d89d; font-size: 16px; }
+.album__bar { width: 90px; height: 6px; border-radius: 3px; background: #ffffff1f; overflow: hidden; }
+.album__fill { display: block; height: 100%; background: linear-gradient(90deg, #edb4ff, #f5d89d); }
+.album__chevron { color: #b9a4d6; }
+.album__body { padding: 0 18px 20px; }
+.album__description { margin: 0; color: #cdbde2; font-size: 14px; }
 
 .progress { margin: 6px 0 0; color: #e9b9ee; font-size: 14px; }
 .progress b { margin-inline-end: 8px; }
 
 .collections__grid {
-  margin-top: 32px;
+  margin-top: 22px;
   display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 34px;
 }
 
@@ -48,5 +61,5 @@
 }
 
 .collections__grid { padding: 0 8px 24px; }
-.progress { padding: 16px 0; border-bottom: 1px solid #e9c7872b; color: #d7cbe5; }
-.progress b { color: #f5d89d; font-size: 18px; }
+.album__meta { flex-wrap: wrap; justify-content: flex-end; }
+.album__bar { width: 60px; }

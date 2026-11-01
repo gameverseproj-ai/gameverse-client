@@ -1,0 +1,2021 @@
+{
+  "version": "city-v3",
+  "units": "metres",
+  "axes": {
+    "x": "east",
+    "z": "south",
+    "y": "up"
+  },
+  "playBounds": {
+    "minX": -77,
+    "maxX": 77,
+    "minZ": -77,
+    "maxZ": 77
+  },
+  "playerRadius": 0.28,
+  "buildings": [
+    {
+      "id": "bakery",
+      "x": -10,
+      "z": -11,
+      "w": 7,
+      "d": 6,
+      "h": 7,
+      "color": 12558720
+    },
+    {
+      "id": "home",
+      "x": 0,
+      "z": -12,
+      "w": 7,
+      "d": 5,
+      "h": 8,
+      "color": 13088154
+    },
+    {
+      "id": "workshop",
+      "x": 10,
+      "z": -11,
+      "w": 7,
+      "d": 6,
+      "h": 6,
+      "color": 11046006
+    },
+    {
+      "id": "library",
+      "x": -12,
+      "z": 0,
+      "w": 5,
+      "d": 8,
+      "h": 6,
+      "color": 12628636
+    },
+    {
+      "id": "house-east",
+      "x": 12,
+      "z": 0,
+      "w": 5,
+      "d": 8,
+      "h": 8,
+      "color": 11182731
+    },
+    {
+      "id": "room",
+      "x": -10,
+      "z": 11,
+      "w": 7,
+      "d": 6,
+      "h": 5,
+      "color": 12164221,
+      "interior": true
+    },
+    {
+      "id": "house-south",
+      "x": 1,
+      "z": 13,
+      "w": 7,
+      "d": 4,
+      "h": 7,
+      "color": 12692874
+    },
+    {
+      "id": "atelier",
+      "x": 11,
+      "z": 11,
+      "w": 6,
+      "d": 6,
+      "h": 5.5,
+      "color": 11903886
+    },
+    {
+      "id": "city3-market-0",
+      "x": -38,
+      "z": -8,
+      "w": 6,
+      "d": 6,
+      "h": 4.5,
+      "color": 11903372,
+      "interior": true
+    },
+    {
+      "id": "city3-market-1",
+      "x": -22,
+      "z": -8,
+      "w": 7,
+      "d": 6,
+      "h": 5.4,
+      "color": 12760214,
+      "interior": false
+    },
+    {
+      "id": "city3-market-2",
+      "x": -38,
+      "z": 8,
+      "w": 6,
+      "d": 6,
+      "h": 6.3,
+      "color": 10792348,
+      "interior": false
+    },
+    {
+      "id": "city3-market-3",
+      "x": -22,
+      "z": 8,
+      "w": 7,
+      "d": 6,
+      "h": 7.2,
+      "color": 12166034,
+      "interior": false
+    },
+    {
+      "id": "city3-workshops-0",
+      "x": 22,
+      "z": -8,
+      "w": 7,
+      "d": 7,
+      "h": 5.4,
+      "color": 12760214,
+      "interior": true
+    },
+    {
+      "id": "city3-workshops-1",
+      "x": 38,
+      "z": -8,
+      "w": 6,
+      "d": 7,
+      "h": 6.3,
+      "color": 10792348,
+      "interior": false
+    },
+    {
+      "id": "city3-workshops-2",
+      "x": 22,
+      "z": 8,
+      "w": 7,
+      "d": 7,
+      "h": 7.2,
+      "color": 12166034,
+      "interior": false
+    },
+    {
+      "id": "city3-workshops-3",
+      "x": 38,
+      "z": 8,
+      "w": 6,
+      "d": 7,
+      "h": 4.5,
+      "color": 10859184,
+      "interior": true
+    },
+    {
+      "id": "city3-gardens-0",
+      "x": 22,
+      "z": -38,
+      "w": 6,
+      "d": 6,
+      "h": 6.3,
+      "color": 10792348,
+      "interior": true
+    },
+    {
+      "id": "city3-gardens-1",
+      "x": 38,
+      "z": -38,
+      "w": 7,
+      "d": 6,
+      "h": 7.2,
+      "color": 12166034,
+      "interior": false
+    },
+    {
+      "id": "city3-station-0",
+      "x": -38,
+      "z": 22,
+      "w": 7,
+      "d": 7,
+      "h": 7.2,
+      "color": 12166034,
+      "interior": true
+    },
+    {
+      "id": "city3-station-1",
+      "x": -22,
+      "z": 22,
+      "w": 6,
+      "d": 7,
+      "h": 4.5,
+      "color": 10859184,
+      "interior": false
+    },
+    {
+      "id": "city3-station-2",
+      "x": -38,
+      "z": 38,
+      "w": 7,
+      "d": 7,
+      "h": 5.4,
+      "color": 12627601,
+      "interior": false
+    },
+    {
+      "id": "city3-station-3",
+      "x": -22,
+      "z": 38,
+      "w": 6,
+      "d": 7,
+      "h": 6.3,
+      "color": 11903372,
+      "interior": false
+    },
+    {
+      "id": "city3-library-quarter-0",
+      "x": -8,
+      "z": -38,
+      "w": 6,
+      "d": 6,
+      "h": 4.5,
+      "color": 10859184,
+      "interior": true
+    },
+    {
+      "id": "city3-library-quarter-1",
+      "x": 8,
+      "z": -38,
+      "w": 7,
+      "d": 6,
+      "h": 5.4,
+      "color": 12627601,
+      "interior": false
+    },
+    {
+      "id": "city3-library-quarter-2",
+      "x": -8,
+      "z": -22,
+      "w": 6,
+      "d": 6,
+      "h": 6.3,
+      "color": 11903372,
+      "interior": false
+    },
+    {
+      "id": "city3-library-quarter-3",
+      "x": 8,
+      "z": -22,
+      "w": 7,
+      "d": 6,
+      "h": 7.2,
+      "color": 12760214,
+      "interior": false
+    },
+    {
+      "id": "city3-canal-0",
+      "x": -8,
+      "z": 22,
+      "w": 7,
+      "d": 7,
+      "h": 5.4,
+      "color": 12627601,
+      "interior": true
+    },
+    {
+      "id": "city3-canal-1",
+      "x": 8,
+      "z": 22,
+      "w": 6,
+      "d": 7,
+      "h": 6.3,
+      "color": 11903372,
+      "interior": false
+    },
+    {
+      "id": "city3-canal-2",
+      "x": -8,
+      "z": 38,
+      "w": 7,
+      "d": 7,
+      "h": 7.2,
+      "color": 12760214,
+      "interior": false
+    },
+    {
+      "id": "city3-canal-3",
+      "x": 8,
+      "z": 38,
+      "w": 6,
+      "d": 7,
+      "h": 4.5,
+      "color": 10792348,
+      "interior": true
+    },
+    {
+      "id": "city3-north-gate-0",
+      "x": -38,
+      "z": -38,
+      "w": 6,
+      "d": 6,
+      "h": 6.3,
+      "color": 11903372,
+      "interior": true
+    },
+    {
+      "id": "city3-north-gate-1",
+      "x": -22,
+      "z": -38,
+      "w": 7,
+      "d": 6,
+      "h": 7.2,
+      "color": 12760214,
+      "interior": false
+    },
+    {
+      "id": "city3-north-gate-2",
+      "x": -38,
+      "z": -22,
+      "w": 6,
+      "d": 6,
+      "h": 4.5,
+      "color": 10792348,
+      "interior": false
+    },
+    {
+      "id": "city3-north-gate-3",
+      "x": -22,
+      "z": -22,
+      "w": 7,
+      "d": 6,
+      "h": 5.4,
+      "color": 12166034,
+      "interior": false
+    },
+    {
+      "id": "city3-south-gate-0",
+      "x": 22,
+      "z": 22,
+      "w": 7,
+      "d": 7,
+      "h": 7.2,
+      "color": 12760214,
+      "interior": true
+    },
+    {
+      "id": "city3-south-gate-1",
+      "x": 38,
+      "z": 22,
+      "w": 6,
+      "d": 7,
+      "h": 4.5,
+      "color": 10792348,
+      "interior": false
+    },
+    {
+      "id": "city3-south-gate-2",
+      "x": 22,
+      "z": 38,
+      "w": 7,
+      "d": 7,
+      "h": 5.4,
+      "color": 12166034,
+      "interior": false
+    },
+    {
+      "id": "city3-south-gate-3",
+      "x": 38,
+      "z": 38,
+      "w": 6,
+      "d": 7,
+      "h": 6.3,
+      "color": 10859184,
+      "interior": false
+    },
+    {
+      "id": "city3-northwest-0",
+      "x": -68,
+      "z": -68,
+      "w": 6,
+      "d": 6,
+      "h": 4.5,
+      "color": 10792348,
+      "interior": true
+    },
+    {
+      "id": "city3-northwest-1",
+      "x": -52,
+      "z": -68,
+      "w": 7,
+      "d": 6,
+      "h": 5.4,
+      "color": 12166034,
+      "interior": false
+    },
+    {
+      "id": "city3-north-0",
+      "x": -38,
+      "z": -68,
+      "w": 7,
+      "d": 7,
+      "h": 5.4,
+      "color": 12166034,
+      "interior": true
+    },
+    {
+      "id": "city3-north-1",
+      "x": -22,
+      "z": -68,
+      "w": 6,
+      "d": 7,
+      "h": 6.3,
+      "color": 10859184,
+      "interior": false
+    },
+    {
+      "id": "city3-north-2",
+      "x": -38,
+      "z": -52,
+      "w": 7,
+      "d": 7,
+      "h": 7.2,
+      "color": 12627601,
+      "interior": false
+    },
+    {
+      "id": "city3-north-3",
+      "x": -22,
+      "z": -52,
+      "w": 6,
+      "d": 7,
+      "h": 4.5,
+      "color": 11903372,
+      "interior": true
+    },
+    {
+      "id": "city3-northeast-0",
+      "x": -8,
+      "z": -68,
+      "w": 6,
+      "d": 6,
+      "h": 6.3,
+      "color": 10859184,
+      "interior": true
+    },
+    {
+      "id": "city3-northeast-1",
+      "x": 8,
+      "z": -68,
+      "w": 7,
+      "d": 6,
+      "h": 7.2,
+      "color": 12627601,
+      "interior": false
+    },
+    {
+      "id": "city3-northeast-2",
+      "x": -8,
+      "z": -52,
+      "w": 6,
+      "d": 6,
+      "h": 4.5,
+      "color": 11903372,
+      "interior": false
+    },
+    {
+      "id": "city3-northeast-3",
+      "x": 8,
+      "z": -52,
+      "w": 7,
+      "d": 6,
+      "h": 5.4,
+      "color": 12760214,
+      "interior": false
+    },
+    {
+      "id": "city3-west-0",
+      "x": 22,
+      "z": -68,
+      "w": 7,
+      "d": 7,
+      "h": 7.2,
+      "color": 12627601,
+      "interior": true
+    },
+    {
+      "id": "city3-west-1",
+      "x": 38,
+      "z": -68,
+      "w": 6,
+      "d": 7,
+      "h": 4.5,
+      "color": 11903372,
+      "interior": false
+    },
+    {
+      "id": "city3-west-2",
+      "x": 22,
+      "z": -52,
+      "w": 7,
+      "d": 7,
+      "h": 5.4,
+      "color": 12760214,
+      "interior": false
+    },
+    {
+      "id": "city3-west-3",
+      "x": 38,
+      "z": -52,
+      "w": 6,
+      "d": 7,
+      "h": 6.3,
+      "color": 10792348,
+      "interior": false
+    },
+    {
+      "id": "city3-east-0",
+      "x": 52,
+      "z": -68,
+      "w": 6,
+      "d": 6,
+      "h": 4.5,
+      "color": 11903372,
+      "interior": true
+    },
+    {
+      "id": "city3-east-1",
+      "x": 68,
+      "z": -68,
+      "w": 7,
+      "d": 6,
+      "h": 5.4,
+      "color": 12760214,
+      "interior": false
+    },
+    {
+      "id": "city3-east-2",
+      "x": 52,
+      "z": -52,
+      "w": 6,
+      "d": 6,
+      "h": 6.3,
+      "color": 10792348,
+      "interior": false
+    },
+    {
+      "id": "city3-east-3",
+      "x": 68,
+      "z": -52,
+      "w": 7,
+      "d": 6,
+      "h": 7.2,
+      "color": 12166034,
+      "interior": false
+    },
+    {
+      "id": "city3-southwest-0",
+      "x": -68,
+      "z": -38,
+      "w": 7,
+      "d": 7,
+      "h": 5.4,
+      "color": 12760214,
+      "interior": true
+    },
+    {
+      "id": "city3-southwest-1",
+      "x": -52,
+      "z": -38,
+      "w": 6,
+      "d": 7,
+      "h": 6.3,
+      "color": 10792348,
+      "interior": false
+    },
+    {
+      "id": "city3-south-0",
+      "x": 52,
+      "z": -38,
+      "w": 6,
+      "d": 6,
+      "h": 6.3,
+      "color": 10792348,
+      "interior": true
+    },
+    {
+      "id": "city3-south-1",
+      "x": 68,
+      "z": -38,
+      "w": 7,
+      "d": 6,
+      "h": 7.2,
+      "color": 12166034,
+      "interior": false
+    },
+    {
+      "id": "city3-south-2",
+      "x": 52,
+      "z": -22,
+      "w": 6,
+      "d": 6,
+      "h": 4.5,
+      "color": 10859184,
+      "interior": false
+    },
+    {
+      "id": "city3-south-3",
+      "x": 68,
+      "z": -22,
+      "w": 7,
+      "d": 6,
+      "h": 5.4,
+      "color": 12627601,
+      "interior": false
+    },
+    {
+      "id": "city3-southeast-0",
+      "x": -68,
+      "z": -8,
+      "w": 7,
+      "d": 7,
+      "h": 7.2,
+      "color": 12166034,
+      "interior": true
+    },
+    {
+      "id": "city3-southeast-1",
+      "x": -52,
+      "z": -8,
+      "w": 6,
+      "d": 7,
+      "h": 4.5,
+      "color": 10859184,
+      "interior": false
+    },
+    {
+      "id": "city3-southeast-2",
+      "x": -68,
+      "z": 8,
+      "w": 7,
+      "d": 7,
+      "h": 5.4,
+      "color": 12627601,
+      "interior": false
+    },
+    {
+      "id": "city3-southeast-3",
+      "x": -52,
+      "z": 8,
+      "w": 6,
+      "d": 7,
+      "h": 6.3,
+      "color": 11903372,
+      "interior": false
+    },
+    {
+      "id": "city3-foundry-0",
+      "x": 52,
+      "z": -8,
+      "w": 6,
+      "d": 6,
+      "h": 4.5,
+      "color": 10859184,
+      "interior": true
+    },
+    {
+      "id": "city3-foundry-1",
+      "x": 68,
+      "z": -8,
+      "w": 7,
+      "d": 6,
+      "h": 5.4,
+      "color": 12627601,
+      "interior": false
+    },
+    {
+      "id": "city3-foundry-2",
+      "x": 52,
+      "z": 8,
+      "w": 6,
+      "d": 6,
+      "h": 6.3,
+      "color": 11903372,
+      "interior": false
+    },
+    {
+      "id": "city3-foundry-3",
+      "x": 68,
+      "z": 8,
+      "w": 7,
+      "d": 6,
+      "h": 7.2,
+      "color": 12760214,
+      "interior": false
+    },
+    {
+      "id": "city3-hospital-0",
+      "x": -68,
+      "z": 22,
+      "w": 7,
+      "d": 7,
+      "h": 5.4,
+      "color": 12627601,
+      "interior": true
+    },
+    {
+      "id": "city3-hospital-1",
+      "x": -52,
+      "z": 22,
+      "w": 6,
+      "d": 7,
+      "h": 6.3,
+      "color": 11903372,
+      "interior": false
+    },
+    {
+      "id": "city3-hospital-2",
+      "x": -68,
+      "z": 38,
+      "w": 7,
+      "d": 7,
+      "h": 7.2,
+      "color": 12760214,
+      "interior": false
+    },
+    {
+      "id": "city3-hospital-3",
+      "x": -52,
+      "z": 38,
+      "w": 6,
+      "d": 7,
+      "h": 4.5,
+      "color": 10792348,
+      "interior": true
+    },
+    {
+      "id": "city3-greenhouses-0",
+      "x": 52,
+      "z": 22,
+      "w": 6,
+      "d": 6,
+      "h": 6.3,
+      "color": 11903372,
+      "interior": true
+    },
+    {
+      "id": "city3-greenhouses-1",
+      "x": 68,
+      "z": 22,
+      "w": 7,
+      "d": 6,
+      "h": 7.2,
+      "color": 12760214,
+      "interior": false
+    },
+    {
+      "id": "city3-stoneworkers-0",
+      "x": -68,
+      "z": 52,
+      "w": 7,
+      "d": 7,
+      "h": 7.2,
+      "color": 12760214,
+      "interior": true
+    },
+    {
+      "id": "city3-stoneworkers-1",
+      "x": -52,
+      "z": 52,
+      "w": 6,
+      "d": 7,
+      "h": 4.5,
+      "color": 10792348,
+      "interior": false
+    },
+    {
+      "id": "city3-stoneworkers-2",
+      "x": -68,
+      "z": 68,
+      "w": 7,
+      "d": 7,
+      "h": 5.4,
+      "color": 12166034,
+      "interior": false
+    },
+    {
+      "id": "city3-stoneworkers-3",
+      "x": -52,
+      "z": 68,
+      "w": 6,
+      "d": 7,
+      "h": 6.3,
+      "color": 10859184,
+      "interior": false
+    },
+    {
+      "id": "city3-residential-0",
+      "x": -38,
+      "z": 52,
+      "w": 6,
+      "d": 6,
+      "h": 4.5,
+      "color": 10792348,
+      "interior": true
+    },
+    {
+      "id": "city3-residential-1",
+      "x": -22,
+      "z": 52,
+      "w": 7,
+      "d": 6,
+      "h": 5.4,
+      "color": 12166034,
+      "interior": false
+    },
+    {
+      "id": "city3-residential-2",
+      "x": -38,
+      "z": 68,
+      "w": 6,
+      "d": 6,
+      "h": 6.3,
+      "color": 10859184,
+      "interior": false
+    },
+    {
+      "id": "city3-residential-3",
+      "x": -22,
+      "z": 68,
+      "w": 7,
+      "d": 6,
+      "h": 7.2,
+      "color": 12627601,
+      "interior": false
+    },
+    {
+      "id": "city3-civic-0",
+      "x": -8,
+      "z": 52,
+      "w": 7,
+      "d": 7,
+      "h": 5.4,
+      "color": 12166034,
+      "interior": true
+    },
+    {
+      "id": "city3-civic-1",
+      "x": 8,
+      "z": 52,
+      "w": 6,
+      "d": 7,
+      "h": 6.3,
+      "color": 10859184,
+      "interior": false
+    },
+    {
+      "id": "city3-civic-2",
+      "x": -8,
+      "z": 68,
+      "w": 7,
+      "d": 7,
+      "h": 7.2,
+      "color": 12627601,
+      "interior": false
+    },
+    {
+      "id": "city3-civic-3",
+      "x": 8,
+      "z": 68,
+      "w": 6,
+      "d": 7,
+      "h": 4.5,
+      "color": 11903372,
+      "interior": true
+    },
+    {
+      "id": "city3-station-old-0",
+      "x": 22,
+      "z": 52,
+      "w": 6,
+      "d": 6,
+      "h": 6.3,
+      "color": 10859184,
+      "interior": true
+    },
+    {
+      "id": "city3-station-old-1",
+      "x": 38,
+      "z": 52,
+      "w": 7,
+      "d": 6,
+      "h": 7.2,
+      "color": 12627601,
+      "interior": false
+    },
+    {
+      "id": "city3-station-old-2",
+      "x": 22,
+      "z": 68,
+      "w": 6,
+      "d": 6,
+      "h": 4.5,
+      "color": 11903372,
+      "interior": false
+    },
+    {
+      "id": "city3-station-old-3",
+      "x": 38,
+      "z": 68,
+      "w": 7,
+      "d": 6,
+      "h": 5.4,
+      "color": 12760214,
+      "interior": false
+    },
+    {
+      "id": "city3-canal-banks-0",
+      "x": 52,
+      "z": 52,
+      "w": 7,
+      "d": 7,
+      "h": 7.2,
+      "color": 12627601,
+      "interior": true
+    },
+    {
+      "id": "city3-canal-banks-1",
+      "x": 68,
+      "z": 52,
+      "w": 6,
+      "d": 7,
+      "h": 4.5,
+      "color": 11903372,
+      "interior": false
+    },
+    {
+      "id": "city3-canal-banks-2",
+      "x": 52,
+      "z": 68,
+      "w": 7,
+      "d": 7,
+      "h": 5.4,
+      "color": 12760214,
+      "interior": false
+    },
+    {
+      "id": "city3-canal-banks-3",
+      "x": 68,
+      "z": 68,
+      "w": 6,
+      "d": 7,
+      "h": 6.3,
+      "color": 10792348,
+      "interior": false
+    }
+  ],
+  "shelterCandidates": [
+    {
+      "id": "shelter-0",
+      "position": {
+        "x": -9,
+        "z": -6.8
+      }
+    },
+    {
+      "id": "shelter-1",
+      "position": {
+        "x": 0,
+        "z": -8.2
+      }
+    },
+    {
+      "id": "shelter-2",
+      "position": {
+        "x": 10,
+        "z": -6.8
+      }
+    },
+    {
+      "id": "shelter-3",
+      "position": {
+        "x": -10,
+        "z": 11
+      }
+    },
+    {
+      "id": "shelter-4",
+      "position": {
+        "x": 11,
+        "z": 6.8
+      }
+    },
+    {
+      "id": "shelter-5",
+      "position": {
+        "x": -28.5,
+        "z": 3
+      }
+    },
+    {
+      "id": "shelter-6",
+      "position": {
+        "x": 31.5,
+        "z": 3
+      }
+    },
+    {
+      "id": "shelter-7",
+      "position": {
+        "x": 31.5,
+        "z": -27
+      }
+    },
+    {
+      "id": "shelter-8",
+      "position": {
+        "x": -28.5,
+        "z": 33
+      }
+    },
+    {
+      "id": "shelter-9",
+      "position": {
+        "x": 1.5,
+        "z": -27
+      }
+    },
+    {
+      "id": "shelter-10",
+      "position": {
+        "x": 1.5,
+        "z": 33
+      }
+    },
+    {
+      "id": "shelter-11",
+      "position": {
+        "x": -28.5,
+        "z": -27
+      }
+    },
+    {
+      "id": "shelter-12",
+      "position": {
+        "x": 31.5,
+        "z": 33
+      }
+    },
+    {
+      "id": "shelter-13",
+      "position": {
+        "x": -58.5,
+        "z": -57
+      }
+    },
+    {
+      "id": "shelter-14",
+      "position": {
+        "x": -28.5,
+        "z": -57
+      }
+    },
+    {
+      "id": "shelter-15",
+      "position": {
+        "x": 1.5,
+        "z": -57
+      }
+    },
+    {
+      "id": "shelter-16",
+      "position": {
+        "x": 31.5,
+        "z": -57
+      }
+    },
+    {
+      "id": "shelter-17",
+      "position": {
+        "x": 61.5,
+        "z": -57
+      }
+    },
+    {
+      "id": "shelter-18",
+      "position": {
+        "x": -58.5,
+        "z": -27
+      }
+    },
+    {
+      "id": "shelter-19",
+      "position": {
+        "x": 61.5,
+        "z": -27
+      }
+    },
+    {
+      "id": "shelter-20",
+      "position": {
+        "x": -58.5,
+        "z": 3
+      }
+    },
+    {
+      "id": "shelter-21",
+      "position": {
+        "x": 61.5,
+        "z": 3
+      }
+    },
+    {
+      "id": "shelter-22",
+      "position": {
+        "x": -58.5,
+        "z": 33
+      }
+    },
+    {
+      "id": "shelter-23",
+      "position": {
+        "x": 61.5,
+        "z": 33
+      }
+    },
+    {
+      "id": "shelter-24",
+      "position": {
+        "x": -58.5,
+        "z": 63
+      }
+    },
+    {
+      "id": "shelter-25",
+      "position": {
+        "x": -28.5,
+        "z": 63
+      }
+    },
+    {
+      "id": "shelter-26",
+      "position": {
+        "x": 1.5,
+        "z": 63
+      }
+    },
+    {
+      "id": "shelter-27",
+      "position": {
+        "x": 31.5,
+        "z": 63
+      }
+    },
+    {
+      "id": "shelter-28",
+      "position": {
+        "x": 61.5,
+        "z": 63
+      }
+    }
+  ],
+  "containers": [
+    {
+      "id": "crate-start",
+      "x": -7,
+      "z": -5.8
+    },
+    {
+      "id": "pantry",
+      "x": -9,
+      "z": 11
+    },
+    {
+      "id": "crate-east",
+      "x": 8,
+      "z": -5.5
+    },
+    {
+      "id": "crate-south",
+      "x": 7,
+      "z": 7
+    },
+    {
+      "id": "crate-west",
+      "x": -8,
+      "z": 3
+    },
+    {
+      "id": "cabinet",
+      "x": 2,
+      "z": -8
+    },
+    {
+      "id": "city3-market-cache-0",
+      "x": -33,
+      "z": -2
+    },
+    {
+      "id": "city3-market-cache-1",
+      "x": -27,
+      "z": 3
+    },
+    {
+      "id": "city3-market-cache-2",
+      "x": -33,
+      "z": 5
+    },
+    {
+      "id": "city3-market-cache-3",
+      "x": -26,
+      "z": -4
+    },
+    {
+      "id": "city3-workshops-cache-0",
+      "x": 27,
+      "z": -2
+    },
+    {
+      "id": "city3-workshops-cache-1",
+      "x": 33,
+      "z": 3
+    },
+    {
+      "id": "city3-workshops-cache-2",
+      "x": 27,
+      "z": 5
+    },
+    {
+      "id": "city3-workshops-cache-3",
+      "x": 34,
+      "z": -4
+    },
+    {
+      "id": "city3-gardens-cache-0",
+      "x": 27,
+      "z": -32
+    },
+    {
+      "id": "city3-gardens-cache-1",
+      "x": 33,
+      "z": -27
+    },
+    {
+      "id": "city3-gardens-cache-2",
+      "x": 27,
+      "z": -25
+    },
+    {
+      "id": "city3-gardens-cache-3",
+      "x": 34,
+      "z": -34
+    },
+    {
+      "id": "city3-station-cache-0",
+      "x": -33,
+      "z": 28
+    },
+    {
+      "id": "city3-station-cache-1",
+      "x": -27,
+      "z": 33
+    },
+    {
+      "id": "city3-station-cache-2",
+      "x": -33,
+      "z": 35
+    },
+    {
+      "id": "city3-station-cache-3",
+      "x": -26,
+      "z": 26
+    },
+    {
+      "id": "city3-library-quarter-cache-0",
+      "x": -3,
+      "z": -32
+    },
+    {
+      "id": "city3-library-quarter-cache-1",
+      "x": 3,
+      "z": -27
+    },
+    {
+      "id": "city3-library-quarter-cache-2",
+      "x": -3,
+      "z": -25
+    },
+    {
+      "id": "city3-library-quarter-cache-3",
+      "x": 4,
+      "z": -34
+    },
+    {
+      "id": "city3-canal-cache-0",
+      "x": -3,
+      "z": 28
+    },
+    {
+      "id": "city3-canal-cache-1",
+      "x": 3,
+      "z": 33
+    },
+    {
+      "id": "city3-canal-cache-2",
+      "x": -3,
+      "z": 35
+    },
+    {
+      "id": "city3-canal-cache-3",
+      "x": 4,
+      "z": 26
+    },
+    {
+      "id": "city3-north-gate-cache-0",
+      "x": -33,
+      "z": -32
+    },
+    {
+      "id": "city3-north-gate-cache-1",
+      "x": -27,
+      "z": -27
+    },
+    {
+      "id": "city3-north-gate-cache-2",
+      "x": -33,
+      "z": -25
+    },
+    {
+      "id": "city3-north-gate-cache-3",
+      "x": -26,
+      "z": -34
+    },
+    {
+      "id": "city3-south-gate-cache-0",
+      "x": 27,
+      "z": 28
+    },
+    {
+      "id": "city3-south-gate-cache-1",
+      "x": 33,
+      "z": 33
+    },
+    {
+      "id": "city3-south-gate-cache-2",
+      "x": 27,
+      "z": 35
+    },
+    {
+      "id": "city3-south-gate-cache-3",
+      "x": 34,
+      "z": 26
+    },
+    {
+      "id": "city3-northwest-cache-0",
+      "x": -63,
+      "z": -62
+    },
+    {
+      "id": "city3-northwest-cache-1",
+      "x": -57,
+      "z": -57
+    },
+    {
+      "id": "city3-northwest-cache-2",
+      "x": -63,
+      "z": -55
+    },
+    {
+      "id": "city3-northwest-cache-3",
+      "x": -56,
+      "z": -64
+    },
+    {
+      "id": "city3-north-cache-0",
+      "x": -33,
+      "z": -62
+    },
+    {
+      "id": "city3-north-cache-1",
+      "x": -27,
+      "z": -57
+    },
+    {
+      "id": "city3-north-cache-2",
+      "x": -33,
+      "z": -55
+    },
+    {
+      "id": "city3-north-cache-3",
+      "x": -26,
+      "z": -64
+    },
+    {
+      "id": "city3-northeast-cache-0",
+      "x": -3,
+      "z": -62
+    },
+    {
+      "id": "city3-northeast-cache-1",
+      "x": 3,
+      "z": -57
+    },
+    {
+      "id": "city3-northeast-cache-2",
+      "x": -3,
+      "z": -55
+    },
+    {
+      "id": "city3-northeast-cache-3",
+      "x": 4,
+      "z": -64
+    },
+    {
+      "id": "city3-west-cache-0",
+      "x": 27,
+      "z": -62
+    },
+    {
+      "id": "city3-west-cache-1",
+      "x": 33,
+      "z": -57
+    },
+    {
+      "id": "city3-west-cache-2",
+      "x": 27,
+      "z": -55
+    },
+    {
+      "id": "city3-west-cache-3",
+      "x": 34,
+      "z": -64
+    },
+    {
+      "id": "city3-east-cache-0",
+      "x": 57,
+      "z": -62
+    },
+    {
+      "id": "city3-east-cache-1",
+      "x": 63,
+      "z": -57
+    },
+    {
+      "id": "city3-east-cache-2",
+      "x": 57,
+      "z": -55
+    },
+    {
+      "id": "city3-east-cache-3",
+      "x": 64,
+      "z": -64
+    },
+    {
+      "id": "city3-southwest-cache-0",
+      "x": -63,
+      "z": -32
+    },
+    {
+      "id": "city3-southwest-cache-1",
+      "x": -57,
+      "z": -27
+    },
+    {
+      "id": "city3-southwest-cache-2",
+      "x": -63,
+      "z": -25
+    },
+    {
+      "id": "city3-southwest-cache-3",
+      "x": -56,
+      "z": -34
+    },
+    {
+      "id": "city3-south-cache-0",
+      "x": 57,
+      "z": -32
+    },
+    {
+      "id": "city3-south-cache-1",
+      "x": 63,
+      "z": -27
+    },
+    {
+      "id": "city3-south-cache-2",
+      "x": 57,
+      "z": -25
+    },
+    {
+      "id": "city3-south-cache-3",
+      "x": 64,
+      "z": -34
+    },
+    {
+      "id": "city3-southeast-cache-0",
+      "x": -63,
+      "z": -2
+    },
+    {
+      "id": "city3-southeast-cache-1",
+      "x": -57,
+      "z": 3
+    },
+    {
+      "id": "city3-southeast-cache-2",
+      "x": -63,
+      "z": 5
+    },
+    {
+      "id": "city3-southeast-cache-3",
+      "x": -56,
+      "z": -4
+    },
+    {
+      "id": "city3-foundry-cache-0",
+      "x": 57,
+      "z": -2
+    },
+    {
+      "id": "city3-foundry-cache-1",
+      "x": 63,
+      "z": 3
+    },
+    {
+      "id": "city3-foundry-cache-2",
+      "x": 57,
+      "z": 5
+    },
+    {
+      "id": "city3-foundry-cache-3",
+      "x": 64,
+      "z": -4
+    },
+    {
+      "id": "city3-hospital-cache-0",
+      "x": -63,
+      "z": 28
+    },
+    {
+      "id": "city3-hospital-cache-1",
+      "x": -57,
+      "z": 33
+    },
+    {
+      "id": "city3-hospital-cache-2",
+      "x": -63,
+      "z": 35
+    },
+    {
+      "id": "city3-hospital-cache-3",
+      "x": -56,
+      "z": 26
+    },
+    {
+      "id": "city3-greenhouses-cache-0",
+      "x": 57,
+      "z": 28
+    },
+    {
+      "id": "city3-greenhouses-cache-1",
+      "x": 63,
+      "z": 33
+    },
+    {
+      "id": "city3-greenhouses-cache-2",
+      "x": 57,
+      "z": 35
+    },
+    {
+      "id": "city3-greenhouses-cache-3",
+      "x": 64,
+      "z": 26
+    },
+    {
+      "id": "city3-stoneworkers-cache-0",
+      "x": -63,
+      "z": 58
+    },
+    {
+      "id": "city3-stoneworkers-cache-1",
+      "x": -57,
+      "z": 63
+    },
+    {
+      "id": "city3-stoneworkers-cache-2",
+      "x": -63,
+      "z": 65
+    },
+    {
+      "id": "city3-stoneworkers-cache-3",
+      "x": -56,
+      "z": 56
+    },
+    {
+      "id": "city3-residential-cache-0",
+      "x": -33,
+      "z": 58
+    },
+    {
+      "id": "city3-residential-cache-1",
+      "x": -27,
+      "z": 63
+    },
+    {
+      "id": "city3-residential-cache-2",
+      "x": -33,
+      "z": 65
+    },
+    {
+      "id": "city3-residential-cache-3",
+      "x": -26,
+      "z": 56
+    },
+    {
+      "id": "city3-civic-cache-0",
+      "x": -3,
+      "z": 58
+    },
+    {
+      "id": "city3-civic-cache-1",
+      "x": 3,
+      "z": 63
+    },
+    {
+      "id": "city3-civic-cache-2",
+      "x": -3,
+      "z": 65
+    },
+    {
+      "id": "city3-civic-cache-3",
+      "x": 4,
+      "z": 56
+    },
+    {
+      "id": "city3-station-old-cache-0",
+      "x": 27,
+      "z": 58
+    },
+    {
+      "id": "city3-station-old-cache-1",
+      "x": 33,
+      "z": 63
+    },
+    {
+      "id": "city3-station-old-cache-2",
+      "x": 27,
+      "z": 65
+    },
+    {
+      "id": "city3-station-old-cache-3",
+      "x": 34,
+      "z": 56
+    },
+    {
+      "id": "city3-canal-banks-cache-0",
+      "x": 57,
+      "z": 58
+    },
+    {
+      "id": "city3-canal-banks-cache-1",
+      "x": 63,
+      "z": 63
+    },
+    {
+      "id": "city3-canal-banks-cache-2",
+      "x": 57,
+      "z": 65
+    },
+    {
+      "id": "city3-canal-banks-cache-3",
+      "x": 64,
+      "z": 56
+    },
+    {
+      "id": "city3-market-0-cupboard",
+      "x": -37,
+      "z": -9
+    },
+    {
+      "id": "city3-workshops-0-cupboard",
+      "x": 23,
+      "z": -9
+    },
+    {
+      "id": "city3-workshops-3-cupboard",
+      "x": 39,
+      "z": 7
+    },
+    {
+      "id": "city3-gardens-0-cupboard",
+      "x": 23,
+      "z": -39
+    },
+    {
+      "id": "city3-station-0-cupboard",
+      "x": -37,
+      "z": 21
+    },
+    {
+      "id": "city3-library-quarter-0-cupboard",
+      "x": -7,
+      "z": -39
+    },
+    {
+      "id": "city3-canal-0-cupboard",
+      "x": -7,
+      "z": 21
+    },
+    {
+      "id": "city3-canal-3-cupboard",
+      "x": 9,
+      "z": 37
+    },
+    {
+      "id": "city3-north-gate-0-cupboard",
+      "x": -37,
+      "z": -39
+    },
+    {
+      "id": "city3-south-gate-0-cupboard",
+      "x": 23,
+      "z": 21
+    },
+    {
+      "id": "city3-northwest-0-cupboard",
+      "x": -67,
+      "z": -69
+    },
+    {
+      "id": "city3-north-0-cupboard",
+      "x": -37,
+      "z": -69
+    },
+    {
+      "id": "city3-north-3-cupboard",
+      "x": -21,
+      "z": -53
+    },
+    {
+      "id": "city3-northeast-0-cupboard",
+      "x": -7,
+      "z": -69
+    },
+    {
+      "id": "city3-west-0-cupboard",
+      "x": 23,
+      "z": -69
+    },
+    {
+      "id": "city3-east-0-cupboard",
+      "x": 53,
+      "z": -69
+    },
+    {
+      "id": "city3-southwest-0-cupboard",
+      "x": -67,
+      "z": -39
+    },
+    {
+      "id": "city3-south-0-cupboard",
+      "x": 53,
+      "z": -39
+    },
+    {
+      "id": "city3-southeast-0-cupboard",
+      "x": -67,
+      "z": -9
+    },
+    {
+      "id": "city3-foundry-0-cupboard",
+      "x": 53,
+      "z": -9
+    },
+    {
+      "id": "city3-hospital-0-cupboard",
+      "x": -67,
+      "z": 21
+    },
+    {
+      "id": "city3-hospital-3-cupboard",
+      "x": -51,
+      "z": 37
+    },
+    {
+      "id": "city3-greenhouses-0-cupboard",
+      "x": 53,
+      "z": 21
+    },
+    {
+      "id": "city3-stoneworkers-0-cupboard",
+      "x": -67,
+      "z": 51
+    },
+    {
+      "id": "city3-residential-0-cupboard",
+      "x": -37,
+      "z": 51
+    },
+    {
+      "id": "city3-civic-0-cupboard",
+      "x": -7,
+      "z": 51
+    },
+    {
+      "id": "city3-civic-3-cupboard",
+      "x": 9,
+      "z": 67
+    },
+    {
+      "id": "city3-station-old-0-cupboard",
+      "x": 23,
+      "z": 51
+    },
+    {
+      "id": "city3-canal-banks-0-cupboard",
+      "x": 53,
+      "z": 51
+    }
+  ],
+  "residents": [
+    {
+      "id": "gardener",
+      "x": 3,
+      "z": 3
+    },
+    {
+      "id": "keeper",
+      "x": -5,
+      "z": -6
+    },
+    {
+      "id": "city3-market-resident",
+      "x": -31,
+      "z": 0
+    },
+    {
+      "id": "city3-workshops-resident",
+      "x": 29,
+      "z": 0
+    },
+    {
+      "id": "city3-gardens-resident",
+      "x": 29,
+      "z": -30
+    },
+    {
+      "id": "city3-station-resident",
+      "x": -31,
+      "z": 30
+    },
+    {
+      "id": "city3-library-quarter-resident",
+      "x": -1,
+      "z": -30
+    },
+    {
+      "id": "city3-canal-resident",
+      "x": -1,
+      "z": 30
+    },
+    {
+      "id": "city3-north-gate-resident",
+      "x": -31,
+      "z": -30
+    },
+    {
+      "id": "city3-south-gate-resident",
+      "x": 29,
+      "z": 30
+    },
+    {
+      "id": "city3-northwest-resident",
+      "x": -61,
+      "z": -60
+    },
+    {
+      "id": "city3-north-resident",
+      "x": -31,
+      "z": -60
+    },
+    {
+      "id": "city3-northeast-resident",
+      "x": -1,
+      "z": -60
+    },
+    {
+      "id": "city3-west-resident",
+      "x": 29,
+      "z": -60
+    },
+    {
+      "id": "city3-east-resident",
+      "x": 59,
+      "z": -60
+    },
+    {
+      "id": "city3-southwest-resident",
+      "x": -61,
+      "z": -30
+    },
+    {
+      "id": "city3-south-resident",
+      "x": 59,
+      "z": -30
+    },
+    {
+      "id": "city3-southeast-resident",
+      "x": -61,
+      "z": 0
+    },
+    {
+      "id": "city3-foundry-resident",
+      "x": 59,
+      "z": 0
+    },
+    {
+      "id": "city3-hospital-resident",
+      "x": -61,
+      "z": 30
+    },
+    {
+      "id": "city3-greenhouses-resident",
+      "x": 59,
+      "z": 30
+    },
+    {
+      "id": "city3-stoneworkers-resident",
+      "x": -61,
+      "z": 60
+    },
+    {
+      "id": "city3-residential-resident",
+      "x": -31,
+      "z": 60
+    },
+    {
+      "id": "city3-civic-resident",
+      "x": -1,
+      "z": 60
+    },
+    {
+      "id": "city3-station-old-resident",
+      "x": 29,
+      "z": 60
+    },
+    {
+      "id": "city3-canal-banks-resident",
+      "x": 59,
+      "z": 60
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "circle",
+      "x": 0,
+      "z": 0,
+      "radius": 1.5
+    },
+    {
+      "type": "box",
+      "x": -5,
+      "z": 1,
+      "halfX": 1.1,
+      "halfZ": 1.1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "z": 1,
+      "halfX": 1.1,
+      "halfZ": 1.1
+    },
+    {
+      "type": "box",
+      "x": -4,
+      "z": 6,
+      "halfX": 1.1,
+      "halfZ": 1.1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "z": -4,
+      "halfX": 1.1,
+      "halfZ": 1.1
+    },
+    {
+      "type": "box",
+      "x": 15,
+      "z": -7,
+      "halfX": 1.35,
+      "halfZ": 2.85
+    }
+  ],
+  "containerCollisionRadius": 0.5,
+  "interiorCollision": {
+    "wallClearance": 0.35,
+    "outerClearance": 0.25,
+    "doorWidth": 2,
+    "doorWall": "negative-z"
+  },
+  "notes": [
+    "Non-interior buildings block their footprint plus playerRadius.",
+    "The room interior has solid side/back walls and a 2m north doorway. See monstrocity.map.ts blocked() for exact inequalities.",
+    "Crates and planted islands collide; visual foliage does not.",
+    "Residential routes and guaranteed indoor loot are specified in city-v3.rules.json. Decorative gardens and street furniture do not introduce additional collision."
+  ]
+}
