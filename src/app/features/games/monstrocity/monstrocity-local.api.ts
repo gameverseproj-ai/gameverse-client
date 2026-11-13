@@ -210,7 +210,10 @@ export class LocalMonstrocityApi implements MonstrocityApi {
             this.fail(this.s.run?.status === 'dead' ? 'RUN_DEAD' : 'SESSION_EXPIRED');
         }
         if (this.s.session?.status === 'active') {
-            const dt = elapsed / Math.max(1, fresh.length);
+            const movementSeconds = Math.min(elapsed, fresh.length * this.config.transport.inputTickMs / 1000);
+            const dt = movementSeconds / Math.max(1, fresh.length);
+            if (fresh.length && elapsed > movementSeconds)
+                this.step(elapsed - movementSeconds, { sequence: 0, moveX: 0, moveZ: 0 });
             if (fresh.length)
                 for (const f of fresh)
                     this.step(dt, f);

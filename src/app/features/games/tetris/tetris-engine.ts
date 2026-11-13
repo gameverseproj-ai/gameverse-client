@@ -5,7 +5,7 @@ export const SHAPES:Record<Tetromino,number[][]>={
  J:[[1,0,0],[1,1,1],[0,0,0]], L:[[0,0,1],[1,1,1],[0,0,0]],
 };
 export const PIECES=Object.keys(SHAPES) as Tetromino[];
-export const COLORS:Record<Tetromino,string>={I:'#63dcf0',O:'#ffdc70',T:'#c19bff',S:'#84e4b1',Z:'#ff91b5',J:'#7dacf7',L:'#ffb580'};
+export const COLORS:Record<Tetromino,string>={I:'#5ce6ff',O:'#ffd84a',T:'#c88dff',S:'#64eea0',Z:'#ff7fb5',J:'#6ea9ff',L:'#ffa454'};
 export type FallingPiece={type:Tetromino;matrix:number[][];x:number;y:number};
 export class TetrisEngine {
  board:(Tetromino|null)[][];

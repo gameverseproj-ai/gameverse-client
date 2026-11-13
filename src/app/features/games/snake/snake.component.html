@@ -21,7 +21,7 @@
                 @if (receipt(); as result) {<div class="earned">{{ '+{0}' | t: [displayedReward()] }}<small>{{ 'Snake Points' | t }}</small></div><p class="saved">{{ 'Saved · Balance {0}' | t: [result.balance] }}@if (result.bonus) { {{ '· Level bonus +{0}' | t: [result.bonus] }}}</p>}
                 <button class="primary" (click)="start()" [disabled]="settingsBusy()">{{ '{0} ↗' | t: [screen() === 'won' ? 'Next challenge' : 'Play again'] }}</button>
               } @else {
-                <span class="overlay-symbol">✦</span><h2>{{ 'Snake Hall' | t }}</h2><p>{{ 'Grow to {0} cells — a quarter of the garden.' | t: [target] }}</p><button class="primary" (click)="start()" [disabled]="settingsBusy()">{{ 'Let’s play' | t }} <span>↗</span></button>
+                <app-hall-art theme="snake" /><h2>{{ 'Snake Hall' | t }}</h2><p>{{ 'Grow to {0} cells — a quarter of the garden.' | t: [target] }}</p><button class="primary" (click)="start()" [disabled]="settingsBusy()">{{ 'Let’s play' | t }} <span>↗</span></button>
               }
             </div>
           </div>

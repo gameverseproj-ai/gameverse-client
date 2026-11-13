@@ -35,14 +35,14 @@ export class TrainingRenderer {
   try {
    const gpuCanvas=document.createElement('canvas');
    this.renderer=new T.WebGLRenderer({canvas:gpuCanvas,antialias:true,alpha:false,preserveDrawingBuffer:true});
-   this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));this.renderer.setClearColor(0xe5e8df);
+   this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));this.renderer.setClearColor(0xfbeedd);
    this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=T.PCFShadowMap;
    this.renderer.outputColorSpace=T.SRGBColorSpace;this.renderer.toneMapping=T.ACESFilmicToneMapping;
    gpuCanvas.addEventListener('webglcontextlost',()=>{this.renderer?.dispose();this.renderer=undefined;});
   } catch { this.renderer=undefined; }
-  this.scene.add(new T.HemisphereLight(0xffffff,0x798579,2.5));
+  this.scene.add(new T.HemisphereLight(0xfff4e6,0x9a7d78,2.5));
   const light=new T.DirectionalLight(0xfff4db,3);light.position.set(-3,6,4);light.castShadow=true;light.shadow.mapSize.set(1024,1024);Object.assign(light.shadow.camera,{left:-3,right:3,top:3,bottom:-3});light.shadow.bias=-.001;this.scene.add(light);
-  const floor=this.mesh(this.box,new T.MeshStandardMaterial({color:0xd2d8cb,roughness:1}),this.scene);floor.scale.set(200,.06,200);floor.position.y=-.04;floor.receiveShadow=true;floor.userData["floor"]=true;
+  const floor=this.mesh(this.box,new T.MeshStandardMaterial({color:0xf1d9c3,roughness:1}),this.scene);floor.scale.set(200,.06,200);floor.position.y=-.04;floor.receiveShadow=true;floor.userData["floor"]=true;
   this.scene.add(this.actor);this.actor.add(this.torso);
   const trunk=this.mesh(new T.CylinderGeometry(.225,.175,.44,24),this.shirt,this.torso);trunk.position.y=.285;trunk.scale.z=.64;
   this.ellipsoid(this.torso,this.shirt,[0,.47,0],[.225,.10,.14]);
@@ -125,7 +125,7 @@ export class TrainingRenderer {
  /** Painter projection uses the same mesh and poses as the GPU path. */
  private drawSoftware(){
   const c=this.context,w=this.width,h=this.height;
-  c.fillStyle='#e5e8df';c.fillRect(0,0,w,h);
+  c.fillStyle='#fbeedd';c.fillRect(0,0,w,h);
   this.scene.updateMatrixWorld(true);this.camera.updateMatrixWorld(true);
   const triangles:{xy:number[];z:number;color:string;opacity:number}[]=[];
   const light=v(-3,6,4).normalize();

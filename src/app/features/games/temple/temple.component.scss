@@ -1,14 +1,39 @@
 @use '../../../shared/components/game-shell/game-content';
 .play { width:min(100%,calc(100cqh - 150px),720px); }
-.board { --size:4; display:grid; grid-template-columns:repeat(var(--size),1fr); gap:8px; padding:10px; aspect-ratio:1; flex-shrink:0; position:relative; border-radius:24px; background:linear-gradient(145deg,#583d78,#382e64); border:1px solid #c8a1eb77; box-shadow:0 20px 70px #120c3555; touch-action:none; overflow:hidden; }
-.cell { aspect-ratio:1; position:relative; min-width:0; border-radius:14px; background:#ad85dd22; box-shadow:inset 0 2px 6px #1c15452b; }
-.tile { position:absolute; inset:0; display:grid; place-items:center; border-radius:14px; font-size:clamp(18px,4cqh,38px); font-weight:850; background:linear-gradient(145deg,#deffba,#92db70); color:#375829; border:1px solid #ffffff55; box-shadow:inset 0 4px 2px #ffffff66,inset 0 -5px 2px #371a4c18,0 6px 13px #1c16452b; }
-.tile small { position:absolute; font-size:9px; bottom:4px; } .tile.legend { background:linear-gradient(145deg,#b9ead9,#78c9bd); color:#28565a; }
-.tile[data-value='2']{background:linear-gradient(145deg,#bdfff0,#64d7bf);color:#19584e}.tile[data-value='4']{background:linear-gradient(145deg,#bfeaff,#75b9ff);color:#254876}.tile[data-value='8']{background:linear-gradient(145deg,#e6cdff,#b196ff);color:#553476}.tile[data-value='16']{background:linear-gradient(145deg,#ffcaed,#f18ec9);color:#7b335d}.tile[data-value='32']{background:linear-gradient(145deg,#ffd0b9,#ff947b);color:#7a3c32}.tile[data-value='64']{background:linear-gradient(145deg,#ffeb9a,#ffc65b);color:#72511e}.tile[data-value='128']{background:linear-gradient(145deg,#fcf6ac,#e8d85d);color:#65561e}
-.merge-pop { animation:merge .24s ease-out; } .spawn-pop { animation:spawn .2s ease-out; }
-@keyframes merge { 50% { transform:scale(1.15); filter:brightness(1.35); box-shadow:0 0 28px #ffeca580; } } @keyframes spawn { from { transform:scale(.4); opacity:0; } }
-.target small { display:flex; justify-content:space-between; font-size:10px; } .target>div { height:5px; background:#ffffff12; margin-top:6px; } .target i { display:block; height:100%; background:var(--game-accent); transition:width .2s; }
-.directions { display:flex; justify-content:center; gap:8px; } .directions button { width:48px; padding:0; font-size:21px; }
+// A sun-warmed temple floor: carved stone sockets inside a gold-trimmed frame.
+.board {
+  --size:4; display:grid; grid-template-columns:repeat(var(--size),1fr); gap:9px; padding:12px; aspect-ratio:1; flex-shrink:0; position:relative; border-radius:28px; touch-action:none; overflow:hidden;
+  background:radial-gradient(ellipse at 50% 0%, #a06a52 0%, transparent 60%), linear-gradient(160deg,#8a5a4c,#5e3f5c 70%,#4a3356);
+  border:3px solid #ffd58a; box-shadow:inset 0 3px 0 #ffffff55, inset 0 -3px 0 #00000033, 0 10px 0 #7a4a2a, 0 26px 50px #0008, 0 0 40px #ffb24a33;
+}
+.cell { aspect-ratio:1; position:relative; min-width:0; border-radius:18%; background:linear-gradient(180deg,#2e2042a8,#3a2a4e8c); box-shadow:inset 0 4px 8px #1a102e99, inset 0 -1px 0 #ffd9a233, 0 1px 0 #ffe2b822; }
+.tile {
+  --top:#deffba; --bottom:#8fd56c; --deep:#4f8a3c; --ink:#2b4a22;
+  position:absolute; inset:0; display:grid; place-items:center; border-radius:18%; font-size:clamp(18px,4.2cqh,40px); font-weight:900; color:var(--ink);
+  background:linear-gradient(180deg,var(--top),var(--bottom)); border:2px solid #ffffff77;
+  box-shadow:inset 0 4px 0 #ffffff88, inset 0 -6px 0 #0000002a, 0 6px 0 var(--deep), 0 10px 16px #1a102e66;
+  text-shadow:0 1px 0 #ffffff66;
+}
+.tile::after { content:''; position:absolute; inset:8% 16% auto; height:14%; border-radius:50%; background:linear-gradient(180deg,#ffffffa0,#ffffff00); pointer-events:none; }
+.tile small { position:absolute; font-size:10px; bottom:5px; color:#fff; text-shadow:0 0 8px #fff; }
+.tile[data-value='2']   { --top:#c9fff2; --bottom:#5fdcc0; --deep:#2c8f7a; --ink:#17524a; }
+.tile[data-value='4']   { --top:#cdeeff; --bottom:#6fb6ff; --deep:#2e6fc2; --ink:#1d3f70; }
+.tile[data-value='8']   { --top:#ecd9ff; --bottom:#b08cff; --deep:#6a48c9; --ink:#3d2470; }
+.tile[data-value='16']  { --top:#ffd4ef; --bottom:#f582c6; --deep:#b4459a; --ink:#6a2456; }
+.tile[data-value='32']  { --top:#ffd9c4; --bottom:#ff8c70; --deep:#c2503a; --ink:#6f2a1f; }
+.tile[data-value='64']  { --top:#ffe9a8; --bottom:#ffbd4c; --deep:#c77e1d; --ink:#6b4310; }
+.tile[data-value='128'] { --top:#fff8b8; --bottom:#f5d84a; --deep:#b89a1c; --ink:#5e4e0e; }
+.tile[data-value='256'] { --top:#e4ffb0; --bottom:#a8e65a; --deep:#6a9e2c; --ink:#355214; }
+.tile[data-value='512'] { --top:#c4fff4; --bottom:#45dbd0; --deep:#1f9a92; --ink:#0f4f4b; }
+.tile.legend { --top:#f0dcff; --bottom:#b57cff; --deep:#6c3fc9; --ink:#fff; text-shadow:0 2px 0 #4a2a8c, 0 0 14px #ffffff88; }
+.tile[data-value='128'],.tile[data-value='256'],.tile[data-value='512'],.tile.legend { animation:shine 2.4s ease-in-out infinite alternate; }
+.merge-pop { animation:merge .26s ease-out; } .spawn-pop { animation:spawn .22s cubic-bezier(.2,1.4,.4,1); }
+@keyframes merge { 50% { transform:scale(1.18); filter:brightness(1.35); box-shadow:0 0 34px #fff3b0cc, 0 6px 0 var(--deep); } }
+@keyframes spawn { from { transform:scale(.3); opacity:0; } }
+@keyframes shine { from { box-shadow:inset 0 4px 0 #ffffff88, inset 0 -6px 0 #0000002a, 0 6px 0 var(--deep), 0 10px 16px #1a102e66, 0 0 10px #fff3b066; } to { box-shadow:inset 0 4px 0 #ffffff88, inset 0 -6px 0 #0000002a, 0 6px 0 var(--deep), 0 10px 16px #1a102e66, 0 0 28px #fff3b0cc; } }
+.target small { display:flex; justify-content:space-between; font-size:10px; letter-spacing:.5px; color:#d9cdeb; } .target small b { color:var(--game-accent); font-size:12px; text-shadow:0 0 12px var(--game-glow); } .target>div { height:8px; background:#120e324d; margin-top:6px; border-radius:8px; overflow:hidden; box-shadow:inset 0 2px 3px #0005; } .target i { display:block; height:100%; background:linear-gradient(90deg,var(--game-glow),var(--game-accent)); border-radius:inherit; box-shadow:0 0 12px var(--game-glow); transition:width .2s; }
+.directions { display:flex; justify-content:center; gap:8px; } .directions button { width:50px; padding:0; font-size:21px; }
+.overlay app-hall-art { max-width:210px; }
 @media(max-height:500px) { .play { width:min(100%,calc(100cqh - 70px)); } .directions { position:absolute; right:12px; bottom:12px; display:grid; grid-template-columns:repeat(2,44px); } .target { display:none; } .board-heading { gap:4px; } .board-heading h2 { font-size:14px; } .board-heading button { padding:4px 8px; } .board { gap:4px; padding:6px; } .tile { font-size:20px; } .tile small { display:none; } }
 
 // Grid indices and physical controls must not mirror with the text language.

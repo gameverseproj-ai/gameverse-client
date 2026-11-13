@@ -78,3 +78,7 @@ u = clamp(elapsed / approachSeconds, 0, 1). Для straight: x=.5. Для zigzag
 10. После смерти карта улиц остаётся, отметок убежищ нет; новый забег имеет свой выбор убежищ.
 11. Пауза при открытом инвентаре позволяет использовать еду; закрытие не сбрасывает фазы боя.
 12. При пропаже интернета из 2D-боя не проигрывать локально и не расходовать предметы без подтверждения; после resume восстановить серверную фазу.
+
+## Movement time budget (mobile input correction, 2026-11-01)
+
+Each fresh direction sample covers at most `inputTickMs` of movement. For a batch, `movementBudgetMs = min(elapsedServerMs, freshCount * inputTickMs)`. First settle the remaining server time with neutral input, then simulate fresh samples in sequence, each for `movementBudgetMs / freshCount`. An empty batch is neutral for the entire elapsed interval. Never stretch a stale direction across network latency or skip energy/combat/time settlement for the neutral interval. Client rendering may replay unacknowledged samples; snapshots and `lastAcceptedInputSequence` remain authoritative. Backend adoption is tracked in `CLAUDE_MOBILE_MOVEMENT.md`.

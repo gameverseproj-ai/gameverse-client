@@ -1,4 +1,5 @@
 import { GameShellComponent, GamePage } from '../../../shared/components/game-shell/game-shell.component';
+import { HallArtComponent } from '../../../shared/components/hall-art/hall-art.component';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Component, ElementRef, HostListener, OnDestroy, afterNextRender, inject, signal, viewChild } from '@angular/core';
 import { slide } from './temple-engine';
@@ -6,7 +7,7 @@ import { Observable, Subscription, take, timeout } from 'rxjs';
 import { TEMPLE_API } from '../../../core/api/temple.api';
 import { GameFacade } from '../../../core/facades/game.facade';
 import { TempleBootstrap, TempleDirection } from '../../../core/models/temple.model';
-@Component({selector:'app-temple',standalone:true,imports: [GameShellComponent, TranslatePipe],templateUrl:'./temple.component.html',styleUrl:'./temple.component.scss'})
+@Component({selector:'app-temple',standalone:true,imports: [GameShellComponent, TranslatePipe, HallArtComponent],templateUrl:'./temple.component.html',styleUrl:'./temple.component.scss'})
 export class TempleComponent implements OnDestroy {
   readonly gamePage = signal<GamePage>('play');
   changePage(page: GamePage): void { this.gamePage.set(page); if (page !== 'play') this.pause(); }

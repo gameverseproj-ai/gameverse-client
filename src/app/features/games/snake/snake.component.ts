@@ -1,4 +1,5 @@
 import { GameShellComponent, GamePage } from '../../../shared/components/game-shell/game-shell.component';
+import { HallArtComponent } from '../../../shared/components/hall-art/hall-art.component';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Component, ElementRef, HostListener, NgZone, OnDestroy, afterNextRender, inject, signal, viewChild } from '@angular/core';
 import { Subscription, take, timeout } from 'rxjs';
@@ -10,7 +11,7 @@ import { Direction, SnakeEngine } from '../engines/snake/snake-engine';
 import { SnakeRenderer } from '../engines/snake/snake-renderer';
 
 type Screen = 'loading' | 'ready' | 'starting' | 'playing' | 'paused' | 'saving' | 'lost' | 'won';
-@Component({selector:'app-jelly-snake',standalone:true,imports: [GameShellComponent, TranslatePipe],templateUrl:'./snake.component.html',styleUrl:'./snake.component.scss'})
+@Component({selector:'app-jelly-snake',standalone:true,imports: [GameShellComponent, TranslatePipe, HallArtComponent],templateUrl:'./snake.component.html',styleUrl:'./snake.component.scss'})
 export class SnakeComponent implements OnDestroy {
   readonly gamePage = signal<GamePage>('play');
   changePage(page: GamePage): void { this.gamePage.set(page); if (page !== 'play') this.pause(); }
@@ -92,7 +93,7 @@ export class SnakeComponent implements OnDestroy {
       const tick=this.engine.state.tick,foods=this.engine.state.collected.length;
       const food={...this.engine.state.food};
       const state=this.engine.update(delta);
-      if(state.tick!==tick || state.dead || state.won)this.renderer.render(state);
+      this.renderer.render(state,time);
       if(state.collected.length!==foods)this.zone.run(()=>{this.score.set(state.score);this.collected.set(state.collected.length);
         this.rewards.set([{id:++this.rewardSequence,points:food.item.points,x:(food.x+.5)/state.gridSize*100,y:(food.y+.5)/state.gridSize*100}]);this.chime();});
       if(state.dead||state.won)this.zone.run(()=>this.endRun());

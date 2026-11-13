@@ -1,4 +1,5 @@
 import { GameShellComponent, GamePage } from '../../../shared/components/game-shell/game-shell.component';
+import { HallArtComponent } from '../../../shared/components/hall-art/hall-art.component';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Component,ElementRef,HostListener,NgZone,OnDestroy,afterNextRender,inject,signal,viewChild } from '@angular/core';
 import { Subscription,take,timeout } from 'rxjs';
@@ -10,7 +11,7 @@ import { COLORS,SHAPES,TetrisEngine } from './tetris-engine';
 import { TetrisRenderer } from './tetris-renderer';
 type Action='left'|'right'|'down'|'rotate'|'counter'|'drop'|'hold';
 type Screen='loading'|'ready'|'starting'|'playing'|'paused'|'saving'|'over';
-@Component({selector:'app-tetris',standalone:true,imports: [GameShellComponent, TranslatePipe],templateUrl:'./tetris.component.html',styleUrl:'./tetris.component.scss'})
+@Component({selector:'app-tetris',standalone:true,imports: [GameShellComponent, TranslatePipe, HallArtComponent],templateUrl:'./tetris.component.html',styleUrl:'./tetris.component.scss'})
 export class TetrisComponent implements OnDestroy {
   readonly gamePage = signal<GamePage>('play');
   changePage(page: GamePage): void { this.gamePage.set(page); if (page !== 'play') this.pause(); }
@@ -51,7 +52,7 @@ export class TetrisComponent implements OnDestroy {
    if(this.engine.revision!==revision||this.flash>0)this.renderer?.render(this.engine,this.flash);
    if(this.engine.gameOver)this.zone.run(()=>this.finish());
   }
-  if(this.flash>0)this.flash=Math.max(0,this.flash-delta/220);
+  if(this.flash>0)this.flash=Math.max(0,this.flash-delta/460);
   if(this.toast()&&time>this.toastUntil)this.zone.run(()=>this.toast.set(''));
   this.raf=requestAnimationFrame(t=>this.frame(t));
  }

@@ -1,17 +1,25 @@
 @use '../../../shared/components/game-shell/game-content';
 .power-play { height:100%; max-width:1000px; margin:auto; display:flex; flex-direction:column; padding:8px 12px; gap:8px; }
-.modes { display:flex; justify-content:center; gap:6px; flex-shrink:0; } .modes button { font-size:12px; }
-[aria-pressed=true] { border-color:var(--game-accent); color:var(--game-accent); background:#ffbd9818; }
+.modes { display:flex; justify-content:center; gap:6px; flex-shrink:0; padding:5px; border-radius:20px; background:#1a123366; border:1px solid #ffffff1a; box-shadow:inset 0 2px 6px #0005; align-self:center; } .modes button { font-size:13px; min-height:40px; border-radius:14px; }
+.modes [aria-pressed=true] { color:var(--game-ink); background:linear-gradient(180deg,color-mix(in srgb,var(--game-accent) 75%,#fff),var(--game-accent)); border-color:#fff8; box-shadow:inset 0 2px 0 #ffffff88, 0 4px 0 var(--game-deep), 0 8px 16px #0005; }
 .arena { flex:1; min-height:0; display:flex; flex-direction:column; gap:8px; position:relative; }
-.arena-top { display:flex; align-items:center; justify-content:space-between; min-height:44px; gap:10px; } .arena-top h2 { font-size:17px; } .arena-top button { width:44px; }
-app-power-scene,app-power-training { display:block; flex:1; min-height:0; overflow:hidden; border-radius:20px; }
-progress { display:block; appearance:none; width:100%; height:8px; border:0; border-radius:8px; overflow:hidden; background:#ffffff15; margin-top:6px; }
-progress::-webkit-progress-bar { background:#ffffff15; } progress::-webkit-progress-value { background:linear-gradient(90deg,#f082aa,#ffd895); border-radius:8px; } progress::-moz-progress-bar { background:#ffd895; }
-.health,.meter { text-align:center; font-size:12px; flex-shrink:0; }
-.meter strong { font-size:28px; color:var(--game-accent); }
-.feedback { min-height:28px; max-height:42px; font-size:12px; text-align:center; color:var(--game-accent); }
-.exercise-catalog { display:flex; gap:5px; } .exercise-catalog button { flex:1; min-width:0; font-size:11px; padding:6px; }
-.training-controls { display:flex; align-items:center; justify-content:space-between; gap:12px; } .training-controls button { background:var(--game-accent); color:#291d3a; }
+.arena-top { display:flex; align-items:center; justify-content:space-between; min-height:44px; gap:10px; } .arena-top h2 { font-size:19px; } .arena-top button { width:44px; padding:0; }
+.arena-top [aria-pressed=true] { color:var(--game-accent); border-color:color-mix(in srgb,var(--game-accent) 60%,transparent); }
+app-power-scene,app-power-training {
+  display:block; flex:1; min-height:0; overflow:hidden; border-radius:24px; padding:6px;
+  background:linear-gradient(180deg, color-mix(in srgb,var(--game-accent) 55%,#7a5fb8), color-mix(in srgb,var(--game-accent) 30%,#3d2f6e));
+  border:2px solid color-mix(in srgb,var(--game-accent) 70%,#fff);
+  box-shadow:inset 0 3px 0 #ffffff5a, inset 0 -3px 0 #00000033, 0 10px 0 color-mix(in srgb,var(--game-deep) 70%,#1a1140), 0 26px 50px #0008, 0 0 40px color-mix(in srgb,var(--game-glow) 25%,transparent);
+}
+progress { display:block; appearance:none; width:100%; height:12px; border:0; border-radius:8px; overflow:hidden; background:#120e324d; margin-top:6px; box-shadow:inset 0 2px 3px #0005; }
+progress::-webkit-progress-bar { background:transparent; } progress::-webkit-progress-value { background:linear-gradient(90deg,#ff7fb5,#ffd84a); border-radius:8px; box-shadow:0 0 12px #ffb24a; } progress::-moz-progress-bar { background:#ffd895; }
+.health,.meter { text-align:center; font-size:13px; font-weight:800; flex-shrink:0; padding:8px 14px 10px; border-radius:16px; background:linear-gradient(180deg,#ffffff14,#ffffff08); border:1px solid #ffffff1f; box-shadow:inset 0 1px 0 #ffffff22, 0 3px 0 #1b144066; }
+.meter strong { font-size:30px; font-weight:900; color:var(--game-accent); text-shadow:0 0 18px var(--game-glow), 0 2px 0 #2a1d4d; }
+.feedback { min-height:28px; max-height:42px; font-size:13px; font-weight:800; text-align:center; color:var(--game-accent); text-shadow:0 2px 0 #2a1d4d; }
+.exercise-catalog { display:flex; gap:5px; } .exercise-catalog button { flex:1; min-width:0; font-size:12px; padding:6px; }
+.exercise-catalog [aria-pressed=true] { color:var(--game-ink); background:linear-gradient(180deg,color-mix(in srgb,var(--game-accent) 75%,#fff),var(--game-accent)); border-color:#fff8; box-shadow:inset 0 2px 0 #ffffff88, 0 4px 0 var(--game-deep), 0 8px 16px #0005; }
+.training-controls { display:flex; align-items:center; justify-content:space-between; gap:12px; } .training-controls strong { font-size:18px; font-weight:900; color:var(--game-accent); text-shadow:0 2px 0 #2a1d4d; }
+.training-controls button { background:linear-gradient(180deg,color-mix(in srgb,var(--game-accent) 70%,#fff),var(--game-accent)); color:var(--game-ink); font-weight:900; border-color:#fff8; box-shadow:inset 0 3px 0 #ffffff99, 0 5px 0 var(--game-deep), 0 12px 24px #0006; }
 .error { padding:12px; border-radius:12px; background:#633443; font-size:12px; } .error button { margin-inline-start:10px; }
 .loading { margin:auto; }
-@media(max-height:500px) { .power-play { padding:4px 12px; gap:4px; } .modes { position:absolute; left:10px; top:8px; flex-direction:column; width:110px; } .arena { margin-inline-start:120px; } .arena-top { min-height:32px; } .arena-top button { min-height:32px; } .feedback { min-height:18px; max-height:30px; font-size:10px; } .exercise-catalog button { min-height:32px; } }
+@media(max-height:500px) { .power-play { padding:4px 12px; gap:4px; } .modes { position:absolute; left:10px; top:8px; flex-direction:column; width:110px; } .arena { margin-inline-start:120px; } .arena-top { min-height:32px; } .arena-top button { min-height:32px; } .feedback { min-height:18px; max-height:30px; font-size:10px; } .exercise-catalog button { min-height:32px; } app-power-scene,app-power-training { padding:3px; border-radius:16px; } }

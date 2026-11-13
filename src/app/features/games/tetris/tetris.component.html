@@ -10,7 +10,7 @@
        @else if(screen() === 'loading' || screen() === 'starting' || screen() === 'saving'){<span class="symbol pulse">✦</span><h2>{{ (screen() === 'saving' ? 'Saving…' : 'Loading…') | t }}</h2>}
        @else if(screen() === 'paused'){<span class="symbol">☾</span><h2>{{ 'Paused' | t }}</h2><button class="primary" (click)="resume()">{{ 'Keep going ↗' | t }}</button>}
        @else if(screen() === 'over'){<span class="symbol">♡</span><h2>{{ 'Run complete' | t }}</h2><p>{{ '{0} lines · {1} score' | t: [receipt()?.lines, receipt()?.score] }}</p><div class="reward">{{ '+{0}' | t: [receipt()?.earned] }}<small>{{ 'Tetris Points' | t }}</small></div><p>{{ 'Saved · Balance {0}' | t: [receipt()?.balance] }}</p><button class="primary" (click)="start()" [disabled]="soundBusy()">{{ 'Play again ↗' | t }}</button>}
-       @else{<span class="symbol">✦</span><h2>{{ 'Tetris Factory' | t }}</h2><p>{{ 'Fill a row to clear it.' | t }}<br>{{ 'Keep the stack below the top.' | t }}</p><button class="primary" (click)="start()" [disabled]="soundBusy()">{{ 'Let’s play ↗' | t }}</button>}
+       @else{<app-hall-art theme="tetris" /><h2>{{ 'Tetris Factory' | t }}</h2><p>{{ 'Fill a row to clear it.' | t }}<br>{{ 'Keep the stack below the top.' | t }}</p><button class="primary" (click)="start()" [disabled]="soundBusy()">{{ 'Let’s play ↗' | t }}</button>}
       </div></div>
      }
     </div>

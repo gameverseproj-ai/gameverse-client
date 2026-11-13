@@ -94,7 +94,7 @@ export class PowerSceneComponent implements OnChanges, OnDestroy {
   private text(value: string,x: number,y: number,size: number,color='#e9f3dc'): void { const c=this.ctx!;c.fillStyle=color;c.font=`700 ${size}px system-ui`;c.textAlign='center';c.direction=this.locale.language()==='he'||this.locale.language()==='ar'?'rtl':'ltr';c.fillText(this.locale.t(value),x,y,this.width-20); }
   private draw(now: number): void {
     if (!this.ctx) return; const c=this.ctx,w=this.width,h=this.height;
-    c.clearRect(0,0,w,h); drawPowerGym(c,w,h);
+    c.clearRect(0,0,w,h); drawPowerGym(c,w,h,this.reduced?0:now);
     const elapsed=now-this.strikeAt, punching=elapsed<430;
     if (this.keyAt) { this.pull=Math.min(1,(now-this.keyAt)/1000);this.charge.emit(this.pull); }
     c.save();c.translate(w/2,h*.47);

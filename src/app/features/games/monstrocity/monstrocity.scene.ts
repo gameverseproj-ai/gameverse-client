@@ -377,7 +377,7 @@ export class MonstrocityScene {
         if(this.cameraMode==='follow'){this.followYawGoal-=x*.006;this.followHeight=T.MathUtils.clamp(this.followHeight+y*.015,2.5,5.5);return;}
  this.panGoal.set(T.MathUtils.clamp(this.panGoal.x - x * .025, -5, 5), T.MathUtils.clamp(this.panGoal.y - y * .025, -5, 5)); this.panReleased = Infinity; }
     releasePan() { this.panReleased = this.clock; }
-    render(s: Snapshot | null, dt: number, paused: boolean) {
+    render(s: Snapshot | null, dt: number, paused: boolean, moveSpeed = 3.2) {
         if (this.disposed)
             return;
         this.clock += dt;
@@ -401,13 +401,19 @@ export class MonstrocityScene {
             }
             if (!next.equals(this.target)) {
                 this.movementStart.copy(this.player.position); this.movementStart.y=0;
-                this.movementDuration=T.MathUtils.clamp(this.clock-this.snapshotTime,.1,.4);
+                this.movementDuration=T.MathUtils.clamp(this.clock-this.snapshotTime,.03,.15);
                 this.snapshotTime=this.clock;this.target.copy(next);this.movementTime=0;
             }
             const previous=this.player.position.clone();previous.y=0;
             if(!paused)this.movementTime+=dt;
             this.player.position.lerpVectors(this.movementStart,this.target,Math.min(1,this.movementTime/this.movementDuration));
             const delta=this.player.position.clone().sub(previous);delta.y=0;
+            // Network reconciliation must never appear as a sprint or teleport.
+            const maxStep = moveSpeed * Math.min(dt, .05) * 1.05;
+            if (delta.length() > maxStep) {
+                delta.setLength(maxStep);
+                this.player.position.copy(previous).add(delta);
+            }
             const moving=delta.length()>.001 && !paused && !r.combat;
             this.strideWeight=T.MathUtils.lerp(this.strideWeight,moving?1:0,1-Math.exp(-dt*14));
             if(moving) {

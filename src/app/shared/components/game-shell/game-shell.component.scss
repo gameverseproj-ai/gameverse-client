@@ -1,19 +1,68 @@
-:host { display: block; color: #f8f2ff; --game-accent: #b8f6d9; }
-.game-shell { position: fixed; inset: 0; height: 100dvh; box-sizing: border-box; overflow: hidden; display: grid; grid-template-rows: auto minmax(0,1fr); background: radial-gradient(ellipse at 50% 35%,#423269,transparent 75%),#151124; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
-[data-game=snake] { --game-accent: #b8f6d9; } [data-game='2048'] { --game-accent: #ffda92; } [data-game=tetris] { --game-accent: #d7baff; } [data-game=power] { --game-accent: #ffbc97; }
-header { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 6px 76px 6px 16px; box-sizing: border-box; border-bottom: 1px solid #ffffff0c; }
-h1 { margin: 0; font-size: clamp(13px,2.5vw,18px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-nav { margin-inline-start: auto; display: flex; gap: 5px; }
-button,.exit { font: inherit; color: #f8f2ff; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; background: #ffffff07; border: 1px solid #ffffff16; border-radius: 14px; cursor: pointer; text-decoration: none; font-size: 21px; flex-shrink: 0; }
-[aria-current=page] { color: var(--game-accent); background: #ffffff15; border-color: var(--game-accent); }
+// Every hall shares one twilight sky: deep indigo above, a warm horizon tinted by the hall's accent,
+// drifting clouds and slow stars. Boards and buttons are sculpted toys: soft corners, inset highlights
+// and a solid bottom shadow, matching the Gelly World art bible.
+:host { display: block; color: #fff6ff; --game-accent: #b8f6d9; --game-glow: #4fd9a4; --game-deep: #1d6b56; --game-ink: #173a30; font-family: 'Nunito', 'Trebuchet MS', system-ui, sans-serif; }
+[data-game=snake] { --game-accent: #b8f6d9; --game-glow: #4fd9a4; --game-deep: #1d6b56; --game-ink: #173a30; }
+[data-game='2048'] { --game-accent: #ffda92; --game-glow: #ffb24a; --game-deep: #9a5a1f; --game-ink: #4a2d10; }
+[data-game=tetris] { --game-accent: #e3c8ff; --game-glow: #c084ff; --game-deep: #5c2f9c; --game-ink: #32184f; }
+[data-game=power] { --game-accent: #ffc9a3; --game-glow: #ff8d5c; --game-deep: #a3412a; --game-ink: #4a1f12; }
+
+.game-shell {
+  position: fixed; inset: 0; height: 100dvh; box-sizing: border-box; overflow: hidden; display: grid; grid-template-rows: auto minmax(0,1fr);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background:
+    radial-gradient(ellipse 85% 55% at 50% 108%, color-mix(in srgb, var(--game-glow) 55%, #ff7ad9) 0%, color-mix(in srgb, var(--game-glow) 22%, transparent) 38%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 12% 18%, #5a3fa0 0%, transparent 60%),
+    radial-gradient(ellipse 50% 35% at 88% 30%, #6a3a9a 0%, transparent 60%),
+    linear-gradient(180deg, #171436 0%, #2a2060 40%, #4a2d7c 72%, #6d3f8d 100%);
+  isolation: isolate;
+}
+// Stars: two layers of tiny radial dots on different tile sizes, twinkling against each other.
+.game-shell::before {
+  content: ''; position: absolute; inset: 0; z-index: -2; pointer-events: none;
+  background-image:
+    radial-gradient(1.6px 1.6px at 22px 31px, #fff 100%, transparent 100%), radial-gradient(1.2px 1.2px at 118px 76px, #ffe9f8 100%, transparent 100%),
+    radial-gradient(2px 2px at 191px 19px, #fff5c9 100%, transparent 100%), radial-gradient(1.2px 1.2px at 64px 143px, #fff 100%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 157px 171px, #d8ecff 100%, transparent 100%), radial-gradient(1px 1px at 240px 110px, #fff 100%, transparent 100%),
+    radial-gradient(1.3px 1.3px at 32px 215px, #fff 100%, transparent 100%), radial-gradient(1.8px 1.8px at 205px 232px, #ffd6ef 100%, transparent 100%);
+  background-size: 260px 260px; opacity: .75;
+  mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 85%);
+  animation: stars 6s ease-in-out infinite alternate;
+}
+// Clouds and a soft haze near the horizon, so the lower sky feels warm and close.
+.game-shell::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 28% 9% at 8% 70%, #c68ef1a6 0%, #c68ef100 100%),
+    radial-gradient(ellipse 22% 7% at 20% 76%, #ffb7e8a0 0%, #ffb7e800 100%),
+    radial-gradient(ellipse 30% 10% at 92% 64%, #b88af0a0 0%, #b88af000 100%),
+    radial-gradient(ellipse 20% 7% at 80% 72%, #ffb9e59a 0%, #ffb9e500 100%),
+    radial-gradient(ellipse 60% 18% at 50% 100%, color-mix(in srgb, var(--game-glow) 35%, transparent) 0%, transparent 100%);
+  animation: drift 18s ease-in-out infinite alternate;
+}
+@keyframes stars { from { opacity: .55; } to { opacity: .95; } }
+@keyframes drift { from { transform: translateX(-12px); } to { transform: translateX(12px); } }
+
+header { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 6px 76px 6px 16px; box-sizing: border-box; border-bottom: 1px solid #ffffff14; background: linear-gradient(180deg, #120f2c66, #120f2c00); }
+h1 { margin: 0; font-size: clamp(14px,2.6vw,20px); font-weight: 900; letter-spacing: -.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff8ee; text-shadow: 0 2px 0 #2a1d4d, 0 3px 14px #0006; }
+nav { margin-inline-start: auto; display: flex; gap: 6px; }
+button,.exit {
+  font: inherit; font-weight: 800; color: #f8f2ff; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; cursor: pointer; text-decoration: none; font-size: 20px; flex-shrink: 0;
+  background: linear-gradient(180deg, #6b559d, #4a3878); border: 1px solid #ffffff2e; border-radius: 15px;
+  box-shadow: inset 0 2px 0 #ffffff33, inset 0 -2px 0 #0000002a, 0 4px 0 #1b1440, 0 8px 16px #0005;
+  transition: transform .12s, box-shadow .12s, filter .12s;
+}
+button:hover,.exit:hover { filter: brightness(1.12); }
+button:active,.exit:active { transform: translateY(3px); box-shadow: inset 0 2px 0 #ffffff33, 0 1px 0 #1b1440, 0 3px 8px #0005; }
+[aria-current=page] { color: var(--game-ink); background: linear-gradient(180deg, color-mix(in srgb, var(--game-accent) 80%, #fff), var(--game-accent)); border-color: #fff8; box-shadow: inset 0 2px 0 #ffffff88, 0 4px 0 var(--game-deep), 0 8px 16px #0005; }
 button:focus-visible,a:focus-visible { outline: 3px solid var(--game-accent); outline-offset: 2px; }
 main { min-height: 0; container-type: size; position: relative; }
 .page { height: 100%; width: 100%; box-sizing: border-box; overflow: hidden; }
 [hidden] { display: none!important; }
 .secondary { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px; padding: 20px; text-align: center; }
-h2 { margin: 0; font-size: clamp(20px,4vw,32px); }
-.return { width: auto; padding: 0 22px; font-size: 14px; color: var(--game-accent); }
-@media(max-width:420px) { header { gap: 6px; padding-inline-start: 10px; padding-inline-end: 70px; } nav { gap: 2px; } button,.exit { width: 40px; } h1 { font-size: 13px; } }
+h2 { margin: 0; font-size: clamp(22px,4vw,34px); font-weight: 900; text-shadow: 0 3px 0 #2a1d4d, 0 6px 20px #0006; }
+.return { width: auto; padding: 0 22px; font-size: 14px; color: var(--game-ink); background: linear-gradient(180deg, color-mix(in srgb, var(--game-accent) 80%, #fff), var(--game-accent)); border-color: #fff8; box-shadow: inset 0 2px 0 #ffffff88, 0 4px 0 var(--game-deep), 0 8px 16px #0005; }
+@media(max-width:420px) { header { gap: 6px; padding-inline-start: 10px; padding-inline-end: 70px; } nav { gap: 3px; } button,.exit { width: 40px; } h1 { font-size: 13px; } }
 @media(max-height:500px) { header { min-height: 52px; padding-block: 2px; } .secondary { gap: 10px; padding: 10px; } }
-
 @media(max-width:480px) { header { flex-wrap:wrap; gap:2px 8px; } h1 { flex:1; } nav { flex-basis:100%; justify-content:center; margin:0; } nav button { height:36px; } }
+@media(prefers-reduced-motion:reduce) { .game-shell::before,.game-shell::after { animation: none; } button,.exit { transition: none; } }

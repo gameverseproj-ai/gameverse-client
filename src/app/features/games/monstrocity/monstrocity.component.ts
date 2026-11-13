@@ -11,6 +11,7 @@ import { LocalMonstrocityApi } from './monstrocity-local.api';
 import { Config, Input, Snapshot } from './monstrocity.types';
 import { MonstrocityScene } from './monstrocity.scene';
 import { worldInput } from './monstrocity.input';
+import { MonstrocityMotion, stickInput, inputTickBudget } from './monstrocity-motion';
 import { MonstrocityMonsterComponent } from './monstrocity-monster.component';
 import { MusicService } from '../../../core/audio/music.service';
 import { MonstrocityMusic } from './monstrocity-music';
@@ -80,6 +81,7 @@ export class MonstrocityComponent {
     private lastSync = 0;
     private sequence = 0;
     private frames: Input[] = [];
+    private motion = new MonstrocityMotion();
     private tail: Promise<unknown> = Promise.resolve();
     private syncing = false;
     private disposed = false;
@@ -138,6 +140,9 @@ export class MonstrocityComponent {
             document.addEventListener('keyup', this.keyup);
             document.addEventListener('visibilitychange', this.visibility);
             window.addEventListener('pagehide', this.pagehide);
+            window.addEventListener('blur', this.blur);
+            window.addEventListener('pointerup', this.pointerEnd);
+            window.addEventListener('pointercancel', this.pointerEnd);
             this.zone.runOutsideAngular(() => this.frame = requestAnimationFrame(this.loop));
         }
         catch {
@@ -163,6 +168,7 @@ export class MonstrocityComponent {
         const rewards=searchLoot(previous,s);
         if(rewards.length){this.foundLoot.set(rewards);clearTimeout(this.lootTimer);this.lootTimer=window.setTimeout(()=>this.foundLoot.set([]),3200);}
         if(previous?.run?.id!==s.run?.id || s.run?.status==='dead'){this.foundLoot.set([]);clearTimeout(this.lootTimer);}
+        this.motion.accept(s);
         this.state.set(s);
         if(this.scene && this.scene.mapVersion!==this.cityMap.version){
             this.scene.destroy();const canvas=this.canvas().nativeElement;
@@ -189,7 +195,7 @@ export class MonstrocityComponent {
     toggleMusic() { this.musicMuted.update(v => !v); this.music.mute(this.musicMuted()); this.startMusic(); try { localStorage.setItem('monstrocity.music-muted', String(this.musicMuted())); } catch {} }
     async begin() { this.startMusic(); if (this.busy() || this.loading() || !!this.error())
         return; this.prefs.setAvatar(this.hero(), this.api.local); this.busy.set(true); this.error.set(''); try {
-        await this.queue(async () => { if (this.run?.status !== 'active') { const bootstrap = await this.api.bootstrap(); this.config.set(bootstrap.config); this.apply(bootstrap.snapshot); } const s = this.run?.status === 'active' ? await this.api.resume(this.run.id, false, crypto.randomUUID()) : await this.api.create({ character: this.hero(), configVersion: this.config()!.version }, crypto.randomUUID()); this.apply(s); this.sequence = s.session?.lastAcceptedInputSequence ?? 0; this.frames = []; this.started.set(true); this.modal.set(null); this.scene?.setCharacter(this.hero() === 'female'); });
+        await this.queue(async () => { if (this.run?.status !== 'active') { const bootstrap = await this.api.bootstrap(); this.config.set(bootstrap.config); this.apply(bootstrap.snapshot); } const s = this.run?.status === 'active' ? await this.api.resume(this.run.id, false, crypto.randomUUID()) : await this.api.create({ character: this.hero(), configVersion: this.config()!.version }, crypto.randomUUID()); this.apply(s); this.sequence = s.session?.lastAcceptedInputSequence ?? 0; this.frames = []; this.motion.reset(); this.motion.accept(s); this.tick = 0; this.started.set(true); this.modal.set(null); this.scene?.setCharacter(this.hero() === 'female'); });
     }
     catch (e) {
         this.handle(e);
@@ -199,7 +205,7 @@ export class MonstrocityComponent {
     } }
     async reconnect(takeover = false) { this.error.set(''); if (!this.run)
         return; this.busy.set(true); try {
-        await this.queue(async () => { const s = await this.api.resume(this.run!.id, takeover, crypto.randomUUID()); this.apply(s); this.sequence = s.session?.lastAcceptedInputSequence ?? 0; this.frames = []; this.modal.set(null); this.started.set(true); });
+        await this.queue(async () => { const s = await this.api.resume(this.run!.id, takeover, crypto.randomUUID()); this.apply(s); this.sequence = s.session?.lastAcceptedInputSequence ?? 0; this.frames = []; this.motion.reset(); this.motion.accept(s); this.tick = 0; this.modal.set(null); this.started.set(true); });
     }
     catch (e) {
         this.handle(e);
@@ -245,17 +251,22 @@ export class MonstrocityComponent {
     private loop = (time: number) => {
         if (this.disposed)
             return;
-        const dt = Math.min(.2, (time - this.last) / 1000 || .016);
+        const dt = Math.min(.05, (time - this.last) / 1000 || .016);
         this.last = time;
         if (!document.hidden) {
             const shot=this.projectile();
             if(shot){const t=Math.min(1,(time-this.flightStarted)/((this.config()?.stoneFlightSeconds??.45)*1000)),u=1-t;this.flight.set({x:u*u*shot.originX+2*u*t*((shot.originX+shot.x)/2)+t*t*shot.x,y:u*u*shot.originY+2*u*t*Math.max(0,shot.y-.22)+t*t*shot.y,scale:1.4-t*.95});}
             if(this.pendingThrow){if(this.paused||this.combat?.encounterId!==this.pendingThrow.encounterId){this.pendingThrow=null;this.throwQueued.set(false);}else void this.sendThrow();}
             this.music.setState(!!this.combat, this.run?.phase === 'night', this.paused);
-            if (this.started()) this.scene?.render(this.state(), dt, this.paused);
+            if (this.started()) {
+                const snapshot = this.state(), config = this.config();
+                const position = snapshot && config && !this.paused ? this.motion.position(snapshot, config) : snapshot?.run?.position;
+                this.scene?.render(snapshot?.run && position ? { ...snapshot, run: { ...snapshot.run, position } } : snapshot, dt, this.paused, config?.moveUnitsPerSecond);
+            }
             if (this.started() && !this.error() && this.run?.status === 'active') {
-                this.tick += dt;
                 const interval = (this.config()?.transport.inputTickMs ?? 50) / 1000;
+                // A stalled animation frame must not turn the latest thumb position into a burst of old steps.
+                this.tick = inputTickBudget(this.tick, dt, interval);
                 while (this.tick >= interval) {
                     this.tick -= interval;
                     const stick = this.joystick();
@@ -268,8 +279,11 @@ export class MonstrocityComponent {
                         x = 0;
                         y = 0;
                     }
-                    if (this.frames.length < 10)
-                        this.frames.push({ sequence: ++this.sequence, ...(this.scene?.movementInput(x,y) ?? worldInput(x, y)) });
+                    if (this.frames.length < 10) {
+                        const input = { sequence: ++this.sequence, ...(this.scene?.movementInput(x,y) ?? worldInput(x, y)) };
+                        this.frames.push(input);
+                        this.motion.add(input);
+                    }
                 }
                 if (time - this.lastSync >= 250 && !this.syncing && !this.busy()) {
                     this.lastSync = time;
@@ -281,9 +295,12 @@ export class MonstrocityComponent {
         this.frame = requestAnimationFrame(this.loop);
     };
     stickDown(e: PointerEvent) { if (this.paused || this.combat || this.stickPointer !== null)
-        return; e.preventDefault(); this.stickPointer = e.pointerId; this.stickOrigin = { x: e.clientX, y: e.clientY }; (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); this.stickMove(e); }
+        return; e.preventDefault(); this.stickPointer = e.pointerId; this.stickOrigin = { x: e.clientX, y: e.clientY }; try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch { /* Window pointer handlers still release the stick. */ } this.stickMove(e); }
     stickMove(e: PointerEvent) { if (e.pointerId !== this.stickPointer)
-        return; const x = (e.clientX - this.stickOrigin.x) / 42, y = (e.clientY - this.stickOrigin.y) / 42, len = Math.max(1, Math.hypot(x, y)); this.joystick.set({ x: x / len, y: y / len }); }
+        return;
+        if (e.pointerType === 'mouse' && e.buttons === 0) { this.stickUp(e); return; }
+        e.preventDefault();
+        this.joystick.set(stickInput(e.clientX - this.stickOrigin.x, e.clientY - this.stickOrigin.y)); }
     stickUp(e: PointerEvent) { if (this.stickPointer === e.pointerId) {
         this.stickPointer = null;
         this.joystick.set({ x: 0, y: 0 });
@@ -354,7 +371,9 @@ export class MonstrocityComponent {
         this.retrievingStone.set(true);clearTimeout(this.retrievalTimer);
         this.retrievalTimer=window.setTimeout(()=>this.retrievingStone.set(false),720);
     }
-    private clearInput() { clearTimeout(this.retrievalTimer);this.retrievingStone.set(false); this.pendingThrow=null;this.throwQueued.set(false); this.keys.clear(); this.joystick.set({ x: 0, y: 0 }); this.stickPointer = null; this.cameraPointer = null; this.aimPointer = null; this.aiming.set(null); this.scene?.releasePan(); }
+    private pointerEnd = (e: PointerEvent) => { this.stickUp(e); this.cameraUp(e); };
+    private blur = () => { this.clearInput(); };
+    private clearInput() { this.tick = 0; clearTimeout(this.retrievalTimer);this.retrievingStone.set(false); this.pendingThrow=null;this.throwQueued.set(false); this.keys.clear(); this.joystick.set({ x: 0, y: 0 }); this.stickPointer = null; this.cameraPointer = null; this.aimPointer = null; this.aiming.set(null); this.scene?.releasePan(); }
     private keydown = (e: KeyboardEvent) => { if (this.modal() && e.key === 'Tab') {
         const controls = Array.from(document.querySelectorAll<HTMLElement>('.monstro-modal button:not(:disabled),.monstro-modal a'));
         const first = controls[0], last = controls[controls.length - 1];
@@ -401,5 +420,8 @@ export class MonstrocityComponent {
         document.removeEventListener('keyup', this.keyup);
         document.removeEventListener('visibilitychange', this.visibility);
         window.removeEventListener('pagehide', this.pagehide);
+        window.removeEventListener('blur', this.blur);
+        window.removeEventListener('pointerup', this.pointerEnd);
+        window.removeEventListener('pointercancel', this.pointerEnd);
     } }
 }

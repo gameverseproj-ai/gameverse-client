@@ -55190,7 +55190,13 @@ function render(now) {
   if (overview) {
     overviewCamera.aspect = canvas.clientWidth / canvas.clientHeight;
     overviewCamera.updateProjectionMatrix();
+    const fog = scene.world.fog;
+    scene.world.fog = null;
+    scene.world.traverse((o) => {
+      if (o.isMesh) o.frustumCulled = true;
+    });
     scene.renderer.render(scene.world, overviewCamera);
+    scene.world.fog = fog;
   }
   frames++;
   total += dt;
