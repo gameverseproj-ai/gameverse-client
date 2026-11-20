@@ -1,3 +1,4 @@
+import { Subscription, take, timeout } from 'rxjs';
 import { Injectable, inject, signal } from '@angular/core';
 import { WORLD_API, StandaloneGame } from '../api/world.api';
 import { World, WorldProgress } from '../models/world.model';
@@ -5,6 +6,8 @@ import { World, WorldProgress } from '../models/world.model';
 @Injectable({ providedIn: 'root' })
 export class WorldFacade {
   private readonly api = inject(WORLD_API);
+  private worldsRequest?: Subscription;
+  private standaloneRequest?: Subscription;
 
   readonly standalone = signal<StandaloneGame[]>([]);
   readonly standaloneError = signal(false);
@@ -15,13 +18,15 @@ export class WorldFacade {
   readonly error         = signal<string | null>(null);
 
   loadWorlds(): void {
+    this.worldsRequest?.unsubscribe();
     this.loading.set(true);
     this.error.set(null);
     this.standaloneError.set(false);
-    this.api.getStandaloneGames?.().subscribe({next: games => this.standalone.set(games), error: () => {this.standalone.set([]); this.standaloneError.set(true);}});
-    this.api.getWorlds().subscribe({
+    this.standaloneRequest?.unsubscribe();
+    this.standaloneRequest = this.api.getStandaloneGames?.().pipe(take(1), timeout(15000)).subscribe({next: games => this.standalone.set(games), error: () => {this.standalone.set([]); this.standaloneError.set(true);}});
+    this.worldsRequest = this.api.getWorlds().pipe(take(1), timeout(15000)).subscribe({
       next:  (worlds) => { this.worlds.set(worlds); this.loading.set(false); },
-      error: (err)    => { this.error.set(err?.message ?? 'Failed to load worlds'); this.loading.set(false); },
+      error: ()       => { this.error.set('Worlds could not load. Please check your connection and try again.'); this.loading.set(false); },
     });
   }
 
@@ -29,15 +34,16 @@ export class WorldFacade {
     const cached = this.worlds().find((w) => w.id === id);
     if (cached) { this.currentWorld.set(cached); return; }
 
+    this.worldsRequest?.unsubscribe();
     this.loading.set(true);
     this.error.set(null);
-    this.api.getWorlds().subscribe({
+    this.worldsRequest = this.api.getWorlds().pipe(take(1), timeout(15000)).subscribe({
       next: (worlds) => {
         this.worlds.set(worlds);
         this.currentWorld.set(worlds.find((w) => w.id === id) ?? null);
         this.loading.set(false);
       },
-      error: (err) => { this.error.set(err?.message ?? 'Failed to load world'); this.loading.set(false); },
+      error: () => { this.error.set('Worlds could not load. Please check your connection and try again.'); this.loading.set(false); },
     });
   }
 

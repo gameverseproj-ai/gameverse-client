@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Observable, catchError, finalize, of, shareReplay, tap } from 'rxjs';
+import { Observable, catchError, finalize, of, shareReplay, tap, timeout } from 'rxjs';
 import { AuthResponse } from '../../models/auth.model';
 import { Language } from '../../models/language.model';
 import { API_BASE_URL } from './api-config';
@@ -44,10 +44,11 @@ export class SessionGate {
     this.inFlight = this.http
       .post<AuthResponse>(`${this.base}/api/auth/anonymous`, null, { headers })
       .pipe(
+        timeout(10000),
         tap(session => this.store.save(session)),
         catchError(() => of(null)),
         finalize(() => { this.inFlight = null; }),
-        shareReplay({ bufferSize: 1, refCount: false }),
+        shareReplay({ bufferSize: 1, refCount: true }),
       );
     return this.inFlight;
   }

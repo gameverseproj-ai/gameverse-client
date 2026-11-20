@@ -9,7 +9,7 @@
   }
 
   @if (worldFacade.error(); as err) {
-    <p class="worlds__error">{{ (err) | t }}</p>
+    <p class="worlds__error" role="alert">{{ (err) | t }} <button (click)="worldFacade.loadWorlds()">{{ 'Retry' | t }}</button></p>
   }
 
   @if (worldFacade.standaloneError()) {<p class="worlds__error">{{ 'Standalone games could not load.' | t }} <button (click)="worldFacade.loadWorlds()">{{ 'Retry' | t }}</button></p>}
@@ -21,7 +21,7 @@
     @for (world of worldFacade.worlds(); track world.id) {
       <app-world-card [world]="world" />
     } @empty {
-      @if (!worldFacade.loading()) {
+      @if (!worldFacade.loading() && !worldFacade.error()) {
         <p class="worlds__empty">{{ 'No worlds found.' | t }}</p>
       }
     }

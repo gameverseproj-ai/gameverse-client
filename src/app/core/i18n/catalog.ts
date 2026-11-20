@@ -3,6 +3,7 @@ import { TENNIS_CATALOG } from './tennis.catalog';
 // English source messages and their translations. Parameters use {0}, {1}, etc.
 export const CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
   ...TENNIS_CATALOG,
+  "Worlds could not load. Please check your connection and try again.": {ru: "Не удалось загрузить миры. Проверьте соединение и попробуйте снова.", he: "לא ניתן לטעון את העולמות. בדקו את החיבור ונסו שוב.", ar: "تعذر تحميل العوالم. تحقق من الاتصال وحاول مجددًا."},
   ...MONSTROCITY_CATALOG,
 "Sign in to sync your progress.": {"ru":"Войдите, чтобы синхронизировать прогресс.","he":"היכנסו כדי לסנכרן את ההתקדמות.","ar":"سجّل الدخول لمزامنة تقدمك."},
 "Account connected": {"ru":"Аккаунт подключён","he":"החשבון מחובר","ar":"الحساب متصل"},

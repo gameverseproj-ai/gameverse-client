@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { AuthResponse } from '../../models/auth.model';
@@ -29,6 +29,30 @@ describe('Guest device identity', () => {
     http = TestBed.inject(HttpTestingController);
   });
   afterEach(() => { http.verify(); wipe(); });
+
+  it('releases a stalled sign-in so retry can establish a session', fakeAsync(() => {
+    const gate = TestBed.inject(SessionGate);
+    let first: AuthResponse | null | undefined;
+    gate.ensure().subscribe(value => first = value);
+    const stalled = http.expectOne('/api/auth/anonymous');
+    tick(10000);
+    expect(first).toBeNull();
+    expect(stalled.cancelled).toBeTrue();
+    let restored: AuthResponse | null | undefined;
+    gate.ensure().subscribe(value => restored = value);
+    http.expectOne('/api/auth/anonymous').flush(guest);
+    expect(restored).toEqual(guest);
+  }));
+
+  it('cancels abandoned sign-in without leaving a shared request stuck', () => {
+    const gate = TestBed.inject(SessionGate);
+    const subscription = gate.ensure().subscribe();
+    const abandoned = http.expectOne('/api/auth/anonymous');
+    subscription.unsubscribe();
+    expect(abandoned.cancelled).toBeTrue();
+    gate.ensure().subscribe();
+    http.expectOne('/api/auth/anonymous').flush(guest);
+  });
 
   it('signs in with a device ID that survives losing the session', () => {
     const gate = TestBed.inject(SessionGate);
