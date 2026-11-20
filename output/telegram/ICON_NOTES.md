@@ -1,0 +1,3 @@
+- icon-v1.png — Glossy multi-world planet with a golden orbit, tennis ball and tetromino; the most literal game-universe motif.
+- icon-v2.png — Sculpted play emblem combining terrain, water and gold with an orbiting tennis ball; recommended for its clearest silhouette and strong colour separation at 40 px within Telegram's circular crop.
+- icon-v3.png — Golden portal joining garden, sports and block-adventure worlds; a cohesive circular hub badge with a strong luminous rim.
