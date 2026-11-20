@@ -34,17 +34,25 @@ export class TennisScene {
     });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
     this.renderer.outputColorSpace = T.SRGBColorSpace;
-    this.renderer.setClearColor(0x0a1226);
-    this.scene.fog = new T.FogExp2(0x0a1226, 0.012);
+    this.renderer.setClearColor(0x456db5);
+    this.renderer.toneMapping = T.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.18;
+    const sky = document.createElement('canvas'); sky.width=8; sky.height=512;
+    const skyContext=sky.getContext('2d')!, skyPaint=skyContext.createLinearGradient(0,0,0,512);
+    skyPaint.addColorStop(0,'#243a80');skyPaint.addColorStop(.5,'#6288ca');skyPaint.addColorStop(1,'#ffd0a7');
+    skyContext.fillStyle=skyPaint;skyContext.fillRect(0,0,8,512);
+    const skyTexture=new T.CanvasTexture(sky);skyTexture.colorSpace=T.SRGBColorSpace;this.scene.background=skyTexture;
+    this.scene.fog = new T.FogExp2(0x7591c4, 0.008);
     this.scene.add(new T.HemisphereLight(0xd4faff, 0x403659, 2.8));
     const sun = new T.DirectionalLight(0xffe4c4, 3);
     sun.position.set(8, 18, 6);
     this.scene.add(sun);
     this.camera.position.set(0, 19, 23);
     this.camera.lookAt(0, 0, 0);
-    this.box([16, 1, 25], [0, -0.65, 0], 0x283552, 0.45);
+    this.box([16, 1, 25], [0, -0.65, 0], 0x425d92, 0.45);
     this.box([15.4, 0.08, 24.4], [0, -0.1, 0], 0x3dd4d8, 0.18);
-    this.box([15, 0.12, 24], [0, 0, 0], 0x162c49, 0.25);
+    this.box([15, 0.12, 24], [0, 0, 0], 0xf58d78, 0.25);
+    this.stadiumDetails();
     this.scene.add(this.court);
     this.setSport('tennis');
     for (const side of [-1, 1]) {
@@ -52,7 +60,7 @@ export class TennisScene {
         this.box(
           [2.2, 0.65 + i * 0.45, 19],
           [side * (9 + i * 1.6), i * 0.225, -1],
-          i % 2 ? 0x34446e : 0x263b5c,
+          i % 2 ? 0x5b70b3 : 0x3c5388,
           0.25,
         );
       for (const z of [-9, 9]) {
@@ -65,7 +73,7 @@ export class TennisScene {
       for (let i = 0; i < 5; i++) {
         const island = new T.Mesh(
           new T.IcosahedronGeometry(2 + (i % 2), 0),
-          new T.MeshStandardMaterial({ color: 0x303d66, roughness: 0.7 }),
+          new T.MeshStandardMaterial({ color: 0x587daf, roughness: 0.7 }),
         );
         island.position.set(side * (19 + i * 3), -3 + (i % 3), -20 + i * 8);
         island.scale.y = 0.6;
@@ -115,6 +123,32 @@ export class TennisScene {
     );
     this.scene.add(this.particles);
   }
+  /** Instanced spectator seats keep the richer arena cheap to draw on phones. */
+  private stadiumDetails(): void {
+    this.box([30,.5,26],[0,-.9,0],0xedc89c,.3);
+    const seats=new T.InstancedMesh(new RoundedBoxGeometry(.9,.24,.7,1,.09),new T.MeshStandardMaterial({roughness:.55}),108);
+    const transform=new T.Object3D(), color=new T.Color(); let index=0;
+    for(const side of [-1,1])for(let row=0;row<3;row++)for(let seat=0;seat<18;seat++){
+      transform.position.set(side*(9+row*1.6),.45+row*.45,-9+seat);
+      transform.updateMatrix(); seats.setMatrixAt(index,transform.matrix);
+      color.setHex([0x56d6dc,0xffce72,0xee8299,0xe9f4fc][(seat+row*2)%4]);seats.setColorAt(index++,color);
+    }
+    this.scene.add(seats);
+    for(const side of [-1,1]){
+      this.box([.12,.12,23],[side*7.55,.22,0],0xffd07b,.04);
+      for(const z of [-11,11]){
+        const trunk=new T.Mesh(new T.CylinderGeometry(.17,.3,4.4,8),new T.MeshStandardMaterial({color:0xc78e62,roughness:1}));
+        trunk.position.set(side*14,1.6,z);trunk.rotation.z=side*.12;this.scene.add(trunk);
+        const foliage=new T.Group();foliage.position.set(side*14.3,3.7,z);
+        for(let i=0;i<7;i++){
+          const leaf=new T.Mesh(new T.SphereGeometry(1,12,6),new T.MeshStandardMaterial({color:i%2?0x39ae91:0x71d4a4,roughness:.7}));
+          const a=i*Math.PI*2/7;leaf.scale.set(.46,.12,1.8);leaf.position.set(Math.sin(a)*1.05,Math.cos(i)*.14,Math.cos(a)*1.05);leaf.rotation.set(.2,a,0);foliage.add(leaf);
+        }
+        this.scene.add(foliage);
+      }
+      for(const z of [-6,0,6])this.box([.08,.65,4.6],[side*7.7,.6,z],side<0?0x2e69b0:0xf6b05e,.06);
+    }
+  }
   private box(
     size: [number, number, number],
     pos: [number, number, number],
@@ -139,9 +173,16 @@ export class TennisScene {
     const body = new T.Mesh(new T.CapsuleGeometry(0.34, 0.5, 5, 12), mat);
     body.position.y = 0.75;
     group.add(body);
+    this.box([.48,.1,.16],[0,1.01,.27],0xf6f4e4,.03,group);
+    this.box([.16,.28,.1],[0,.77,.33],0xf6ca6d,.03,group);
+    for(const side of [-1,1]){
+      const arm=new T.Mesh(new T.CapsuleGeometry(.12,.33,3,10),mat);arm.position.set(side*.43,.83,.07);arm.rotation.z=side*.35;group.add(arm);
+      this.box([.28,.08,.42],[side*.22,.1,.14],0xfff1da,.04,group);
+    }
     const head = new T.Mesh(new T.SphereGeometry(0.4, 20, 16), mat);
     head.position.y = 1.5;
     group.add(head);
+    const band=new T.Mesh(new T.TorusGeometry(.386,.045,6,24),new T.MeshStandardMaterial({color:0xffe8ae}));band.rotation.x=Math.PI/2;band.position.y=1.64;group.add(band);
     const visor = new T.Mesh(
       new RoundedBoxGeometry(0.55, 0.17, 0.13, 2, 0.05),
       new T.MeshBasicMaterial({ color: 0x10172b }),
@@ -234,7 +275,7 @@ export class TennisScene {
     box(
       [9.2, ping ? 0.22 : 0.08, ping ? 13 : 17],
       [0, floor - 0.06, 0],
-      ping ? 0x263bb3 : squash ? 0x906b48 : badminton ? 0x287961 : 0x215a74,
+      ping ? 0x266bd0 : squash ? 0xe0aa6e : badminton ? 0x21aa96 : 0x168dba,
     );
     if (ping)
       for (const x of [-3.6, 3.6])
@@ -331,6 +372,7 @@ export class TennisScene {
         : [];
       materials.forEach((x) => x.dispose());
     });
+    if(this.scene.background instanceof T.Texture)this.scene.background.dispose();
     this.renderer.dispose();
   }
 }

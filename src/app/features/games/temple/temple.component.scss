@@ -1,12 +1,11 @@
-@use '../../../shared/components/game-shell/game-content';
-.play { width:min(100%,calc(100cqh - 150px),720px); }
+.play { width:min(100%,calc(100cqh - 176px),720px); }
 // A sun-warmed temple floor: carved stone sockets inside a gold-trimmed frame.
 .board {
   --size:4; display:grid; grid-template-columns:repeat(var(--size),1fr); gap:9px; padding:12px; aspect-ratio:1; flex-shrink:0; position:relative; border-radius:28px; touch-action:none; overflow:hidden;
-  background:radial-gradient(ellipse at 50% 0%, #a06a52 0%, transparent 60%), linear-gradient(160deg,#8a5a4c,#5e3f5c 70%,#4a3356);
+  background:radial-gradient(ellipse at 50% 0%, #ffe8af 0%, transparent 60%), linear-gradient(160deg,#e6a86e,#b87750 70%,#8d5551);
   border:3px solid #ffd58a; box-shadow:inset 0 3px 0 #ffffff55, inset 0 -3px 0 #00000033, 0 10px 0 #7a4a2a, 0 26px 50px #0008, 0 0 40px #ffb24a33;
 }
-.cell { aspect-ratio:1; position:relative; min-width:0; border-radius:18%; background:linear-gradient(180deg,#2e2042a8,#3a2a4e8c); box-shadow:inset 0 4px 8px #1a102e99, inset 0 -1px 0 #ffd9a233, 0 1px 0 #ffe2b822; }
+.cell { aspect-ratio:1; position:relative; min-width:0; border-radius:18%; background:linear-gradient(180deg,#634c60,#856379); box-shadow:inset 0 4px 8px #1a102e99, inset 0 -1px 0 #ffd9a233, 0 1px 0 #ffe2b822; }
 .tile {
   --top:#deffba; --bottom:#8fd56c; --deep:#4f8a3c; --ink:#2b4a22;
   position:absolute; inset:0; display:grid; place-items:center; border-radius:18%; font-size:clamp(18px,4.2cqh,40px); font-weight:900; color:var(--ink);
@@ -39,3 +38,8 @@
 // Grid indices and physical controls must not mirror with the text language.
 .board, .directions { direction:ltr; }
 :host-context([dir="rtl"]) .overlay { direction:rtl; }
+
+// Inlaid stone and jewel facets, kept away from the numeral for readability.
+.board { outline:1px solid #a96039; outline-offset:5px; }
+.tile { background:linear-gradient(135deg,#ffffff60,transparent 38%,#ffffff18 62%,transparent 63%),linear-gradient(180deg,var(--top),var(--bottom)); }
+.tile::before { content:''; position:absolute; inset:9%; border:1px solid #ffffff70; border-radius:13%; clip-path:polygon(0 0,100% 0,100% 28%,91% 28%,91% 9%,9% 9%,9% 91%,28% 91%,28% 100%,0 100%); pointer-events:none; }

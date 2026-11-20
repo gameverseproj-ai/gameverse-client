@@ -1,3 +1,4 @@
+import { drawGymBackdrop } from './gym-backdrop';
 import * as T from 'three';
 import { makeTrainingRig, v } from './training-rig';
 export type TrainingView = 'three-quarter' | 'front' | 'side';
@@ -34,15 +35,15 @@ export class TrainingRenderer {
   // Keep a readable canvas, including on devices where WebGL is unavailable or lost.
   try {
    const gpuCanvas=document.createElement('canvas');
-   this.renderer=new T.WebGLRenderer({canvas:gpuCanvas,antialias:true,alpha:false,preserveDrawingBuffer:true});
-   this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));this.renderer.setClearColor(0xfbeedd);
+   this.renderer=new T.WebGLRenderer({canvas:gpuCanvas,antialias:true,alpha:true,preserveDrawingBuffer:true});
+   this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));this.renderer.setClearColor(0x000000,0);
    this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=T.PCFShadowMap;
    this.renderer.outputColorSpace=T.SRGBColorSpace;this.renderer.toneMapping=T.ACESFilmicToneMapping;
    gpuCanvas.addEventListener('webglcontextlost',()=>{this.renderer?.dispose();this.renderer=undefined;});
   } catch { this.renderer=undefined; }
   this.scene.add(new T.HemisphereLight(0xfff4e6,0x9a7d78,2.5));
   const light=new T.DirectionalLight(0xfff4db,3);light.position.set(-3,6,4);light.castShadow=true;light.shadow.mapSize.set(1024,1024);Object.assign(light.shadow.camera,{left:-3,right:3,top:3,bottom:-3});light.shadow.bias=-.001;this.scene.add(light);
-  const floor=this.mesh(this.box,new T.MeshStandardMaterial({color:0xf1d9c3,roughness:1}),this.scene);floor.scale.set(200,.06,200);floor.position.y=-.04;floor.receiveShadow=true;floor.userData["floor"]=true;
+  const floor=this.mesh(this.box,new T.ShadowMaterial({color:0x153644,opacity:.22}),this.scene);floor.scale.set(200,.06,200);floor.position.y=-.04;floor.receiveShadow=true;floor.userData["floor"]=true;
   this.scene.add(this.actor);this.actor.add(this.torso);
   const trunk=this.mesh(new T.CylinderGeometry(.225,.175,.44,24),this.shirt,this.torso);trunk.position.y=.285;trunk.scale.z=.64;
   this.ellipsoid(this.torso,this.shirt,[0,.47,0],[.225,.10,.14]);
@@ -120,12 +121,12 @@ export class TrainingRenderer {
   const floorPose=['mat','bench','bench-weights'].includes(r.prop);
   const target=v(0,floorPose?.55:1,0);
   const direction=view==='front'?v(0,.6,6):view==='side'?v(6,.35,.05):v(3.8,2.1,5);
-  this.camera.position.copy(target).add(direction);this.camera.lookAt(target);if(this.renderer){this.renderer.render(this.scene,this.camera);this.context.drawImage(this.renderer.domElement,0,0,this.width,this.height);}else this.drawSoftware();
+  this.camera.position.copy(target).add(direction);this.camera.lookAt(target);if(this.renderer){this.context.fillStyle="#e9e3cf";this.context.fillRect(0,0,this.width,this.height);drawGymBackdrop(this.context,this.width,this.height);this.renderer.render(this.scene,this.camera);this.context.drawImage(this.renderer.domElement,0,0,this.width,this.height);}else this.drawSoftware();
  }
  /** Painter projection uses the same mesh and poses as the GPU path. */
  private drawSoftware(){
   const c=this.context,w=this.width,h=this.height;
-  c.fillStyle='#fbeedd';c.fillRect(0,0,w,h);
+  c.fillStyle='#e9e3cf';c.fillRect(0,0,w,h);drawGymBackdrop(c,w,h);
   this.scene.updateMatrixWorld(true);this.camera.updateMatrixWorld(true);
   const triangles:{xy:number[];z:number;color:string;opacity:number}[]=[];
   const light=v(-3,6,4).normalize();

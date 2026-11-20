@@ -4,7 +4,7 @@
       <app-card
         [title]="(game.title) | t"
         [subtitle]="game.engineType"
-        [imageUrl]="game.thumbnailUrl"
+        [imageUrl]="artwork(game)"
       >
         <p class="game-list__desc">{{ (game.description) | t }}</p>
       </app-card>

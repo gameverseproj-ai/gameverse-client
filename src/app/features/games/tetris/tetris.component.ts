@@ -22,23 +22,33 @@ export class TetrisComponent implements OnDestroy {
  readonly controls=[{action:'left',label:'Move left',icon:'←',short:'LEFT'},{action:'rotate',label:'Rotate clockwise',icon:'↻',short:'ROTATE'},{action:'right',label:'Move right',icon:'→',short:'RIGHT'},{action:'down',label:'Soft drop',icon:'↓',short:'DOWN'},{action:'drop',label:'Hard drop',icon:'⤓',short:'DROP'},{action:'hold',label:'Hold current piece',icon:'⇄',short:'HOLD'}] as const;
  readonly score=signal(0);readonly lines=signal(0);readonly level=signal(1);readonly next=signal<Tetromino[]>([]);readonly held=signal<Tetromino|null>(null);readonly holdReady=signal(true);
  readonly toast=signal('');readonly sound=signal(true);readonly soundBusy=signal(false);readonly soundError=signal('');readonly colors=COLORS;
- private engine?:TetrisEngine;private renderer?:TetrisRenderer;private run?:TetrisRun;private request?:Subscription;private soundRequest?:Subscription;
+ private engine?:TetrisEngine;private renderer?:TetrisRenderer;private renderedCanvas?:HTMLCanvasElement;private run?:TetrisRun;private request?:Subscription;private soundRequest?:Subscription;
  private startId:string|null=null;private result:TetrisResult|null=null;private retryAction:'load'|'start'|'finish'='load';private finished=false;
  private raf=0;private time=0;private disposed=false;private flash=0;private toastUntil=0;private audio?:AudioContext;private reducedMotion=false;
  private repeats=new Map<string,{action:Action;next:number}>();
  constructor(){afterNextRender(()=>{
   const canvas=this.canvas().nativeElement,ctx=canvas.getContext('2d');if(!ctx){this.error.set('The game board could not open.');return;}
-  const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=300*dpr;canvas.height=600*dpr;ctx.scale(dpr,dpr);this.renderer=new TetrisRenderer(ctx);
+  const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=300*dpr;canvas.height=600*dpr;ctx.scale(dpr,dpr);this.renderer=new TetrisRenderer(ctx);this.renderedCanvas=canvas;
   this.reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   this.load();this.zone.runOutsideAngular(()=>this.raf=requestAnimationFrame(t=>this.frame(t)));
  });}
+ private renderBoard():void {
+  if(!this.engine)return;
+  const canvas=this.canvas().nativeElement;
+  if(canvas!==this.renderedCanvas){
+   const ctx=canvas.getContext('2d');if(!ctx)return;
+   const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=300*dpr;canvas.height=600*dpr;ctx.scale(dpr,dpr);
+   this.renderer=new TetrisRenderer(ctx);this.renderedCanvas=canvas;
+  }
+  this.renderer?.render(this.engine,this.flash);
+ }
  load():void {this.error.set('');this.retryAction='load';this.screen.set('loading');this.request?.unsubscribe();
-  this.request=this.api.getBootstrap().pipe(timeout(10000),take(1)).subscribe({next:d=>{this.data.set(d);this.games.bootstrap.set(d);this.sound.set(d.settings.soundEnabled);this.engine=new TetrisEngine(d.settings.rules,1);this.sync();this.renderer?.render(this.engine);this.screen.set('ready');},error:()=>this.error.set('Your factory progress could not be loaded. Please retry.')});}
+  this.request=this.api.getBootstrap().pipe(timeout(10000),take(1)).subscribe({next:d=>{this.data.set(d);this.games.bootstrap.set(d);this.sound.set(d.settings.soundEnabled);this.engine=new TetrisEngine(d.settings.rules,1);this.sync();this.renderBoard();this.screen.set('ready');},error:()=>this.error.set('Your factory progress could not be loaded. Please retry.')});}
  start():void {
   if(this.soundBusy()||['playing','paused','saving'].includes(this.screen())||(this.screen()==='starting'&&!this.error()))return;
   try{this.audio??=new AudioContext();void this.audio.resume().catch(()=>{});}catch{/* Audio is optional. */}
   this.error.set('');this.retryAction='start';this.screen.set('starting');this.startId??=crypto.randomUUID();this.request?.unsubscribe();this.games.bootstrap.set(null);
-  this.request=this.api.startRun(this.startId).pipe(timeout(10000),take(1)).subscribe({next:run=>{this.run=run;this.startId=null;this.result=null;this.finished=false;this.receipt.set(null);this.toast.set('');this.flash=0;this.repeats.clear();this.engine=new TetrisEngine(run.rules,run.seed);this.engine.start();this.sync();this.renderer?.render(this.engine);this.time=performance.now();this.screen.set('playing');this.canvas().nativeElement.focus({preventScroll:true});if(document.hidden || this.gamePage() !== 'play')this.pause();},error:()=>this.error.set('The run could not start. Retry the same request.')});
+  this.request=this.api.startRun(this.startId).pipe(timeout(10000),take(1)).subscribe({next:run=>{this.run=run;this.startId=null;this.result=null;this.finished=false;this.receipt.set(null);this.toast.set('');this.flash=0;this.repeats.clear();this.engine=new TetrisEngine(run.rules,run.seed);this.engine.start();this.sync();this.renderBoard();this.time=performance.now();this.screen.set('playing');this.canvas().nativeElement.focus({preventScroll:true});if(document.hidden || this.gamePage() !== 'play')this.pause();},error:()=>this.error.set('The run could not start. Retry the same request.')});
  }
  private frame(time:number):void {
   if(this.disposed)return;const delta=this.time?time-this.time:0;this.time=time;
@@ -49,7 +59,7 @@ export class TetrisComponent implements OnDestroy {
    if(this.engine.clearSerial!==clears){this.flash=this.reducedMotion?0:1;this.toastUntil=time+1400;this.zone.run(()=>{this.toast.set(this.engine!.level>previousLevel?'LEVEL UP ✦':['','SINGLE ✦','DOUBLE ✦','TRIPLE ✦','TETRIS! ✦'][this.engine!.lastClear.length]);this.tone([523,659,784],.07,.24);});}
    else if(this.engine.locks!==locks)this.tone([190],0,.08);
    if(this.engine.revision!==revision)this.zone.run(()=>this.sync());
-   if(this.engine.revision!==revision||this.flash>0)this.renderer?.render(this.engine,this.flash);
+   if(this.engine.revision!==revision||this.flash>0)this.renderBoard();
    if(this.engine.gameOver)this.zone.run(()=>this.finish());
   }
   if(this.flash>0)this.flash=Math.max(0,this.flash-delta/460);
@@ -65,7 +75,7 @@ export class TetrisComponent implements OnDestroy {
   if(e.clearSerial!==clears){this.flash=this.reducedMotion?0:1;this.toastUntil=performance.now()+1400;this.toast.set(e.level>level?'LEVEL UP ✦':['','SINGLE ✦','DOUBLE ✦','TRIPLE ✦','TETRIS! ✦'][e.lastClear.length]);this.tone([523,659,784],.07,.24);}
   else if(action==='drop')this.tone([170],0,.08);
   else if(action==='rotate'||action==='counter')this.tone([390],0,.04);
-  this.sync();this.renderer?.render(e,this.flash);if(e.gameOver)this.finish();
+  this.sync();this.renderBoard();if(e.gameOver)this.finish();
  }
  private finish(){if(this.finished||!this.run||!this.engine)return;this.finished=true;this.repeats.clear();const e=this.engine;
   this.result={runId:this.run.id,clears:[...e.clears],softDropCells:e.softDropCells,hardDropCells:e.hardDropCells,elapsedMs:Math.round(e.elapsedMs)};

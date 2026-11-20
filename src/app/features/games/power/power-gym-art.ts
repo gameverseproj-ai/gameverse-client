@@ -1,5 +1,7 @@
+import { drawGymBackdrop } from './gym-backdrop';
 /** A candy-stone training hall at sunset: warm sky, bunting, lit arches and a glowing ring. */
 export function drawPowerGym(c: CanvasRenderingContext2D, w: number, h: number, now = 0): void {
+  if (drawGymBackdrop(c,w,h)) return;
   c.save();
   const sky = c.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, '#2a1f5e'); sky.addColorStop(.35, '#6a3d7e'); sky.addColorStop(.62, '#c45c7a'); sky.addColorStop(.74, '#ff9a6a'); sky.addColorStop(1, '#4a2f66');
   c.fillStyle = sky; c.fillRect(0, 0, w, h);

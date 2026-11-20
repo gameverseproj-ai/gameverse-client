@@ -279,13 +279,13 @@ export class MonstrocityComponent {
                         x = 0;
                         y = 0;
                     }
-                    if (this.frames.length < 10) {
+                    if (this.frames.length < this.config()!.transport.maxBatchFrames) {
                         const input = { sequence: ++this.sequence, ...(this.scene?.movementInput(x,y) ?? worldInput(x, y)) };
                         this.frames.push(input);
                         this.motion.add(input);
                     }
                 }
-                if (time - this.lastSync >= 250 && !this.syncing && !this.busy()) {
+                if ((time - this.lastSync >= this.config()!.transport.syncIntervalMs || this.frames.length >= this.config()!.transport.maxBatchFrames) && !this.syncing && !this.busy()) {
                     this.lastSync = time;
                     this.syncing = true;
                     this.zone.run(() => { void this.queue(() => this.flush()).catch(e => this.handle(e)).finally(() => this.syncing = false); });

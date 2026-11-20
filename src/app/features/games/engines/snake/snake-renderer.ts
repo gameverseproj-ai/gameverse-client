@@ -40,14 +40,14 @@ export class SnakeRenderer implements GameRenderer<SnakeState> {
     c.lineJoin = 'round'; c.lineCap = 'round';
     c.strokeStyle = '#2f6a2f33'; c.lineWidth = cell * .7;
     c.beginPath(); points.forEach((p, i) => i ? c.lineTo(p.x, p.y + cell * .14) : c.moveTo(p.x, p.y + cell * .14)); c.stroke();
-    c.strokeStyle = '#c93b8f'; c.lineWidth = cell * .66;
+    c.strokeStyle = '#c83b68'; c.lineWidth = cell * .66;
     c.beginPath(); points.forEach((p, i) => i ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y)); c.stroke();
     for (let i = points.length - 1; i >= 0; i--) {
       const { x, y } = points[i], head = i === 0, pulse = 1 + (head ? 0 : Math.sin(now / 160 - i * .55) * .03);
       c.save(); c.translate(x, y); c.scale(pulse, pulse);
       const r = cell * (head ? .47 : .42);
       const jelly = c.createRadialGradient(-r * .3, -r * .38, r * .1, 0, 0, r * 1.15);
-      jelly.addColorStop(0, head ? '#ffe3f2' : '#ffc1e3'); jelly.addColorStop(.4, head ? '#ff8fd0' : '#fb79c3'); jelly.addColorStop(1, '#b8318b');
+      jelly.addColorStop(0, head ? '#fff1c9' : '#ffd7a0'); jelly.addColorStop(.4, head ? '#ffb160' : '#ff8a67'); jelly.addColorStop(1, '#bd4269');
       c.fillStyle = jelly; c.beginPath(); c.ellipse(0, 0, r, r * .96, 0, 0, Math.PI * 2); c.fill();
       // Candy stripe every other bead, and a glossy highlight on every bead.
       if (!head && i % 2 === 0) { c.fillStyle = '#ffffff30'; c.beginPath(); c.ellipse(0, 0, r * .55, r * .55, 0, 0, Math.PI * 2); c.fill(); }
@@ -82,10 +82,12 @@ export class SnakeRenderer implements GameRenderer<SnakeState> {
     lawn.width = w * dpr; lawn.height = h * dpr; const c = lawn.getContext('2d')!; c.scale(dpr, dpr);
     const cell = w / grid;
     const sun = c.createRadialGradient(w * .3, h * .2, 0, w * .5, h * .5, w * .85);
-    sun.addColorStop(0, '#9ff086'); sun.addColorStop(.6, '#7fd96a'); sun.addColorStop(1, '#5cbf5c');
+    sun.addColorStop(0, '#99e79f'); sun.addColorStop(.6, '#46ba91'); sun.addColorStop(1, '#238878');
     c.fillStyle = sun; c.fillRect(0, 0, w, h);
     for (let y = 0; y < grid; y++) for (let x = 0; x < grid; x++) {
-      c.fillStyle = (x + y) % 2 ? '#ffffff14' : '#2e7a3a12'; c.fillRect(x * cell, y * cell, cell, cell);
+      c.fillStyle = (x + y) % 2 ? '#d4ffe921' : '#074d5b14';
+      c.beginPath(); c.roundRect(x * cell + 1, y * cell + 1, cell - 2, cell - 2, cell * .14); c.fill();
+      c.strokeStyle = '#ddffe921'; c.lineWidth = .7; c.stroke();
     }
     // Scattered clover, daisies and pebbles, placed by a stable hash so the garden is the same every run.
     const hash = (x: number, y: number, k: number) => { const v = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return v - Math.floor(v); };

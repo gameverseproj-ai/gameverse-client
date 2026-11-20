@@ -15,6 +15,7 @@ import { Game } from '../../../../core/models/game.model';
 export class GameListComponent {
   private readonly locale = inject(LanguageService);
   readonly games = input<Game[]>([]);
+  artwork(game: Game) { const art: Record<string,string> = {snake:'snake-garden',tetris:'factory','2048':'temple',power:'gym'}; return art[game.id] ? '/assets/arcade-art/' + art[game.id] + '-v2.jpg' : game.thumbnailUrl; }
   readonly filter = input('');
 
   readonly filteredGames = computed(() => {

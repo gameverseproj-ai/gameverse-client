@@ -49,7 +49,7 @@ export class TetrisRenderer {
     const dpr = Math.min(2, window.devicePixelRatio || 1), well = document.createElement('canvas');
     well.width = w * dpr; well.height = h * dpr; const c = well.getContext('2d')!; c.scale(dpr, dpr);
     const cw = w / columns, ch = h / rows;
-    const sky = c.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, '#5a3f9c'); sky.addColorStop(.55, '#3d2a78'); sky.addColorStop(1, '#2a1c5c');
+    const sky = c.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, '#153e72'); sky.addColorStop(.55, '#132c56'); sky.addColorStop(1, '#171c42');
     c.fillStyle = sky; c.fillRect(0, 0, w, h);
     for (const x of [w * .18, w * .82]) { const lamp = c.createRadialGradient(x, -10, 0, x, -10, w * .6); lamp.addColorStop(0, '#ffd9f455'); lamp.addColorStop(1, '#ffd9f400'); c.fillStyle = lamp; c.fillRect(0, 0, w, h); }
     for (let y = 0; y < rows; y++) for (let x = 0; x < columns; x++) {
@@ -69,6 +69,10 @@ export class TetrisRenderer {
     c.fillStyle = mix(color, '#2b0f45', .55); c.beginPath(); c.roundRect(x + pad, y + pad + 2, w - pad * 2, h - pad * 2, r); c.fill();
     c.fillStyle = body; c.beginPath(); c.roundRect(x + pad, y + pad, w - pad * 2, h - pad * 2 - 1.5, r); c.fill();
     c.strokeStyle = mix(color, '#ffffff', .55); c.lineWidth = 1; c.stroke();
+    // Faceted enamel edges give each block depth at small screen sizes.
+    c.fillStyle = '#ffffff32'; c.beginPath(); c.moveTo(x+3,y+3); c.lineTo(x+w-3,y+3); c.lineTo(x+w-8,y+8); c.lineTo(x+8,y+8); c.closePath(); c.fill();
+    c.fillStyle = '#071d4438'; c.beginPath(); c.moveTo(x+w-3,y+3); c.lineTo(x+w-3,y+h-3); c.lineTo(x+w-8,y+h-8); c.lineTo(x+w-8,y+8); c.closePath(); c.fill();
+    c.strokeStyle = '#ffffff35'; c.lineWidth = .8; c.beginPath(); c.roundRect(x+7,y+7,w-14,h-14,3); c.stroke();
     // Glossy cap and a sparkle; the active piece glows a little.
     c.fillStyle = '#ffffff7a'; c.beginPath(); c.roundRect(x + pad + 3, y + pad + 2.5, w - pad * 2 - 6, h * .26, 3); c.fill();
     c.fillStyle = '#ffffffd0'; c.beginPath(); c.arc(x + pad + 5, y + pad + 5, 1.8, 0, Math.PI * 2); c.fill();

@@ -1,5 +1,4 @@
-@use '../../../shared/components/game-shell/game-content';
-.play { width:min(100%,calc((100cqh - 142px)/2 + 100px)); }
+.play { width:min(100%,calc((100cqh - 166px)/2 + 100px)); }
 .arena { display:grid; grid-template-columns:minmax(0,1fr) 80px; gap:10px; min-height:0; }
 canvas { aspect-ratio:1/2; }
 aside { display:flex; flex-direction:column; gap:7px; min-width:0; }

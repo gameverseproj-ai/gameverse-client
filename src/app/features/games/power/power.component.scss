@@ -1,4 +1,3 @@
-@use '../../../shared/components/game-shell/game-content';
 .power-play { height:100%; max-width:1000px; margin:auto; display:flex; flex-direction:column; padding:8px 12px; gap:8px; }
 .modes { display:flex; justify-content:center; gap:6px; flex-shrink:0; padding:5px; border-radius:20px; background:#1a123366; border:1px solid #ffffff1a; box-shadow:inset 0 2px 6px #0005; align-self:center; } .modes button { font-size:13px; min-height:40px; border-radius:14px; }
 .modes [aria-pressed=true] { color:var(--game-ink); background:linear-gradient(180deg,color-mix(in srgb,var(--game-accent) 75%,#fff),var(--game-accent)); border-color:#fff8; box-shadow:inset 0 2px 0 #ffffff88, 0 4px 0 var(--game-deep), 0 8px 16px #0005; }

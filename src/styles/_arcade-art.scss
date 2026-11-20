@@ -1,0 +1,27 @@
+@use '../app/shared/components/game-shell/game-content' as content;
+
+// Scoped to the four arcade halls. Monstrocity has its own independent art direction.
+app-game-shell {
+  @include content.chrome;
+  .board-heading,.heading { padding:6px 10px; border:1px solid #ffffff45; border-radius:18px; background:color-mix(in srgb,var(--game-panel) 92%,transparent); box-shadow:0 5px 18px #0b19372e,inset 0 1px #ffffff29; }
+  .board-heading h2,.heading h2 { letter-spacing:-.5px; }
+  .overlay,.board-overlay { background:color-mix(in srgb,var(--game-panel) 50%,transparent); backdrop-filter:blur(3px); }
+  .overlay-card,.overlay>div { background:linear-gradient(155deg,color-mix(in srgb,var(--game-panel) 88%,#fff),var(--game-panel)); border-color:color-mix(in srgb,var(--game-accent) 58%,transparent); box-shadow:inset 0 2px #ffffff4d,0 7px 0 color-mix(in srgb,var(--game-panel) 70%,#000),0 22px 45px #051c354d; }
+  [gameProgress]>div { background:linear-gradient(145deg,color-mix(in srgb,var(--game-panel) 83%,#fff),var(--game-panel)); }
+  [gameHelp] { padding:22px; border-radius:24px; background:color-mix(in srgb,var(--game-panel) 92%,transparent); border:1px solid #ffffff38; }
+  .run-stats,.target,.progress { padding:4px 8px; flex-shrink:0; border-radius:16px; background:color-mix(in srgb,var(--game-panel) 94%,transparent); border:1px solid #ffffff29; }
+  .stat,.preview-card { background:color-mix(in srgb,var(--game-panel) 94%,transparent); border-color:#9ddaff59; }
+  [data-game=snake] .board-shell { background:linear-gradient(145deg,#e9d295,#a58143); border-color:#fff0b2; box-shadow:inset 0 3px #fff8d6,0 8px 0 #4a7140,0 18px 40px #123c4766; }
+  [data-game=tetris] .board-shell { border-radius:20px; padding:8px; background:linear-gradient(135deg,#a3eafb,#5579cd 45%,#fdadbc); border-color:#dcf9ff; box-shadow:inset 0 3px #fff8,0 8px 0 #25376d,0 15px 35px #082f6766; }
+  [data-game=tetris] .board-shell::after { content:''; pointer-events:none; position:absolute; inset:2px; border:1px solid #fff8; border-radius:17px; }
+  @media(max-height:500px) { .board-heading,.heading { padding:2px 6px; } .run-stats,.target,.progress { padding:4px 8px; } }
+}
+
+app-tennis {
+
+.club-panel { background:linear-gradient(145deg,#203e71f5,#19335bea); border:1px solid #91d4f199; box-shadow:inset 0 2px #ffffff26,0 24px 60px #132d5555; }
+.intro h1 { color:#fff3d4; text-shadow:0 4px 0 #294f78,0 10px 40px #1d387633; }
+.sports button.selected { background:linear-gradient(135deg,#92fff1,#4ed5ea); color:#123a55; border-color:#e2fffd; }
+.score { border:1px solid #a6edf0aa; background:linear-gradient(120deg,#153d68ee,#1b6484ee); box-shadow:inset 0 2px #fff3,0 8px 30px #12324d55; }
+
+}

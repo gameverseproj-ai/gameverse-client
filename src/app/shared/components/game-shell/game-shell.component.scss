@@ -17,33 +17,15 @@
     linear-gradient(180deg, #171436 0%, #2a2060 40%, #4a2d7c 72%, #6d3f8d 100%);
   isolation: isolate;
 }
-// Stars: two layers of tiny radial dots on different tile sizes, twinkling against each other.
-.game-shell::before {
-  content: ''; position: absolute; inset: 0; z-index: -2; pointer-events: none;
-  background-image:
-    radial-gradient(1.6px 1.6px at 22px 31px, #fff 100%, transparent 100%), radial-gradient(1.2px 1.2px at 118px 76px, #ffe9f8 100%, transparent 100%),
-    radial-gradient(2px 2px at 191px 19px, #fff5c9 100%, transparent 100%), radial-gradient(1.2px 1.2px at 64px 143px, #fff 100%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 157px 171px, #d8ecff 100%, transparent 100%), radial-gradient(1px 1px at 240px 110px, #fff 100%, transparent 100%),
-    radial-gradient(1.3px 1.3px at 32px 215px, #fff 100%, transparent 100%), radial-gradient(1.8px 1.8px at 205px 232px, #ffd6ef 100%, transparent 100%);
-  background-size: 260px 260px; opacity: .75;
-  mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 85%);
-  animation: stars 6s ease-in-out infinite alternate;
-}
-// Clouds and a soft haze near the horizon, so the lower sky feels warm and close.
-.game-shell::after {
-  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background:
-    radial-gradient(ellipse 28% 9% at 8% 70%, #c68ef1a6 0%, #c68ef100 100%),
-    radial-gradient(ellipse 22% 7% at 20% 76%, #ffb7e8a0 0%, #ffb7e800 100%),
-    radial-gradient(ellipse 30% 10% at 92% 64%, #b88af0a0 0%, #b88af000 100%),
-    radial-gradient(ellipse 20% 7% at 80% 72%, #ffb9e59a 0%, #ffb9e500 100%),
-    radial-gradient(ellipse 60% 18% at 50% 100%, color-mix(in srgb, var(--game-glow) 35%, transparent) 0%, transparent 100%);
-  animation: drift 18s ease-in-out infinite alternate;
-}
-@keyframes stars { from { opacity: .55; } to { opacity: .95; } }
-@keyframes drift { from { transform: translateX(-12px); } to { transform: translateX(12px); } }
+// Scene illustrations are static, decoded once, and do not add animation work on phones.
+.game-shell::before { content:''; position:absolute; inset:0; z-index:-2; pointer-events:none; background:var(--game-landscape) center/cover no-repeat; }
+.game-shell::after { content:''; position:absolute; inset:0; z-index:-1; pointer-events:none; background:linear-gradient(180deg,#09252c70,transparent 24%,transparent 72%,#09252c99); }
+[data-game=snake] { --game-landscape:url('/assets/arcade-art/snake-garden-v2.jpg'); --game-accent:#b9ff69; --game-glow:#26d998; --game-deep:#15654f; --game-ink:#12412c; --game-panel:#123d39; }
+[data-game='2048'] { --game-landscape:url('/assets/arcade-art/temple-v2.jpg'); --game-accent:#ffe49a; --game-glow:#ffb84b; --game-deep:#975029; --game-ink:#532a1b; --game-panel:#433047; }
+[data-game=tetris] { --game-landscape:url('/assets/arcade-art/factory-v2.jpg'); --game-accent:#7ef2ff; --game-glow:#4977ff; --game-deep:#2754ac; --game-ink:#183666; --game-panel:#202b60; }
+[data-game=power] { --game-landscape:url('/assets/arcade-art/gym-v2.jpg'); --game-accent:#ffd578; --game-glow:#ff7558; --game-deep:#a44332; --game-ink:#542717; --game-panel:#153f51; }
 
-header { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 6px 76px 6px 16px; box-sizing: border-box; border-bottom: 1px solid #ffffff14; background: linear-gradient(180deg, #120f2c66, #120f2c00); }
+header { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 6px 76px 6px 16px; box-sizing: border-box; border-bottom: 1px solid #ffffff14; background: linear-gradient(180deg, #0c263cd9, #0c263c99); backdrop-filter:blur(12px); }
 h1 { margin: 0; font-size: clamp(14px,2.6vw,20px); font-weight: 900; letter-spacing: -.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff8ee; text-shadow: 0 2px 0 #2a1d4d, 0 3px 14px #0006; }
 nav { margin-inline-start: auto; display: flex; gap: 6px; }
 button,.exit {
