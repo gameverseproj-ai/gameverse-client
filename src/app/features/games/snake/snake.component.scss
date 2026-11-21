@@ -9,3 +9,6 @@
 .bite-reward { position:absolute; pointer-events:none; z-index:2; color:#fff8b0; font-weight:900; font-size:26px; text-shadow:0 2px 0 #7a2a5c, 0 0 18px #ffd34a; animation:bite 1s both; white-space:nowrap; } .bite-reward i { color:#ffabd8; }
 @keyframes bite { 0% { transform:translate(-50%,0) scale(.5); opacity:0; } 20% { opacity:1; transform:translate(-50%,-25px) scale(1.25); } 100% { transform:translate(-50%,-75px); opacity:0; } }
 @media(max-height:500px) { .play-section { width:min(100%,calc(100cqh - 100px)); } .dpad { position:absolute; right:12px; bottom:12px; flex-direction:column; align-items:center; } .board-heading h2 { font-size:14px; } .run-stats>div:last-child { display:none; } .board-heading { gap:2px; } .life { display:none; } }
+
+@media(max-width:480px) { .run-stats { gap:4px; } .run-stats>div { padding:6px; } .run-stats strong { font-size:18px; } .run-stats small { font-size:8px; } }
+@container (max-height:540px) { .play-section { width:min(100%,calc(100cqh - 82px)); padding:4px 10px; gap:6px; } .run-stats,.dpad { display:none; } }

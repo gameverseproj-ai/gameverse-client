@@ -60,6 +60,7 @@ export class TennisMatch {
     this.clock += dt;
     const s = this.state;
     const speed = 4.8 * (0.55 + s.stamina / 220);
+    const beforeMove=s.player;
     s.player += Math.max(
       -speed * dt,
       Math.min(speed * dt, this.target - s.player),
@@ -94,7 +95,7 @@ export class TennisMatch {
           -(8 + this.profile.power * 0.25) *
           (0.7 + s.stamina / 330) *
           racket.speed;
-        this.vx = this.aim * 5 + this.spin * racket.spin * 2;
+        this.vx = Math.max(-1,Math.min(1,(s.player-beforeMove)/Math.max(.001,speed*dt))) * 4.25 + this.aim * 2 + this.spin * racket.spin * 2;
         s.z = 6.55;
         s.rally++;
         s.stamina = Math.max(8, s.stamina - 3);

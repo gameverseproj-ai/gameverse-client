@@ -153,7 +153,7 @@ export class SnakeComponent implements OnDestroy {
     this.steer(Math.abs(dx)>Math.abs(dy)?(dx>0?'RIGHT':'LEFT'):(dy>0?'DOWN':'UP'));
     this.gesture.x=event.clientX;this.gesture.y=event.clientY;
   }
-  pointerEnd(event:PointerEvent):void {if(this.gesture?.id===event.pointerId){this.gesture=null;if(this.canvas().nativeElement.hasPointerCapture(event.pointerId))this.canvas().nativeElement.releasePointerCapture(event.pointerId);}}
+  pointerEnd(event:PointerEvent):void {if(this.gesture?.id===event.pointerId){if(event.type==='pointerup')this.pointerMove(event);this.gesture=null;if(this.canvas().nativeElement.hasPointerCapture(event.pointerId))this.canvas().nativeElement.releasePointerCapture(event.pointerId);}}
   toggleSound():void {
     const data=this.data();if(!data||this.settingsBusy())return;
     const next=!this.sound();this.settingsBusy.set(true);

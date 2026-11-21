@@ -44,6 +44,9 @@ export class OnlineMatch {
   private pendingSwing: Swing = 'none';
   private pendingAim = 0;
   private rivalTarget = 0;
+  private localTarget = 0;
+  private initialized = false;
+  private movement = 0;
   constructor(
     readonly matchId: string,
     readonly me: string,
@@ -82,7 +85,10 @@ export class OnlineMatch {
           : 'serve';
     s.playerZ = mine ? this.mirror(mine.position.z) : 7;
     s.opponentZ = rival ? this.mirror(rival.position.z) : -7;
-    if (mine) s.player = this.mirror(mine.position.x);
+    if (mine) {
+      this.localTarget = this.mirror(mine.position.x);
+      if (!this.initialized) { s.player=this.localTarget; this.target=s.player; this.initialized=true; }
+    }
     if (rival) this.rivalTarget = this.mirror(rival.position.x);
   }
 
@@ -115,7 +121,15 @@ export class OnlineMatch {
       s.x = this.mirror(Math.max(-4.6, Math.min(4.6, x)));
       s.z = this.mirror(z);
     }
-    const ease = Math.min(1, dt * 14);
+    dt=Math.min(.05,Math.max(0,dt));
+    const gap=this.target-s.player;
+    this.movement=Math.abs(gap)<.08?0:Math.max(-1,Math.min(1,gap*1.6));
+    const predicted=this.movement*4.8*dt;
+    this.localTarget=Math.max(-4.5,Math.min(4.5,this.localTarget+predicted));
+    s.player += predicted;
+    s.player += (this.localTarget-s.player)*(1-Math.exp(-dt*7));
+    s.player=Math.max(-4.5,Math.min(4.5,s.player));
+    const ease = 1-Math.exp(-dt*14);
     s.opponent += (this.rivalTarget - s.opponent) * ease;
     if (s.phase !== 'rally' && this.serving) s.x = s.player;
   }
@@ -146,12 +160,12 @@ export class OnlineMatch {
       clientTick: this.sequence,
       moveX: this.mirror(moveX),
       swing: this.pendingSwing !== 'none' ? this.pendingSwing : this.autoReturnReady() ? 'flat' : 'none',
-      aimX: this.mirror(this.pendingAim),
+      aimX: this.mirror(this.pendingSwing !== 'none' ? this.pendingAim : moveX * .85),
     };
     this.pendingSwing = 'none';
     this.pendingAim = 0;
     // Predict our own movement so the robot does not wait a round trip.
-    this.state.player += Math.max(-0.07, Math.min(0.07, gap));
+    // Rendering advances in tick, independent of transport frequency.
     return frame;
   }
 }

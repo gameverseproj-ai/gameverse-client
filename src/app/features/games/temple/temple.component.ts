@@ -121,7 +121,7 @@ export class TempleComponent implements OnDestroy {
         const tile=cells[m.from]?.querySelector<HTMLElement>('.tile');
         if(!tile||!cells[m.to])return [];
         const from=cells[m.from].getBoundingClientRect(),to=cells[m.to].getBoundingClientRect();
-        return [tile.animate([{transform:'translate(0,0)'},{transform:`translate(${to.left-from.left}px,${to.top-from.top}px)`}],{duration:90,easing:'cubic-bezier(.2,.75,.3,1)',fill:'forwards'})];
+        return [tile.animate([{transform:'translate(0,0)',zIndex:3},{transform:`translate(${to.left-from.left}px,${to.top-from.top}px)`,zIndex:3}],{duration:170,easing:'cubic-bezier(.2,.75,.3,1)',fill:'forwards'})];
       });
       await Promise.all(this.animations.map(a=>a.finished.catch(()=>{})));
     }
