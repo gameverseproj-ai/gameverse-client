@@ -107,17 +107,23 @@ export class MonstrocityComponent {
     get energy() { return Math.ceil(this.run?.energy ?? 100); }
     get recovery() { return Math.ceil((this.run?.recoveryRemainingActiveMs ?? 0) / 1000); }
     get combat() { return this.run?.combat; }
-    get approach() { const m = this.config()?.monsters.find(m => m.id === this.combat?.monsterId); return Math.min(1, (this.combat?.elapsedActiveMs ?? 0) / ((m?.approachSeconds ?? 24) * 1000)); }
+    private combatReceivedAt = 0;
+    readonly combatVisualClock = signal(0);
+    private retrievalStarted = 0;
+    private retrievalDuration = 420;
+    get visualCombatMs() { return (this.combat?.elapsedActiveMs ?? 0) + (this.paused ? 0 : Math.min(350,Math.max(0,this.combatVisualClock()-this.combatReceivedAt))); }
+    get approach() { const m = this.config()?.monsters.find(m => m.id === this.combat?.monsterId); return Math.min(1, this.visualCombatMs / ((m?.approachSeconds ?? 24) * 1000)); }
     get targetLocked() { return this.aimLocked && !!this.aiming(); }
     get monsterArt() { return this.config()?.monsters.find(m => m.id === this.combat?.monsterId)?.artId ?? 'mossback'; }
     get monsterName() { return this.monsterArt === 'twigwalker' ? 'Twigwalker' : 'Mossback'; }
     get monsterSize() { if (!this.combat)
-        return 100; const m = this.config()?.monsters.find(m => m.id === this.combat!.monsterId); return 180 + Math.min(1, this.combat.elapsedActiveMs / ((m?.approachSeconds ?? 24) * 1000)) * 160; }
+        return 100; const m = this.config()?.monsters.find(m => m.id === this.combat!.monsterId); return 180 / (1 - .47 * Math.min(1, this.visualCombatMs / ((m?.approachSeconds ?? 24) * 1000))); }
     get swordCount() { const i = this.state()?.profile.inventory.find(i => i.itemId === 'sword'); return (i?.collected ?? 0) + (i?.purchased ?? 0); }
     get reloadRemaining() { return Math.max(0,(this.combat?.nextThrowActiveMs ?? 0)-(this.combat?.elapsedActiveMs ?? 0)); }
     get reloading() { return !!this.combat && ['approaching','sword-window'].includes(this.combat.phase) && (this.reloadRemaining > 0 || this.retrievingStone()) && !this.projectile() && !this.throwQueued(); }
     get canAim() { return this.shotReady && !this.reloading && !this.projectile() && !this.throwQueued() && !this.paused; }
-    get reloadProgress() { return Math.max(0,Math.min(1,1-this.reloadRemaining/((this.config()?.stoneCooldownSeconds ?? .9)*1000))); }
+    get reloadProgress() { return this.retrievingStone() ? Math.max(0,Math.min(1,(this.combatVisualClock()-this.retrievalStarted)/this.retrievalDuration)) : Math.max(0,Math.min(1,1-this.reloadRemaining/((this.config()?.stoneCooldownSeconds ?? .9)*1000))); }
+    get retrievalSeconds() { return this.retrievalDuration/1000; }
     get shotReady() { return !!this.combat && this.combat.elapsedActiveMs >= this.combat.nextThrowActiveMs && !this.busy(); }
     constructor() { afterNextRender(() => void this.init()); }
     private async init() {
@@ -155,6 +161,7 @@ export class MonstrocityComponent {
     toggleCamera() { const mode=this.cameraMode()==='overhead'?'follow':'overhead';this.cameraMode.set(mode);this.prefs.setCamera(mode,this.api.local);this.scene?.setCameraMode(mode); }
     choose(value: 'male' | 'female') { if (this.busy() || this.loading()) return; this.hero.set(value); this.prefs.setAvatar(value, this.api.local); this.scene?.setCharacter(value === 'female'); }
     private apply(s: Snapshot) {
+        this.combatReceivedAt=performance.now();this.combatVisualClock.set(this.combatReceivedAt);
         if (this.disposed)
             return;
         const previous = this.state();
@@ -253,6 +260,7 @@ export class MonstrocityComponent {
             return;
         const dt = Math.min(.05, (time - this.last) / 1000 || .016);
         this.last = time;
+        this.combatVisualClock.set(time);
         if (!document.hidden) {
             const shot=this.projectile();
             if(shot){const t=Math.min(1,(time-this.flightStarted)/((this.config()?.stoneFlightSeconds??.45)*1000)),u=1-t;this.flight.set({x:u*u*shot.originX+2*u*t*((shot.originX+shot.x)/2)+t*t*shot.x,y:u*u*shot.originY+2*u*t*Math.max(0,shot.y-.22)+t*t*shot.y,scale:1.4-t*.95});}
@@ -369,7 +377,8 @@ export class MonstrocityComponent {
     private beginRetrieval() {
         if(this.disposed || !this.combat || !['approaching','sword-window'].includes(this.combat.phase))return;
         this.retrievingStone.set(true);clearTimeout(this.retrievalTimer);
-        this.retrievalTimer=window.setTimeout(()=>this.retrievingStone.set(false),720);
+        this.retrievalStarted=performance.now();this.retrievalDuration=Math.max(420,Math.min(1200,this.reloadRemaining));
+        this.retrievalTimer=window.setTimeout(()=>this.retrievingStone.set(false),this.retrievalDuration);
     }
     private pointerEnd = (e: PointerEvent) => { this.stickUp(e); this.cameraUp(e); };
     private blur = () => { this.clearInput(); };

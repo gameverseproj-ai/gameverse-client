@@ -9,7 +9,7 @@ describe('Monstrocity throw input',()=>{
  beforeEach(()=>{
   state={profile:{inventory:[]},run:{nearby:[],id:'run',revision:1,status:'active',combat:{encounterId:'fight',phase:'approaching',elapsedActiveMs:1000,nextThrowActiveMs:0,hitsRemaining:4}},session:{id:'session'}};
   c=Object.create(MonstrocityComponent.prototype);
-  Object.assign(c,{motion:new MonstrocityMotion(),state:signal(state),config:()=>({stoneCooldownSeconds:.9,stoneFlightSeconds:.45}),started:()=>true,modal:()=>null,error:signal(''),busy:signal(false),aiming:signal(null),projectile:signal(null),launchOrigin:signal({x:.72,y:.8}),flight:signal(null),throwQueued:signal(false),retrievingStone:signal(false),foundLoot:signal([]),aimPointer:null,pendingThrow:null,tail:Promise.resolve(),flush:async()=>{},hit:signal(false),disposed:false});
+  Object.assign(c,{combatVisualClock:signal(0),combatReceivedAt:0,retrievalDuration:420,retrievalStarted:0,motion:new MonstrocityMotion(),state:signal(state),config:()=>({stoneCooldownSeconds:.9,stoneFlightSeconds:.45}),started:()=>true,modal:()=>null,error:signal(''),busy:signal(false),aiming:signal(null),projectile:signal(null),launchOrigin:signal({x:.72,y:.8}),flight:signal(null),throwQueued:signal(false),retrievingStone:signal(false),foundLoot:signal([]),aimPointer:null,pendingThrow:null,tail:Promise.resolve(),flush:async()=>{},hit:signal(false),disposed:false});
   c.api={command:jasmine.createSpy('command').and.callFake(async()=>structuredClone(state))};
   target={querySelector:()=>null,setPointerCapture:()=>{},getBoundingClientRect:()=>({left:100,top:50,width:200,height:200})};
  });

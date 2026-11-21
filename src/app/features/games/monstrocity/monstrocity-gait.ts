@@ -12,7 +12,7 @@ function spline(keys: number[], phase: number) {
 }
 export function gaitPose(phase: number) {
  return {right:{depth:spline(DEPTH,phase),lift:Math.max(0,spline(LIFT,phase))},
-  left:{depth:spline(DEPTH,phase+4),lift:Math.max(0,spline(LIFT,phase+4))},bob:.004*Math.cos(phase*Math.PI/2)};
+  left:{depth:spline(DEPTH,phase+4),lift:Math.max(0,spline(LIFT,phase+4))},bob:.006*Math.cos(phase*Math.PI/2)};
 }
 function smooth(a:number,b:number,x:number){const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);}
 const RIGS={

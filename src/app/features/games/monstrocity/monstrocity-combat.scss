@@ -23,3 +23,5 @@
 @media(max-height:500px){.stone-retrieval{width:170px;right:6%;bottom:-12px}}
 
 .monster.locked{filter:drop-shadow(0 0 9px #ffe4a288) drop-shadow(0 12px 10px #0006)}
+
+.monster{transition:width .08s linear,left .18s linear,top .18s linear,opacity .3s}.stone{animation:none}.stone-retrieval{animation-timing-function:step-end,linear;transform-origin:bottom right;animation-name:retrieve-stone,reach-pouch}@keyframes reach-pouch{0%{transform:translateY(35%) rotate(8deg);opacity:0}20%{opacity:1}55%{transform:translateY(8%) rotate(-4deg)}100%{transform:translateY(0);opacity:1}}

@@ -19,7 +19,7 @@ export class MonstrocityMonsterComponent implements AfterViewInit, OnDestroy {
   if(this.source!==id){this.rig?.destroy();this.source=id;this.rig=new MonsterGaitRenderer(this.canvas.nativeElement,id);this.elapsed=0;}
   const delta=this.previous?Math.min(50,now-this.previous):0;this.previous=now;
   if(!this.paused()&&!this.stopped())this.elapsed+=delta;
-  this.rig?.draw(this.elapsed/(id==='twigwalker'?145:180));
+  this.rig?.draw(this.elapsed/(id==='twigwalker'?175:210));
   this.raf=requestAnimationFrame(this.draw);
  };
 }
