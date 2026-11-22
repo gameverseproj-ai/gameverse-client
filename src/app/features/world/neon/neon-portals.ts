@@ -81,3 +81,38 @@ export const NEON_PORTALS: GamePortal[] = [{
     return group;
   },
 }];
+
+/** A proper laboratory pavilion: glowing sample towers flank its entrance. */
+NEON_PORTALS.push({id:'sort',name:'Sort Lab',route:'/games/sort',available:true,position:[24,0,8],scale:[7,10,11],entranceOffset:[-3.5,0],color:0xb98aff,buildGroup:()=>{
+ const g=new THREE.Group();g.rotation.y=-Math.PI/2;
+ const shell=new THREE.MeshStandardMaterial({color:0x74859f,roughness:.5,metalness:.2});
+ const dark=new THREE.MeshStandardMaterial({color:0x192d48,roughness:.5,metalness:.25});
+ const violet=new THREE.MeshBasicMaterial({color:0xb94dff});
+ const cyan=new THREE.MeshBasicMaterial({color:0x00edff});
+ const add=(geo:THREE.BufferGeometry,mat:THREE.Material,x:number,y:number,z:number)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;g.add(m);return m;};
+ const box=(w:number,h:number,d:number,x:number,y:number,z:number,mat:THREE.Material=shell)=>add(new RoundedBoxGeometry(w,h,d,2,.15),mat,x,y,z);
+ box(11,.4,7,0,.2,0);box(10.5,.12,6.8,0,.44,0,violet);
+ box(10,5.5,5,0,3.1,-.5,dark);
+ for(const side of [-1,1]){
+  box(2.7,6,5.8,side*3.8,3.5,0);box(3.1,.55,6.2,side*3.8,6.5,0,dark);
+  box(1.9,4.5,.16,side*3.8,3.5,2.94,dark);
+  for(let j=0;j<3;j++){
+   const color=[0xff008c,0x00edff,0xffe600][j];
+   add(new THREE.CylinderGeometry(.58,.58,1.05,20),new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:.6}),side*3.8,2+j*1.2,3.04);
+  }
+  const glass=new THREE.MeshStandardMaterial({color:0xbbfaff,transparent:true,opacity:.22,roughness:.1,depthWrite:false});
+  add(new THREE.CylinderGeometry(.7,.7,4,20,1,true),glass,side*3.8,3.25,3.04);
+  box(.1,5.2,.12,side*5.1,3.5,3.05,cyan);
+ }
+ box(5.2,1,5.5,0,6.3,-.4);box(5.5,.18,5.8,0,6.9,-.4,violet);
+ const shape=new THREE.Shape();shape.moveTo(-1.4,.5);shape.lineTo(-1.4,3.15);shape.absarc(0,3.15,1.4,Math.PI,0,true);shape.lineTo(1.4,.5);shape.closePath();
+ const energy=new THREE.ShaderMaterial({uniforms:{t:{value:0}},vertexShader:'varying vec2 p;void main(){p=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'uniform float t;varying vec2 p;void main(){float w=.5+.5*sin(p.y*4.-t*2.+sin(p.x*3.));gl_FragColor=vec4(mix(vec3(.12,.1,.7),vec3(.2,.9,1.),w),1.);}'});
+ const portal=add(new THREE.ShapeGeometry(shape),energy,0,0,2.5);portal.userData['portalSurface']=true;
+ for(const side of [-1,1]){box(.5,2.7,.65,side*1.65,1.85,2.6);box(.08,2.7,.1,side*1.4,1.85,2.98,cyan);}
+ add(new THREE.TorusGeometry(1.65,.25,8,28,Math.PI),shell,0,3.15,2.6);
+ add(new THREE.TorusGeometry(1.4,.045,6,28,Math.PI),cyan,0,3.15,2.98);
+ box(4.5,.15,1.4,0,.5,3.25);box(3.8,.15,1,0,.65,3, dark);
+ // Rooftop emblem makes the game legible from the central plaza.
+ for(let i=0;i<3;i++){const x=(i-1)*1.05;box(.65,1.6,.45,x,8.1,1.3,dark);box(.38,.9+i*.22,.12,x,7.9,1.58,[violet,cyan,violet][i]);box(.8,.16,.5,x,8.95,1.3,shell);}
+ return g;
+}});

@@ -148,7 +148,7 @@ export class GellyWorldComponent implements OnDestroy {
     this.bootstrapRequest?.unsubscribe();
     this.entryError.set(false);
     this.dataReady = false;
-    if (portal.id === 'tennis') { this.dataReady = true; this.finishEntry(); return; }
+    if ((portal.id === 'tennis' || portal.id === 'sort')) { this.dataReady = true; this.finishEntry(); return; }
     this.bootstrapRequest = this.games.loadBootstrap(portal.id).subscribe({
       next: () => { this.dataReady = true; this.finishEntry(); },
       error: () => this.entryError.set(true),

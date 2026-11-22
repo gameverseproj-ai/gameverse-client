@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GellyWorldScene } from '../gelly-world.scene';
+import { portalEntrance, portalFacing } from '../../../shared/world/game-portal.model';
 import { NEON_PORTALS } from './neon-portals';
 import { NeonHeroRenderer } from './neon-hero.renderer';
 import { NeonEnvironment } from './neon-environment';
@@ -15,6 +16,17 @@ describe('Neon world prototype', () => {
     });
     scene.beginEntry = jasmine.createSpy('beginEntry');
     scene.checkProximity();
+    expect(scene.beginEntry).toHaveBeenCalledWith(portal);
+  });
+
+  it('enters Sort from its rotated doorway facing the plaza', () => {
+    const portal = NEON_PORTALS.find(p=>p.id==='sort')!;
+    const door=portalEntrance(portal), facing=portalFacing(portal);
+    expect(door.toArray()).toEqual([20.5,0,8]);
+    expect(facing.toArray()).toEqual([-1,0,0]);
+    const scene=Object.create(GellyWorldScene.prototype) as any;
+    Object.assign(scene,{entry:null,portals:NEON_PORTALS,nearbyPortal:portal,player:{position:door.clone().addScaledVector(facing,1)}});
+    scene.beginEntry=jasmine.createSpy('beginEntry');scene.checkProximity();
     expect(scene.beginEntry).toHaveBeenCalledWith(portal);
   });
 

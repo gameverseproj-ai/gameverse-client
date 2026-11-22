@@ -11,7 +11,7 @@ import { GellyInputController } from './gelly-input.controller';
 import { GellyPlayerController } from './gelly-player.controller';
 import { GellyPortalVortex } from './gelly-portal-vortex';
 import { CameraMode, GellyCameraController } from './gelly-camera.controller';
-import { GamePortal } from '../../shared/world/game-portal.model';
+import { GamePortal, portalEntrance, portalFacing } from '../../shared/world/game-portal.model';
 import { HeroAction, HeroRenderer } from '../../shared/world/hero-renderer.interface';
 import { WorldEnvironment } from '../../shared/world/world-environment.interface';
 import { WorldTheme } from '../../shared/world/world-theme.model';
@@ -130,14 +130,10 @@ export class GellyWorldScene {
     if (returnPortal) {
       // Outside the collision box and automatic-entry radius, still close enough
       // to see the entrance prompt. Facing the door keeps the castle in view.
-      const doorX = returnPortal.position[0];
-      const doorZ = returnPortal.position[2] + returnPortal.scale[2] / 2;
-      const offsets = [0, -3, 3, -5, 5];
-      const offset = offsets.find(dx => !(this.environment?.obstacles ?? []).some(obstacle =>
-        Math.abs(doorX + dx - obstacle.x) < obstacle.halfWidth + 1 &&
-        Math.abs(doorZ + 4 - obstacle.z) < obstacle.halfDepth + 1,
-      )) ?? 0;
-      this.player.placeAt(doorX + offset, doorZ + 4, Math.atan2(-offset, -4));
+      const door=portalEntrance(returnPortal), facing=portalFacing(returnPortal);
+      const side=new THREE.Vector3(facing.z,0,-facing.x);
+      const point=[0,-3,3,-5,5].map(offset=>door.clone().addScaledVector(facing,4).addScaledVector(side,offset)).find(p=>!(this.environment?.obstacles??[]).some(o=>Math.abs(p.x-o.x)<o.halfWidth+1&&Math.abs(p.z-o.z)<o.halfDepth+1))??door.clone().addScaledVector(facing,4);
+      this.player.placeAt(point.x,point.z,Math.atan2(door.x-point.x,door.z-point.z));
     }
     this.cameraController.init(this.player.position, this.player.heading, this.player.eyes);
 
@@ -439,12 +435,12 @@ export class GellyWorldScene {
     let minDist = INTERACT_RADIUS;
 
     for (const portal of this.portals) {
-      const entranceZ = portal.position[2] + portal.scale[2] / 2;
-      const dist = Math.hypot(this.player.position.x - portal.position[0], this.player.position.z - entranceZ);
+      const entrance = portalEntrance(portal);
+      const dist = Math.hypot(this.player.position.x - entrance.x, this.player.position.z - entrance.z);
       if (dist < minDist) { minDist = dist; nearest = portal; }
     }
 
-    if (nearest && nearest.available !== false && minDist < ENTRY_RADIUS && this.player.position.z >= nearest.position[2] + nearest.scale[2] / 2) {
+    if (nearest && nearest.available !== false && minDist < ENTRY_RADIUS && this.player.position.clone().sub(portalEntrance(nearest)).dot(portalFacing(nearest)) >= 0) {
       this.beginEntry(nearest);
       return;
     }
@@ -522,23 +518,19 @@ export class GellyWorldScene {
 
   private beginEntry(portal: GamePortal): void {
     if (this.entry || portal.available === false) return;
-    const door = new THREE.Vector3(portal.position[0], 1.65, portal.position[2] + portal.scale[2] / 2 + .4);
+    const door = portalEntrance(portal).addScaledVector(portalFacing(portal),.4).setY(1.65);
     // Show the whole animation even when approaching in first person.
     this.cameraController.setMode('third-person');
     const returnPortal = this.portals.find(portal => portal.id === this.returnPortalId);
     if (returnPortal) {
       // Outside the collision box and automatic-entry radius, still close enough
       // to see the entrance prompt. Facing the door keeps the castle in view.
-      const doorX = returnPortal.position[0];
-      const doorZ = returnPortal.position[2] + returnPortal.scale[2] / 2;
-      const offsets = [0, -3, 3, -5, 5];
-      const offset = offsets.find(dx => !(this.environment?.obstacles ?? []).some(obstacle =>
-        Math.abs(doorX + dx - obstacle.x) < obstacle.halfWidth + 1 &&
-        Math.abs(doorZ + 4 - obstacle.z) < obstacle.halfDepth + 1,
-      )) ?? 0;
-      this.player.placeAt(doorX + offset, doorZ + 4, Math.atan2(-offset, -4));
+      const door=portalEntrance(returnPortal), facing=portalFacing(returnPortal);
+      const side=new THREE.Vector3(facing.z,0,-facing.x);
+      const point=[0,-3,3,-5,5].map(offset=>door.clone().addScaledVector(facing,4).addScaledVector(side,offset)).find(p=>!(this.environment?.obstacles??[]).some(o=>Math.abs(p.x-o.x)<o.halfWidth+1&&Math.abs(p.z-o.z)<o.halfDepth+1))??door.clone().addScaledVector(facing,4);
+      this.player.placeAt(point.x,point.z,Math.atan2(door.x-point.x,door.z-point.z));
     }
-    this.cameraController.init(this.player.position, Math.PI, this.player.eyes);
+    this.cameraController.init(this.player.position, Math.atan2(door.x-this.player.position.x,door.z-this.player.position.z), this.player.eyes);
     this.player.startPortalEntry(door);
     const vortex = new GellyPortalVortex(door, portal.color);
     this.scene.add(vortex.mesh);
@@ -562,14 +554,10 @@ export class GellyWorldScene {
     if (returnPortal) {
       // Outside the collision box and automatic-entry radius, still close enough
       // to see the entrance prompt. Facing the door keeps the castle in view.
-      const doorX = returnPortal.position[0];
-      const doorZ = returnPortal.position[2] + returnPortal.scale[2] / 2;
-      const offsets = [0, -3, 3, -5, 5];
-      const offset = offsets.find(dx => !(this.environment?.obstacles ?? []).some(obstacle =>
-        Math.abs(doorX + dx - obstacle.x) < obstacle.halfWidth + 1 &&
-        Math.abs(doorZ + 4 - obstacle.z) < obstacle.halfDepth + 1,
-      )) ?? 0;
-      this.player.placeAt(doorX + offset, doorZ + 4, Math.atan2(-offset, -4));
+      const door=portalEntrance(returnPortal), facing=portalFacing(returnPortal);
+      const side=new THREE.Vector3(facing.z,0,-facing.x);
+      const point=[0,-3,3,-5,5].map(offset=>door.clone().addScaledVector(facing,4).addScaledVector(side,offset)).find(p=>!(this.environment?.obstacles??[]).some(o=>Math.abs(p.x-o.x)<o.halfWidth+1&&Math.abs(p.z-o.z)<o.halfDepth+1))??door.clone().addScaledVector(facing,4);
+      this.player.placeAt(point.x,point.z,Math.atan2(door.x-point.x,door.z-point.z));
     }
     this.cameraController.init(this.player.position, this.player.heading, this.player.eyes);
   }

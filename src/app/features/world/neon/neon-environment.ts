@@ -114,23 +114,34 @@ export class NeonEnvironment implements WorldEnvironment {
       this.mesh(this.root, new THREE.BoxGeometry(8, .035, 1.55), this.path, 0, .045, 1 - i * 1.4);
       for (const side of [-1, 1]) this.mesh(this.root, new THREE.BoxGeometry(.15, .04, 1.15), i % 3 ? this.cyan : this.pink, side * 4.2, .08, 1 - i * 1.4);
     }
+    // Straight radial promenade, clipped exactly to the central circle.
+    const sortWalk=new THREE.Shape();
+    sortWalk.moveTo(20.8,4);sortWalk.lineTo(20.8,12);
+    for(let i=0;i<=32;i++){const z=4-i/4;sortWalk.lineTo(Math.sqrt(49-z*z),8+z);}
+    sortWalk.closePath();
+    const walkway=this.mesh(this.root,new THREE.ShapeGeometry(sortWalk),this.path,0,.05,0);
+    walkway.rotation.x=Math.PI/2;walkway.material=this.path.clone();(walkway.material as THREE.Material).side=THREE.DoubleSide;
+    for(const z of [4,12]){
+      const start=Math.sqrt(49-16),length=20.8-start;
+      this.mesh(this.root,new THREE.BoxGeometry(length,.045,.12),this.pink,start+length/2,.08,z);
+    }
     // Small nearby destinations bring detail into the first camera view.
     this.shelter(this.root, -12, 0, -6);
     this.obstacles.push({ x: -12, z: -6, halfWidth: 2.6, halfDepth: 2.6 });
     this.shelter(this.root, 14, 0, -15, 1.2);
     this.obstacles.push({ x: 14, z: -15, halfWidth: 3.2, halfDepth: 3.2 });
     this.garden(-9, 3, this.cyan); this.garden(10, -4, this.pink);
-    this.garden(-12, -19, this.ice); this.garden(11, 12, this.cyan);
+    this.garden(-12, -19, this.ice); this.garden(11, 16, this.cyan);
     for (let i = 0; i < 10; i++) {
-      const side = i % 2 ? -1 : 1, x = side * (17 + i % 3 * 2), z = 15 - i * 5;
+      const side = i % 2 ? -1 : 1, x = side * (17 + i % 3 * 2), z = i === 2 ? 1 : 15 - i * 5;
       this.tree(this.root, x, 0, z, .8 + i % 3 * .2);
       this.obstacles.push({ x, z, halfWidth: .55, halfDepth: .55 });
     }
     // Low benches and luminous lamps give the world a human scale.
     for (const side of [-1, 1]) {
-      this.mesh(this.root, new RoundedBoxGeometry(3, .4, 1, 3, .18), this.ceramic, side * 9, .65, 8);
-      for (const dz of [-.3, .3]) this.mesh(this.root, new THREE.BoxGeometry(2.3, .5, .12), this.stone, side * 9, .25, 8 + dz);
-      this.obstacles.push({ x: side * 9, z: 8, halfWidth: 1.5, halfDepth: .5 });
+      this.mesh(this.root, new RoundedBoxGeometry(3, .4, 1, 3, .18), this.ceramic, side * 9, .65, side > 0 ? 15 : 8);
+      for (const dz of [-.3, .3]) this.mesh(this.root, new THREE.BoxGeometry(2.3, .5, .12), this.stone, side * 9, .25, (side > 0 ? 15 : 8) + dz);
+      this.obstacles.push({ x: side * 9, z: side > 0 ? 15 : 8, halfWidth: 1.5, halfDepth: .5 });
       for (let i = 0; i < 4; i++) {
         const x = side * 6, z = 4 - i * 6;
         this.mesh(this.root, new THREE.CylinderGeometry(.09, .15, 1.5, 6), this.ceramic, x, .75, z);

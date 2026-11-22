@@ -1,0 +1,22 @@
+<main class="sort" [class.level-celebration]="victory()">
+ @if(victory()) {<div class="confetti" aria-hidden="true">@for(p of confetti;track $index){<i [style.left.%]="p.x" [style.--drift]="p.drift+'px'" [style.--delay]="p.delay+'s'" [style.background]="palette[p.color]"></i>}</div>}
+ <header><a routerLink="/worlds/neon-city" [queryParams]="{from:'sort'}">← {{ 'Neon World' | t }}</a><button class="sound-toggle" (click)="toggleSound()" [attr.aria-pressed]="sound()">{{ (sound() ? 'Sound on ♫' : 'Sound off') | t }}</button></header>
+ <nav class="sort-tabs" aria-label="Sort">
+ @for(tab of ['play','records','leaderboard'];track tab){<button (click)="page.set($any(tab))" [attr.aria-current]="page()===tab?'page':null">{{ (tab==='play'?'Play':tab==='records'?'Personal records':'Leaderboard') | t }}</button>}
+ </nav>
+ @if(page()==='leaderboard'){<section class="ranking"><app-leaderboard gameId="sort"/><p>{{ 'Local practice results are not submitted to the leaderboard.' | t }}</p></section>}
+ @if(page()==='records'){<section class="records"><h2>{{ 'Personal records' | t }}</h2><p>{{ 'Two-minute sprint' | t }} · <strong>{{bestSprint()}}</strong> {{ 'Levels completed' | t }}</p><p>{{ 'Fewest moves per level' | t }}</p>@for(row of recordRows;track row[0]){<p>{{ 'Level' | t }} {{row[0]}} <strong>{{row[1]}} {{ 'Moves' | t }}</strong></p>}@empty{<p>{{ 'Complete a level to set your first record.' | t }}</p>}<small>{{ 'Progress saved on this device' | t }}</small></section>}
+ <section class="lab" [hidden]="page()!=='play'">
+ <div class="sort-tabs"><button (click)="switchMode('classic')" [disabled]="pouring()>=0" [attr.aria-pressed]="mode()==='classic'">{{ 'Classic' | t }}</button><button (click)="switchMode('timed')" [disabled]="pouring()>=0" [attr.aria-pressed]="mode()==='timed'">{{ 'Two-minute sprint' | t }}</button></div>
+ @if(mode()==='timed'){<div class="sprint"><strong [class.urgent]="remaining()<=15">{{timeLabel}}</strong><span>{{ 'Levels completed' | t }} · {{solved()}}</span>@if(!running()){<p>{{ (finished()?'Time is up!':'Complete as many levels as you can in two minutes.') | t }}</p><button (click)="startSprint()">{{ (finished()?'Try again':'Start') | t }}</button>}</div>}
+ <div class="intro"><small>{{ 'Level' | t }} {{level()}}</small><h1>Sort</h1><p>{{ 'One color in every tube.' | t }}</p><span>{{ 'Moves' | t }} · {{moves()}}</span></div>
+ <div class="rack" role="group" [attr.aria-label]="'Color tubes' | t">
+ @for(tube of board();track $index;let i=$index){<button class="tube-button" [class.rewarded]="rewarded()===i" [style.--reward-color]="palette[tube[0]]" [class.selected]="selected()===i" [class.pouring]="pouring()===i" [disabled]="pouring()>=0||complete||(mode()==='timed'&&!running())" (click)="choose(i,$event)" [style.--pour-x]="(stream()?.dx || 0)+'px'" [style.--pour-y]="(stream()?.dy || 0)+'px'" [attr.aria-label]="('Tube {0}' | t:[i+1]) + ': ' + tube.length + '/4'" [attr.aria-pressed]="selected()===i">
+ @if(rewarded()===i){<span class="tube-reward" aria-hidden="true"><b>✓</b>@for(p of sparks;track $index){<i [style.--sx]="p.x+'px'" [style.--sy]="p.y+'px'"></i>}</span>}
+ <span class="tube"><span class="liquid">@for(slot of slots;track slot){<span class="layer" [class.empty]="slot >= tube.length" [style.--liquid]="palette[tube[slot]] || palette[0]"><i>{{symbols[tube[slot]]}}</i></span>}</span><span class="shine"></span></span><span class="number">{{i+1}}</span></button>}
+ @if(stream();as flow){<svg class="pour-stream" aria-hidden="true"><path [attr.d]="flow.path" [attr.stroke]="flow.color" /></svg>}
+ </div>
+ <p [class.win-status]="complete" class="status" role="status">{{ (complete ? 'Every color has found its home!' : message() || 'Tap a tube, then tap where to pour.') | t }}</p>
+ <footer>@if(complete && pouring()<0 && (mode()==='classic'||running())){<button class="next" (click)="next()">{{ 'Next level' | t }} →</button>}@else{<button (click)="undo()" [disabled]="!canUndo">↶ {{ 'Undo' | t }}</button><button (click)="restart()" [disabled]="pouring()>=0||(mode()==='timed'&&!running())">↻ {{ 'Restart' | t }}</button>}</footer>
+ <small class="local">{{ 'Progress saved on this device' | t }}</small></section>
+</main>
