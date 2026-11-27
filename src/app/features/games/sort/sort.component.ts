@@ -4,9 +4,16 @@ import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { LeaderboardComponent } from '../../../shared/components/leaderboard/leaderboard.component';
 import { SortAudio } from './sort-audio';
 import { Board, levelBoard, pour, won } from './sort-engine';
-@Component({ selector: 'app-sort', standalone: true, imports: [RouterLink, TranslatePipe, LeaderboardComponent], templateUrl: './sort.component.html', styleUrl: './sort.component.scss' })
+@Component({ selector: 'app-sort', standalone: true, imports: [RouterLink, TranslatePipe, LeaderboardComponent], templateUrl: './sort.component.html', styleUrls: ['./sort.component.scss', './sort-lobby.scss', './sort-rewards.scss'] })
 export class SortComponent {
-    readonly page = signal<'play'|'records'|'leaderboard'>('play');
+    readonly page = signal<'home'|'play'|'records'|'leaderboard'>('home');
+    openGame(mode:'classic'|'timed') {
+        this.switchMode(mode);
+        this.page.set('play');
+        if(mode==='classic'&&this.complete)this.next();
+        if(mode==='timed'&&!this.running())this.startSprint();
+    }
+    home() { if(this.pouring()<0)this.page.set('home'); }
     readonly mode = signal<'classic'|'timed'>('classic');
     readonly running = signal(false);
     readonly finished = signal(false);
@@ -17,11 +24,13 @@ export class SortComponent {
     private deadline = 0;
     private clock?: ReturnType<typeof setInterval>;
     private classic?: {level:number; board:Board; moves:number};
+    get classicLevel(){return this.mode()==='classic'?this.level():this.classic?.level??1;}
     get recordRows() { return Object.entries(this.records()).sort((a,b)=>Number(a[0])-Number(b[0])); }
     get timeLabel() { const s=this.remaining(); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
     switchMode(mode:'classic'|'timed') {
         if(this.pouring()>=0 || mode===this.mode()) return;
         this.clearReward(); this.page.set('play');
+        if(mode==='classic'&&this.complete)this.next();
         if(mode==='timed') { this.classic={level:this.level(),board:this.board().map(t=>[...t]),moves:this.moves()}; this.mode.set(mode); this.finished.set(false); this.remaining.set(120); this.solved.set(0); this.level.set(1); this.restart(); }
         else { this.endSprint(); this.mode.set(mode); if(this.classic){this.level.set(this.classic.level);this.board.set(this.classic.board);this.moves.set(this.classic.moves);} this.history=[];this.selected.set(-1);this.finished.set(false); }
     }
@@ -35,7 +44,8 @@ export class SortComponent {
     private endSprint() {
         clearInterval(this.clock);
         if(!this.running())return;
-        this.running.set(false);this.finished.set(true);clearTimeout(this.timer);clearTimeout(this.transferTimer);this.pouring.set(-1);this.stream.set(null);this.selected.set(-1);
+        this.stopPours();
+        this.running.set(false);this.finished.set(true);this.pouring.set(-1);this.selected.set(-1);
         this.bestSprint.update(n=>Math.max(n,this.solved()));this.saveRecords();
     }
     private recordWin() {
@@ -51,16 +61,8 @@ export class SortComponent {
     readonly pouring = signal(-1);
     readonly message = signal('');
     readonly moves = signal(0);
-    readonly stream = signal<{
-        path: string;
-        color: string;
-        dx: number;
-        dy: number;
-    } | null>(null);
     readonly symbols = ['●', '◆', '▲', '✦', '■', '♥'];
     private history: Board[] = [];
-    private timer?: ReturnType<typeof setTimeout>;
-    private transferTimer?: ReturnType<typeof setTimeout>;
     readonly rewarded = signal(-1);
     readonly victory = signal(false);
     readonly sound = signal(true);
@@ -89,50 +91,59 @@ export class SortComponent {
         }
     }
     catch { } }); }
+    readonly flows = signal<Array<{id:number;from:number;to:number;path:string;color:string;dx:number;dy:number;tilt:number}>>([]);
+    private flowId=0;
+    private flowTimers=new Set<ReturnType<typeof setTimeout>>();
+    private advanceTimer?:ReturnType<typeof setTimeout>;
+    busy(index:number){return this.flows().some(f=>f.from===index||f.to===index);}
+    flowFor(index:number){return this.flows().find(f=>f.from===index);}
+    private later(callback:()=>void, delay:number){const timer=setTimeout(()=>{this.flowTimers.delete(timer);callback();},delay);this.flowTimers.add(timer);}
+    private stopPours(){for(const timer of this.flowTimers)clearTimeout(timer);this.flowTimers.clear();this.flows.set([]);this.pouring.set(-1);clearTimeout(this.advanceTimer);}
     choose(index: number, event?: MouseEvent) {
         this.updateClock();
-        if (this.pouring() >= 0 || this.complete || (this.mode()==='timed'&&!this.running()))
-            return;
-        if (this.sound()) this.audio.unlock();
+        if(this.complete||this.busy(index)||(this.mode()==='timed'&&!this.running()))return;
+        if(this.sound())this.audio.unlock();
         this.message.set('');
-        const from = this.selected();
-        if (from < 0) {
-            if (this.board()[index].length)
-                this.selected.set(index);
-            return;
+        const from=this.selected();
+        if(from<0||this.busy(from)){if(this.board()[index].length)this.selected.set(index);return;}
+        if(from===index){this.selected.set(-1);return;}
+        const next=pour(this.board(),from,index);
+        if(!next){if(this.board()[index].length)this.selected.set(index);return;}
+        const target=event?.currentTarget as HTMLElement|undefined, rack=target?.parentElement;
+        let dx=0,dy=-50,path='',tilt=70;
+        if(target&&rack){
+            const source=rack.querySelectorAll<HTMLElement>('.tube-button')[from];
+            const x=target.offsetLeft+target.offsetWidth/2,y=target.offsetTop;
+            const direction=x<rack.clientWidth/2?-1:1;
+            tilt=direction*70;
+            const lip=source.offsetWidth/2,angle=70*Math.PI/180;
+            dx=target.offsetLeft-source.offsetLeft+(target.offsetWidth-source.offsetWidth)/2-direction*10;
+            dy=target.offsetTop-source.offsetTop-65;
+            const startX=x-direction*10+direction*lip*Math.cos(angle), startY=y-65+lip*Math.sin(angle);
+            const height=target.querySelector<HTMLElement>('.tube')!.offsetHeight;
+            const surface=y+8+(height-16)*(1-next[index].length/4)+6;
+            path=`M ${startX} ${startY} C ${startX+3} ${startY+18}, ${x} ${surface-20}, ${x} ${surface}`;
         }
-        if (from === index) {
-            this.selected.set(-1);
-            return;
-        }
-        const next = pour(this.board(), from, index);
-        if (!next) {
-            this.message.set('Choose an empty tube or the same top color.');
-            if (this.board()[index].length)
-                this.selected.set(index);
-            return;
-        }
-        const target = event?.currentTarget as HTMLElement | undefined;
-        const rack = target?.parentElement;
-        if (target && rack) {
-            const source = rack.querySelectorAll<HTMLElement>('.tube-button')[from];
-            const x = target.offsetLeft + target.offsetWidth / 2, y = target.offsetTop;
-            this.stream.set({ path: `M ${x - 10} ${y - 32} Q ${x} ${y - 20} ${x} ${y + 20}`, color: this.palette[this.board()[from].at(-1)!], dx: target.offsetLeft - source.offsetLeft - 38, dy: target.offsetTop - source.offsetTop - 50 });
-        }
-        const completed = next[index].length === 4 && next[index].every(c => c === next[index][0]);
-        this.clearReward();
-        this.history.push(this.board().map(t => [...t]));
-        this.pouring.set(from);
-        this.selected.set(-1);
-        // Transfer while tilted, then return home before accepting another input.
-        this.transferTimer = setTimeout(() => { this.updateClock(); if(this.mode()==='timed'&&!this.running())return; this.board.set(next); this.moves.update(n => n + 1); if(won(next))this.recordWin(); this.save(); }, 520);
-        this.timer = setTimeout(() => { this.pouring.set(-1); this.stream.set(null);
-            if (completed) {
-                this.rewarded.set(index); this.victory.set(won(next));
-                if (this.sound()) this.audio.celebrate(won(next));
-                this.rewardTimer = setTimeout(() => { this.rewarded.set(-1); this.victory.set(false); }, 2800);
+        const flow={id:++this.flowId,from,to:index,path,dx,dy,tilt,color:this.palette[this.board()[from].at(-1)!]};
+        this.flows.update(flows=>[...flows,flow]);this.pouring.set(from);this.selected.set(-1);
+        this.later(()=>{
+            this.updateClock();if(this.mode()==='timed'&&!this.running())return;
+            // Only merge this pair: unrelated pours may have landed since it started.
+            this.history.push(this.board().map(t=>[...t]));
+            this.board.update(board=>board.map((tube,i)=>i===from?next[from]:i===index?next[index]:tube));
+            this.moves.update(n=>n+1);
+            if(won(this.board()))this.recordWin();
+            this.save();
+        },520);
+        this.later(()=>{
+            this.flows.update(flows=>flows.filter(f=>f.id!==flow.id));this.pouring.set(this.flows()[0]?.from??-1);
+            const completed=next[index].length===4&&next[index].every(c=>c===next[index][0]);
+            if(completed){this.rewarded.set(index);if(this.sound())this.audio.celebrate(this.complete&&this.flows().length===0);}
+            if(this.complete&&this.flows().length===0){
+                this.victory.set(true);this.advanceTimer=setTimeout(()=>this.next(),650);
             }
-        }, 1200);
+            clearTimeout(this.rewardTimer);this.rewardTimer=setTimeout(()=>this.clearReward(),1800);
+        },1200);
     }
     undo() { if (!this.canUndo)
         return; const old = this.history.pop(); if (old) {
@@ -143,12 +154,12 @@ export class SortComponent {
         this.save();
     } }
     restart() { if (this.pouring() >= 0)
-        return; this.clearReward(); this.board.set(levelBoard(this.level())); this.moves.set(0); this.history = []; this.selected.set(-1); this.message.set(''); this.save(); }
+        return; clearTimeout(this.advanceTimer); this.clearReward(); this.board.set(levelBoard(this.level())); this.moves.set(0); this.history = []; this.selected.set(-1); this.message.set(''); this.save(); }
     next() { this.updateClock(); if(!this.complete||this.pouring()>=0||(this.mode()==='timed'&&!this.running()))return; this.level.update(n => n + 1); this.restart(); }
     get canUndo() { return this.history.length > 0 && this.pouring() < 0 && !this.complete && (this.mode()==='classic'||this.running()); }
     private save() { if(this.mode()!=='classic')return; try {
         localStorage.setItem('gameverse.sort.local.v1', JSON.stringify({ level: this.level(), board: this.board(), moves: this.moves() }));
     }
     catch { } }
-    ngOnDestroy() { clearInterval(this.clock); clearTimeout(this.timer); clearTimeout(this.transferTimer); this.clearReward(); this.audio.destroy(); }
+    ngOnDestroy() { this.stopPours(); clearInterval(this.clock);   this.clearReward(); this.audio.destroy(); }
 }

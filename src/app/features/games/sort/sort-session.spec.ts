@@ -35,6 +35,22 @@ describe('Sort sprint and records', () => {
     expect(game.remaining()).toBe(60); expect(game.solved()).toBe(1);
     now += 60001; tick(100); expect(game.running()).toBeFalse();
   }));
+  it('merges overlapping-in-time disjoint pours without overwriting either pair', fakeAsync(() => {
+    game.board.set([[0,0,0],[0],[1,1,1],[1],[]]);
+    game.choose(1);game.choose(0);
+    game.choose(3);game.choose(2);
+    expect(game.flows().length).toBe(2);
+    game.choose(0);expect(game.selected()).toBe(-1);
+    tick(520);
+    expect(game.board()).toEqual([[0,0,0,0],[],[1,1,1,1],[],[]]);
+    expect(game.moves()).toBe(2);
+    tick(680);expect(game.flows().length).toBe(0);
+    tick(650);expect(game.level()).toBe(2);expect(game.moves()).toBe(0);
+  }));
+  it('continues a restored completed classic level without a next button', () => {
+    game.board.set([[0,0,0,0],[]]);game.openGame('classic');
+    expect(game.page()).toBe('play');expect(game.level()).toBe(2);expect(game.complete).toBeFalse();
+  });
   it('records the fewest moves, not the latest slower finish', fakeAsync(() => {
     for(const moves of [4,8]) {
       game.restart(); game.moves.set(moves); game.board.set([[0,0,0],[0],[]]);

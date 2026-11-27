@@ -1,22 +1,55 @@
 <main class="sort" [class.level-celebration]="victory()">
- @if(victory()) {<div class="confetti" aria-hidden="true">@for(p of confetti;track $index){<i [style.left.%]="p.x" [style.--drift]="p.drift+'px'" [style.--delay]="p.delay+'s'" [style.background]="palette[p.color]"></i>}</div>}
- <header><a routerLink="/worlds/neon-city" [queryParams]="{from:'sort'}">← {{ 'Neon World' | t }}</a><button class="sound-toggle" (click)="toggleSound()" [attr.aria-pressed]="sound()">{{ (sound() ? 'Sound on ♫' : 'Sound off') | t }}</button></header>
- <nav class="sort-tabs" aria-label="Sort">
- @for(tab of ['play','records','leaderboard'];track tab){<button (click)="page.set($any(tab))" [attr.aria-current]="page()===tab?'page':null">{{ (tab==='play'?'Play':tab==='records'?'Personal records':'Leaderboard') | t }}</button>}
- </nav>
- @if(page()==='leaderboard'){<section class="ranking"><app-leaderboard gameId="sort"/><p>{{ 'Local practice results are not submitted to the leaderboard.' | t }}</p></section>}
- @if(page()==='records'){<section class="records"><h2>{{ 'Personal records' | t }}</h2><p>{{ 'Two-minute sprint' | t }} · <strong>{{bestSprint()}}</strong> {{ 'Levels completed' | t }}</p><p>{{ 'Fewest moves per level' | t }}</p>@for(row of recordRows;track row[0]){<p>{{ 'Level' | t }} {{row[0]}} <strong>{{row[1]}} {{ 'Moves' | t }}</strong></p>}@empty{<p>{{ 'Complete a level to set your first record.' | t }}</p>}<small>{{ 'Progress saved on this device' | t }}</small></section>}
- <section class="lab" [hidden]="page()!=='play'">
- <div class="sort-tabs"><button (click)="switchMode('classic')" [disabled]="pouring()>=0" [attr.aria-pressed]="mode()==='classic'">{{ 'Classic' | t }}</button><button (click)="switchMode('timed')" [disabled]="pouring()>=0" [attr.aria-pressed]="mode()==='timed'">{{ 'Two-minute sprint' | t }}</button></div>
- @if(mode()==='timed'){<div class="sprint"><strong [class.urgent]="remaining()<=15">{{timeLabel}}</strong><span>{{ 'Levels completed' | t }} · {{solved()}}</span>@if(!running()){<p>{{ (finished()?'Time is up!':'Complete as many levels as you can in two minutes.') | t }}</p><button (click)="startSprint()">{{ (finished()?'Try again':'Start') | t }}</button>}</div>}
- <div class="intro"><small>{{ 'Level' | t }} {{level()}}</small><h1>Sort</h1><p>{{ 'One color in every tube.' | t }}</p><span>{{ 'Moves' | t }} · {{moves()}}</span></div>
- <div class="rack" role="group" [attr.aria-label]="'Color tubes' | t">
- @for(tube of board();track $index;let i=$index){<button class="tube-button" [class.rewarded]="rewarded()===i" [style.--reward-color]="palette[tube[0]]" [class.selected]="selected()===i" [class.pouring]="pouring()===i" [disabled]="pouring()>=0||complete||(mode()==='timed'&&!running())" (click)="choose(i,$event)" [style.--pour-x]="(stream()?.dx || 0)+'px'" [style.--pour-y]="(stream()?.dy || 0)+'px'" [attr.aria-label]="('Tube {0}' | t:[i+1]) + ': ' + tube.length + '/4'" [attr.aria-pressed]="selected()===i">
- @if(rewarded()===i){<span class="tube-reward" aria-hidden="true"><b>✓</b>@for(p of sparks;track $index){<i [style.--sx]="p.x+'px'" [style.--sy]="p.y+'px'"></i>}</span>}
- <span class="tube"><span class="liquid">@for(slot of slots;track slot){<span class="layer" [class.empty]="slot >= tube.length" [style.--liquid]="palette[tube[slot]] || palette[0]"><i>{{symbols[tube[slot]]}}</i></span>}</span><span class="shine"></span></span><span class="number">{{i+1}}</span></button>}
- @if(stream();as flow){<svg class="pour-stream" aria-hidden="true"><path [attr.d]="flow.path" [attr.stroke]="flow.color" /></svg>}
+@if(victory()){<div class="confetti" aria-hidden="true">@for(p of confetti;track $index){<i [style.left.%]="p.x" [style.--drift]="p.drift+'px'" [style.--delay]="p.delay+'s'" [style.background]="palette[p.color]"></i>}</div>}
+<svg class="icon-defs" aria-hidden="true"><defs>
+ <symbol id="sort-back" viewBox="0 0 24 24"><path d="m14 5-7 7 7 7M7 12h14"/></symbol>
+ <symbol id="sort-sound" viewBox="0 0 24 24"><path d="M11 4 5 9H2v6h3l6 5ZM15 8q5 4 0 8m3-11q8 7 0 14"/></symbol>
+ <symbol id="sort-mute" viewBox="0 0 24 24"><path d="M11 4 5 9H2v6h3l6 5ZM16 9l6 6m0-6-6 6"/></symbol>
+ <symbol id="sort-clock" viewBox="0 0 24 24"><circle cx="12" cy="14" r="8"/><path d="M9 2h6m-3 0v4m0 3v5l3 2M18 5l2 2"/></symbol>
+ <symbol id="sort-cup" viewBox="0 0 24 24"><path d="M7 3h10v7a5 5 0 0 1-10 0ZM7 5H3v3q0 4 4 4m10-7h4v3q0 4-4 4M12 15v6m-5 0h10"/></symbol>
+ <symbol id="sort-chart" viewBox="0 0 24 24"><path d="M4 20V12h4v8m2 0V4h4v16m2 0V8h4v12"/></symbol>
+ <symbol id="sort-undo" viewBox="0 0 24 24"><path d="m9 4-6 6 6 6M3 10h11a6 6 0 0 1 0 12"/></symbol>
+ <symbol id="sort-restart" viewBox="0 0 24 24"><path d="M3 10a9 9 0 1 1 1 8M3 3v7h7"/></symbol>
+ <symbol id="sort-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8Z"/></symbol>
+ </defs></svg>
+<header class="game-header">
+ @if(page()==='home'){<a class="icon-button" routerLink="/worlds/neon-city" [queryParams]="{from:'sort'}" [attr.aria-label]="'Neon World'|t"><svg><use href="#sort-back"/></svg></a>}
+ @else{<button class="icon-button" (click)="home()" [disabled]="pouring()>=0" [attr.aria-label]="'Back'|t"><svg><use href="#sort-back"/></svg></button>}
+ <div class="header-title">
+ @if(page()==='play'){
+   @if(mode()==='timed'){<svg><use href="#sort-clock"/></svg><strong [class.urgent]="remaining()<=15">{{timeLabel}}</strong>}
+   @else{<span>{{'Level'|t}} <strong>{{level()}}</strong></span>}
+ }@else if(page()==='records'){ <span>{{'Personal records'|t}}</span> }
+ @else if(page()==='leaderboard'){ <span>{{'Leaderboard'|t}}</span> }
  </div>
- <p [class.win-status]="complete" class="status" role="status">{{ (complete ? 'Every color has found its home!' : message() || 'Tap a tube, then tap where to pour.') | t }}</p>
- <footer>@if(complete && pouring()<0 && (mode()==='classic'||running())){<button class="next" (click)="next()">{{ 'Next level' | t }} →</button>}@else{<button (click)="undo()" [disabled]="!canUndo">↶ {{ 'Undo' | t }}</button><button (click)="restart()" [disabled]="pouring()>=0||(mode()==='timed'&&!running())">↻ {{ 'Restart' | t }}</button>}</footer>
- <small class="local">{{ 'Progress saved on this device' | t }}</small></section>
+ <button class="icon-button sound" (click)="toggleSound()" [attr.aria-pressed]="sound()" [attr.aria-label]="(sound()?'Sound on ♫':'Sound off')|t"><svg><use [attr.href]="sound()?'#sort-sound':'#sort-mute'"/></svg></button>
+</header>
+@if(page()==='home'){
+ <section class="lobby">
+ <div class="lab-art" aria-hidden="true"><div class="orbit"></div>@for(c of [0,1,2];track c){<div class="art-tube" [style.--accent]="palette[c]"><i></i><i></i><i></i></div>}<div class="plinth"></div></div>
+ <div class="mode-cards">
+ <button class="mode-card classic-card" (click)="openGame('classic')" [disabled]="running()"><svg class="mode-icon" aria-hidden="true"><path d="M3 4h4v13a2 2 0 0 1-4 0ZM10 2h4v17a2 2 0 0 1-4 0ZM17 4h4v13a2 2 0 0 1-4 0ZM3 12h4m3-2h4m3 4h4"/></svg><span><strong>{{'Classic'|t}}</strong><small>{{'Level'|t}} {{classicLevel}}</small></span><svg><use href="#sort-play"/></svg></button>
+ <button class="mode-card sprint-card" (click)="openGame('timed')"><svg class="mode-icon"><use href="#sort-clock"/></svg><span><strong>{{(running()?'Continue':'Sprint')|t}}</strong><small>{{running()?timeLabel:'2:00'}}</small></span><svg><use href="#sort-play"/></svg></button>
+ </div>
+ <div class="lobby-links"><button (click)="page.set('records')"><svg><use href="#sort-chart"/></svg><span>{{'Personal records'|t}}</span></button><button (click)="page.set('leaderboard')"><svg><use href="#sort-cup"/></svg><span>{{'Leaderboard'|t}}</span></button></div>
+ </section>
+}
+@if(page()==='records'){<section class="records"><div class="record-hero"><svg><use href="#sort-clock"/></svg><strong>{{bestSprint()}}</strong><span>{{'Levels completed'|t}}</span></div><h2>{{'Classic'|t}}</h2>@for(row of recordRows;track row[0]){<p><span>{{'Level'|t}} {{row[0]}}</span><strong>{{row[1]}} <small>{{'Moves'|t}}</small></strong></p>}@empty{<p>{{'Complete a level to set your first record.'|t}}</p>}<small class="local">{{'Progress saved on this device'|t}}</small></section>}
+@if(page()==='leaderboard'){<section class="ranking"><app-leaderboard gameId="sort"/><p class="local">{{'Local practice results are not submitted to the leaderboard.'|t}}</p></section>}
+@if(page()==='play'){
+ @if(mode()==='timed'&&finished()){
+ <section class="result sprint-result"><svg class="result-cup"><use href="#sort-cup"/></svg><h2>{{'Time is up!'|t}}</h2><strong class="result-score">{{solved()}}</strong><p>{{'Levels completed'|t}}</p><button class="primary" (click)="startSprint()" [attr.aria-label]="'Try again'|t"><svg><use href="#sort-restart"/></svg></button><button class="text-action" (click)="page.set('records')">{{'Personal records'|t}}</button></section>
+ }@else{
+ <section class="playfield">
+ <div class="play-meta"><span>{{'Moves'|t}} <b>{{moves()}}</b></span>@if(mode()==='timed'){<span>{{'Levels completed'|t}} <b>{{solved()}}</b></span>}</div>
+ <div class="rack" [class.wide]="board().length>6" role="group" [attr.aria-label]="'Color tubes' | t">
+ @for(tube of board();track $index;let i=$index){<button class="tube-button" [class.receiving]="busy(i)&&!flowFor(i)" [class.rewarded]="rewarded()===i" [style.--reward-color]="palette[tube[0]]" [class.selected]="selected()===i" [class.pouring]="!!flowFor(i)" [disabled]="busy(i)||complete||(mode()==='timed'&&!running())" (click)="choose(i,$event)" [style.--pour-angle]="(flowFor(i)?.tilt || 70)+'deg'" [style.--pour-x]="(flowFor(i)?.dx || 0)+'px'" [style.--pour-y]="(flowFor(i)?.dy || 0)+'px'" [attr.aria-label]="('Tube {0}' | t:[i+1]) + ': ' + tube.length + '/4'" [attr.aria-pressed]="selected()===i">
+ @if(rewarded()===i){<span class="tube-reward" aria-hidden="true"><b>✓</b>@for(p of sparks;track $index){<i [style.--sx]="p.x+'px'" [style.--sy]="p.y+'px'"></i>}</span>}
+ <span class="tube"><span class="liquid">@for(slot of slots;track slot){<span class="layer" [class.empty]="slot >= tube.length" [style.--liquid]="palette[tube[slot]] || palette[0]"><i>{{symbols[tube[slot]]}}</i></span>}</span><span class="shine"></span>@if(busy(i)&&!flowFor(i)){<span class="splash" aria-hidden="true" [style.top.%]="(1-tube.length/4)*85+7"><i></i><i></i><i></i></span>}</span><span class="number">{{i+1}}</span></button>}
+ @for(flow of flows();track flow.id){<svg class="pour-stream" aria-hidden="true"><path [attr.d]="flow.path" [attr.stroke]="flow.color" /><path class="stream-highlight" [attr.d]="flow.path" /></svg>}
+ </div>
+
+ <footer class="play-actions"><button class="icon-button" (click)="undo()" [disabled]="!canUndo" [attr.aria-label]="'Undo'|t"><svg><use href="#sort-undo"/></svg></button><div class="color-dots" aria-hidden="true">@if(complete){<span class="success-mark">✦</span>}@else{@for(t of board().slice(0,-2);track $index){<i [style.background]="palette[$index]"></i>} }</div><button class="icon-button" (click)="restart()" [disabled]="pouring()>=0" [attr.aria-label]="'Restart'|t"><svg><use href="#sort-restart"/></svg></button></footer>
+ </section>
+ }
+}
 </main>

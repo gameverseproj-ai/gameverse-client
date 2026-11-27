@@ -3,6 +3,8 @@ import { TENNIS_CATALOG } from './tennis.catalog';
 // English source messages and their translations. Parameters use {0}, {1}, etc.
 export const CATALOG: Record<string, {ru: string; he: string; ar: string}> = {
   ...TENNIS_CATALOG,
+"Sprint": {ru:"Спринт",he:"ספרינט",ar:"سباق"},
+"Back": {ru:"Назад",he:"חזרה",ar:"رجوع"},
 "Personal records":{"ru": "Личные рекорды", "he": "שיאים אישיים", "ar": "الأرقام الشخصية"},
 "Two-minute sprint":{"ru": "Спринт: 2 минуты", "he": "ספרינט: שתי דקות", "ar": "سباق دقيقتين"},
 "Levels completed":{"ru": "Пройдено уровней", "he": "שלבים שהושלמו", "ar": "المستويات المكتملة"},

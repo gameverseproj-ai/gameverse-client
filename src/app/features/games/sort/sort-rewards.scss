@@ -1,0 +1,10 @@
+.rewarded{animation:reward-hop .75s cubic-bezier(.22,.7,.3,1);z-index:3}.rewarded .tube{box-shadow:0 0 28px var(--reward-color),inset 0 0 20px #fff5;border-color:#fff}
+.tube-reward{position:absolute;inset:0;pointer-events:none;color:var(--reward-color)}.tube-reward b{position:absolute;top:-38px;left:calc(50% - 15px);width:30px;height:30px;border-radius:50%;background:#fff;color:#351070;box-shadow:0 0 24px var(--reward-color);font-size:22px;animation:badge .55s both}.tube-reward i{position:absolute;top:35%;left:50%;width:6px;height:6px;border-radius:2px;background:var(--reward-color);box-shadow:0 0 8px currentColor;animation:spark .9s ease-out both}
+.confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:6}.confetti i{position:absolute;top:5%;width:8px;height:14px;border-radius:3px;animation:confetti 2.5s var(--delay) cubic-bezier(.12,.5,.5,1) both}.level-celebration .rack{animation:win-glow 1.4s ease-out}.win-status{color:#fff5a4;font-weight:800;text-shadow:0 0 20px #ff00dd}.level-celebration .next{animation:badge .6s both;box-shadow:0 0 35px #00ffe688}
+@keyframes reward-hop{0%,100%{transform:translateY(0) scale(1)}35%{transform:translateY(-14px) scale(1.06)}65%{transform:translateY(2px) scale(.98)}}
+@keyframes badge{from{opacity:0;transform:scale(.5)}65%{transform:scale(1.18)}to{opacity:1;transform:scale(1)}}
+@keyframes spark{from{opacity:1;transform:translate(0,0) scale(.4)}to{opacity:0;transform:translate(var(--sx),var(--sy)) scale(.1)}}
+@keyframes confetti{0%{opacity:0;transform:translate(0,-40px) rotate(0)}10%{opacity:1}100%{opacity:0;transform:translate(var(--drift),75vh) rotate(540deg)}}
+@keyframes win-glow{40%{box-shadow:0 0 65px #a000ff88,inset 0 0 40px #00edff44}}
+@media(prefers-reduced-motion:reduce){.confetti,.tube-reward i{display:none}.rewarded,.level-celebration .rack,.tube-reward b,.level-celebration .next{animation:none}}
+
