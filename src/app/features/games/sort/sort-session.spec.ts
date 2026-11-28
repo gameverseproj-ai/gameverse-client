@@ -28,7 +28,7 @@ describe('Sort sprint and records', () => {
   }));
   it('counts a solved level once and keeps the deadline on next level', fakeAsync(() => {
     game.switchMode('timed'); game.startSprint();
-    game.board.set([[0,0,0],[0],[]]); game.choose(1); game.choose(0); tick(1200);
+    game.board.set([[0,0,0],[0],[]]); game.choose(1); game.choose(0); tick(1500);
     expect(game.solved()).toBe(1); expect(game.bestSprint()).toBe(1);
     game.undo(); expect(game.complete).toBeTrue();
     now += 60000; tick(100); game.next();
@@ -41,10 +41,10 @@ describe('Sort sprint and records', () => {
     game.choose(3);game.choose(2);
     expect(game.flows().length).toBe(2);
     game.choose(0);expect(game.selected()).toBe(-1);
-    tick(520);
+    tick(600);
     expect(game.board()).toEqual([[0,0,0,0],[],[1,1,1,1],[],[]]);
     expect(game.moves()).toBe(2);
-    tick(680);expect(game.flows().length).toBe(0);
+    tick(900);expect(game.flows().length).toBe(0);
     tick(650);expect(game.level()).toBe(2);expect(game.moves()).toBe(0);
   }));
   it('continues a restored completed classic level without a next button', () => {
@@ -54,7 +54,7 @@ describe('Sort sprint and records', () => {
   it('records the fewest moves, not the latest slower finish', fakeAsync(() => {
     for(const moves of [4,8]) {
       game.restart(); game.moves.set(moves); game.board.set([[0,0,0],[0],[]]);
-      game.choose(1); game.choose(0); tick(1200);
+      game.choose(1); game.choose(0); tick(1500);
     }
     expect(game.records()['1']).toBe(5);
   }));

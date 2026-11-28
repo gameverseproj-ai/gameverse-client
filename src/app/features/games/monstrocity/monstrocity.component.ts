@@ -1,3 +1,5 @@
+import { ClientMonstrocityApi } from './monstrocity-client.api';
+import { syncDelay, shouldSampleInput } from './monstrocity-sync-policy';
 import { assistedAim } from './monstrocity-aim';
 import { searchLoot, LootReward } from './monstrocity-loot';
 import { MonstrocityAvatarComponent } from './monstrocity-avatar.component';
@@ -17,7 +19,7 @@ import { MusicService } from '../../../core/audio/music.service';
 import { MonstrocityMusic } from './monstrocity-music';
 import { mapFor } from './monstrocity.map';
 const memory = { getItem: (_: string) => null, setItem: (_: string, __: string) => { } };
-@Component({ selector: 'app-monstrocity', standalone: true, imports: [RouterLink, TranslatePipe, MonstrocityMonsterComponent, MonstrocityAvatarComponent], providers: [{ provide: MONSTROCITY_API, useFactory: () => inject(MONSTROCITY_PREVIEW) ? new LocalMonstrocityApi(typeof localStorage === 'undefined' ? memory : localStorage) : inject(HttpMonstrocityApi) }], templateUrl: './monstrocity.component.html', styleUrls: ['./monstrocity-map.scss', './monstrocity-camera.scss', './monstrocity.component.scss', './monstrocity-combat.scss', './monstrocity-loot.scss'] })
+@Component({ selector: 'app-monstrocity', standalone: true, imports: [RouterLink, TranslatePipe, MonstrocityMonsterComponent, MonstrocityAvatarComponent], providers: [{ provide: MONSTROCITY_API, useFactory: () => inject(MONSTROCITY_PREVIEW) ? new LocalMonstrocityApi(typeof localStorage === 'undefined' ? memory : localStorage) : new ClientMonstrocityApi(inject(HttpMonstrocityApi)) }], templateUrl: './monstrocity.component.html', styleUrls: ['./monstrocity-map.scss', './monstrocity-camera.scss', './monstrocity.component.scss', './monstrocity-combat.scss', './monstrocity-loot.scss'] })
 export class MonstrocityComponent {
     readonly api = inject(MONSTROCITY_API);
     private zone = inject(NgZone);
@@ -111,7 +113,7 @@ export class MonstrocityComponent {
     readonly combatVisualClock = signal(0);
     private retrievalStarted = 0;
     private retrievalDuration = 420;
-    get visualCombatMs() { return (this.combat?.elapsedActiveMs ?? 0) + (this.paused ? 0 : Math.min(350,Math.max(0,this.combatVisualClock()-this.combatReceivedAt))); }
+    get visualCombatMs() { return (this.combat?.elapsedActiveMs ?? 0) + (this.paused ? 0 : Math.min(750,Math.max(0,this.combatVisualClock()-this.combatReceivedAt))); }
     get approach() { const m = this.config()?.monsters.find(m => m.id === this.combat?.monsterId); return Math.min(1, this.visualCombatMs / ((m?.approachSeconds ?? 24) * 1000)); }
     get targetLocked() { return this.aimLocked && !!this.aiming(); }
     get monsterArt() { return this.config()?.monsters.find(m => m.id === this.combat?.monsterId)?.artId ?? 'mossback'; }
@@ -160,19 +162,20 @@ export class MonstrocityComponent {
     }
     toggleCamera() { const mode=this.cameraMode()==='overhead'?'follow':'overhead';this.cameraMode.set(mode);this.prefs.setCamera(mode,this.api.local);this.scene?.setCameraMode(mode); }
     choose(value: 'male' | 'female') { if (this.busy() || this.loading()) return; this.hero.set(value); this.prefs.setAvatar(value, this.api.local); this.scene?.setCharacter(value === 'female'); }
-    private apply(s: Snapshot) {
+    private apply(s: Snapshot, authoritative = false) {
         this.combatReceivedAt=performance.now();this.combatVisualClock.set(this.combatReceivedAt);
         if (this.disposed)
             return;
         const previous = this.state();
-        if (previous?.run && s.run && previous.run.id === s.run.id && previous.run.revision > s.run.revision)
+        if (!authoritative && previous?.run && s.run && previous.run.id === s.run.id && previous.run.revision > s.run.revision)
             return;
         if (previous?.run?.combat && s.run?.combat && previous.run.combat.hitsRemaining > s.run.combat.hitsRemaining) {
             this.hit.set(true);
             clearTimeout(this.hitTimer);
             this.hitTimer = window.setTimeout(() => this.hit.set(false), 180);
         }
-        const rewards=searchLoot(previous,s);
+        if (authoritative) { this.frames = []; this.motion.reset(); this.sequence = s.session?.lastAcceptedInputSequence ?? 0; }
+        const rewards=authoritative ? [] : searchLoot(previous,s);
         if(rewards.length){this.foundLoot.set(rewards);clearTimeout(this.lootTimer);this.lootTimer=window.setTimeout(()=>this.foundLoot.set([]),3200);}
         if(previous?.run?.id!==s.run?.id || s.run?.status==='dead'){this.foundLoot.set([]);clearTimeout(this.lootTimer);}
         this.motion.accept(s);
@@ -189,7 +192,7 @@ export class MonstrocityComponent {
     private handle(e: unknown) { if (this.disposed)
         return; if (e instanceof MonstrocityError) {
         if (e.snapshot)
-            this.apply(e.snapshot);
+            this.apply(e.snapshot, !!this.api.clientDriven);
         if (e.code === 'COOLDOWN') return;
         if (['NO_ITEM','OUT_OF_RANGE','TARGET_UNAVAILABLE','INVALID_STATE'].includes(e.code)) {
             this.notify(e.code === 'NO_ITEM' ? 'No supplies left.' : 'This action is no longer available.'); return;
@@ -202,7 +205,7 @@ export class MonstrocityComponent {
     toggleMusic() { this.musicMuted.update(v => !v); this.music.mute(this.musicMuted()); this.startMusic(); try { localStorage.setItem('monstrocity.music-muted', String(this.musicMuted())); } catch {} }
     async begin() { this.startMusic(); if (this.busy() || this.loading() || !!this.error())
         return; this.prefs.setAvatar(this.hero(), this.api.local); this.busy.set(true); this.error.set(''); try {
-        await this.queue(async () => { if (this.run?.status !== 'active') { const bootstrap = await this.api.bootstrap(); this.config.set(bootstrap.config); this.apply(bootstrap.snapshot); } const s = this.run?.status === 'active' ? await this.api.resume(this.run.id, false, crypto.randomUUID()) : await this.api.create({ character: this.hero(), configVersion: this.config()!.version }, crypto.randomUUID()); this.apply(s); this.sequence = s.session?.lastAcceptedInputSequence ?? 0; this.frames = []; this.motion.reset(); this.motion.accept(s); this.tick = 0; this.started.set(true); this.modal.set(null); this.scene?.setCharacter(this.hero() === 'female'); });
+        await this.queue(async () => { if (this.run?.status !== 'active') { const bootstrap = await this.api.bootstrap(); this.config.set(bootstrap.config); this.apply(bootstrap.snapshot, true); } this.lastSync=performance.now(); const s = this.run?.status === 'active' ? await this.api.resume(this.run.id, false, crypto.randomUUID()) : await this.api.create({ character: this.hero(), configVersion: this.config()!.version }, crypto.randomUUID()); this.apply(s, true); this.sequence = s.session?.lastAcceptedInputSequence ?? 0; this.frames = []; this.motion.reset(); this.motion.accept(s); this.tick = 0; this.started.set(true); this.modal.set(null); this.scene?.setCharacter(this.hero() === 'female'); });
     }
     catch (e) {
         this.handle(e);
@@ -212,7 +215,7 @@ export class MonstrocityComponent {
     } }
     async reconnect(takeover = false) { this.error.set(''); if (!this.run)
         return; this.busy.set(true); try {
-        await this.queue(async () => { const s = await this.api.resume(this.run!.id, takeover, crypto.randomUUID()); this.apply(s); this.sequence = s.session?.lastAcceptedInputSequence ?? 0; this.frames = []; this.motion.reset(); this.motion.accept(s); this.tick = 0; this.modal.set(null); this.started.set(true); });
+        await this.queue(async () => { this.lastSync=performance.now(); const s = await this.api.resume(this.run!.id, takeover, crypto.randomUUID()); this.apply(s, true); this.sequence = s.session?.lastAcceptedInputSequence ?? 0; this.frames = []; this.motion.reset(); this.motion.accept(s); this.tick = 0; this.modal.set(null); this.started.set(true); });
     }
     catch (e) {
         this.handle(e);
@@ -223,7 +226,7 @@ export class MonstrocityComponent {
     private async command(name: Command, body: Record<string, unknown> = {}) { if (!this.run || this.busy())
         return; this.busy.set(true); try {
         await this.queue(async () => { await this.flush(); const s = this.state()!; if (s.run?.status !== 'active')
-            return; this.apply(await this.api.command(s.run.id, name, { sessionId: s.session!.id, expectedRevision: s.run.revision, ...body }, crypto.randomUUID())); });
+            return; this.lastSync=performance.now(); this.apply(await this.api.command(s.run.id, name, { sessionId: s.session!.id, expectedRevision: s.run.revision, ...body }, crypto.randomUUID())); });
     }
     catch (e) {
         this.handle(e);
@@ -252,8 +255,8 @@ export class MonstrocityComponent {
         this.notify('Tap the sword again to win.');
     } }
     private notify(message: string) { this.toast.set(message); clearTimeout(this.toastTimer); this.toastTimer = window.setTimeout(() => this.toast.set(''), 2500); }
-    private async flush() { if (!this.started() || !this.run || this.run.status === 'dead' || document.hidden)
-        return; const frames = this.frames.splice(0, this.config()!.transport.maxBatchFrames); const s = this.state()!; const next = await this.api.sync(s.run!.id, { sessionId: s.session!.id, frames }); const before = s.profile.inventory.reduce((sum, i) => sum + i.collected, 0); if (next.profile.inventory.reduce((sum, i) => sum + i.collected, 0) > before)
+    private async flush(heartbeat = false) { if ((!heartbeat && this.frames.length === 0) || !this.started() || !this.run || this.run.status === 'dead' || document.hidden)
+        return; const frames = this.frames.splice(0, this.config()!.transport.maxBatchFrames); const s = this.state()!; this.lastSync=performance.now(); const next = await this.api.sync(s.run!.id, { sessionId: s.session!.id, frames }); const before = s.profile.inventory.reduce((sum, i) => sum + i.collected, 0); if (next.profile.inventory.reduce((sum, i) => sum + i.collected, 0) > before)
         this.notify('Supplies added to your bag.'); this.apply(next); }
     private loop = (time: number) => {
         if (this.disposed)
@@ -287,16 +290,16 @@ export class MonstrocityComponent {
                         x = 0;
                         y = 0;
                     }
-                    if (this.frames.length < this.config()!.transport.maxBatchFrames) {
+                    if (shouldSampleInput(x, y, this.frames.length) && this.frames.length < this.config()!.transport.maxBatchFrames) {
                         const input = { sequence: ++this.sequence, ...(this.scene?.movementInput(x,y) ?? worldInput(x, y)) };
                         this.frames.push(input);
                         this.motion.add(input);
                     }
                 }
-                if ((time - this.lastSync >= this.config()!.transport.syncIntervalMs || this.frames.length >= this.config()!.transport.maxBatchFrames) && !this.syncing && !this.busy()) {
+                if ((time - this.lastSync >= (this.api.clientDriven ? 50 : syncDelay(this.config()!.transport, this.frames.length > 0, !!this.combat && !this.paused)) || this.frames.length >= this.config()!.transport.maxBatchFrames) && !this.syncing && !this.busy()) {
                     this.lastSync = time;
                     this.syncing = true;
-                    this.zone.run(() => { void this.queue(() => this.flush()).catch(e => this.handle(e)).finally(() => this.syncing = false); });
+                    this.zone.run(() => { void this.queue(() => this.flush(true)).catch(e => this.handle(e)).finally(() => this.syncing = false); });
                 }
             }
         }

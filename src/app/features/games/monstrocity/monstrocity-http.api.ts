@@ -1,3 +1,4 @@
+import { Checkpoint, CheckpointAck } from './monstrocity-checkpoint';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom, Observable, retry, timer, throwError, timeout, TimeoutError } from 'rxjs';
@@ -39,6 +40,21 @@ export class HttpMonstrocityApi implements MonstrocityApi {
             headers: {'Content-Type': 'application/json', Authorization: `Bearer ${token}`, 'Idempotency-Key': key},
             body: JSON.stringify(body),
         }).catch(() => {}); // Resume reconciles a missed leave; never forge a local result.
+    }
+    checkpoint(id: string, body: Checkpoint, key: string) {
+        return this.response(this.http.post<CheckpointAck>(`${this.url}/runs/${encodeURIComponent(id)}/checkpoints`, body,
+            {headers: {'Idempotency-Key': key}}));
+    }
+    leaveCheckpoint(id: string, body: Checkpoint, key: string) {
+        const token = this.session.token();
+        if (!token) return;
+        const payload = JSON.stringify(body);
+        // Fetch keepalive has a shared 64 KiB limit. Larger queued saves use normal delivery.
+        void fetch(`${this.url}/runs/${encodeURIComponent(id)}/checkpoints`, {
+            method:'POST', keepalive:new TextEncoder().encode(payload).length < 60000,
+            headers:{'Content-Type':'application/json', Authorization:`Bearer ${token}`, 'Idempotency-Key':key},
+            body:payload,
+        }).catch(() => {});
     }
     private post(path: string, body: unknown, key?: string) { return this.response(this.http.post<Snapshot>(this.url + path, body, { headers: key ? { 'Idempotency-Key': key } : {} })); }
     private async response<T>(request: Observable<T>): Promise<T> {

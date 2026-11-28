@@ -3,7 +3,7 @@ import { LOCAL_CONFIG } from './monstrocity.config';
 import { Command, MonstrocityApi, MonstrocityError } from './monstrocity.api';
 import { Bootstrap, CreateRun, Input, ItemId, Point, Snapshot, Sync } from './monstrocity.types';
 import { mapFor, distance, movePoint, lineBlocked } from './monstrocity.map';
-interface Saved {
+export interface SimulationState {
     state: Snapshot;
     shelters: number[];
     searched: string[];
@@ -30,14 +30,14 @@ export const freshState = (): Snapshot => ({ serverTime: new Date().toISOString(
 export class LocalMonstrocityApi implements MonstrocityApi {
     readonly local = true;
     readonly config = structuredClone(LOCAL_CONFIG);
-    private data: Saved;
+    private data: SimulationState;
     private ownsSession = false;
-    constructor(private storage: Pick<Storage, 'getItem' | 'setItem'>, private now = () => Date.now(), private random = () => Math.random()) {
+    constructor(private storage: Pick<Storage, 'getItem' | 'setItem'>, private now = () => Date.now(), private random = () => Math.random(), private newId: () => string = () => crypto.randomUUID()) {
         this.data = { state: freshState(), shelters: [], searched: [], spoken: [], nextEncounter: 18000, last: this.now(), offline: null, offlineEnergyAt: null, shots: [], combatEnd: 0, hiddenFor: 0, receipts: {} };
         const raw = storage.getItem(LOCAL_SAVE_KEY);
         if (raw) {
             try {
-                const saved = JSON.parse(raw) as Saved;
+                const saved = JSON.parse(raw) as SimulationState;
                 if (saved.state?.profile?.inventory && saved.state.run?.mapVersion === this.config.mapVersion) {
                     this.data = saved;
                     if (this.data.offline === null && this.now() - this.data.last > this.config.transport.disconnectAfterSeconds * 1000)
@@ -46,6 +46,16 @@ export class LocalMonstrocityApi implements MonstrocityApi {
             }
             catch { /* corrupt preview doesn't affect account */ }
         }
+    }
+    /** Hydrate only from a negotiated server session; preview storage is never imported. */
+    hydrate(config: typeof LOCAL_CONFIG, state: SimulationState) {
+        Object.assign(this.config, structuredClone(config));
+        this.data = structuredClone(state);
+        this.data.receipts = {};
+        this.ownsSession = true;
+    }
+    checkpoint(): SimulationState {
+        return structuredClone({ ...this.data, receipts: {} });
     }
     private get map() { return mapFor(this.s.run?.mapVersion ?? this.config.mapVersion); }
     private get s() { return this.data.state; }
@@ -82,7 +92,7 @@ export class LocalMonstrocityApi implements MonstrocityApi {
             this.fail('SESSION_EXPIRED');
         const saved = this.storage.getItem(LOCAL_SAVE_KEY);
         if (saved) {
-            const current = JSON.parse(saved) as Saved;
+            const current = JSON.parse(saved) as SimulationState;
             if (current.state.session?.id && current.state.session.id !== this.s.session?.id)
                 this.fail('SESSION_CONFLICT');
         }
@@ -138,7 +148,7 @@ export class LocalMonstrocityApi implements MonstrocityApi {
         return this.receipt(key, { id, takeover }, () => {
             const live = this.storage.getItem(LOCAL_SAVE_KEY);
             if (live && !this.ownsSession && !takeover) {
-                const saved = JSON.parse(live) as Saved;
+                const saved = JSON.parse(live) as SimulationState;
                 if (saved.state.run?.status === 'active' && saved.offline === null && this.now() - saved.last < this.config.transport.disconnectAfterSeconds * 1000)
                     this.fail('SESSION_CONFLICT');
             }
@@ -149,7 +159,7 @@ export class LocalMonstrocityApi implements MonstrocityApi {
                 return this.copy();
             const raw = this.storage.getItem(LOCAL_SAVE_KEY);
             if (raw) {
-                const saved = JSON.parse(raw) as Saved;
+                const saved = JSON.parse(raw) as SimulationState;
                 if (saved.state.session?.id !== this.s.session?.id) {
                     if (!takeover)
                         this.fail('SESSION_CONFLICT');
@@ -308,7 +318,7 @@ export class LocalMonstrocityApi implements MonstrocityApi {
         }
         else if (!r.shelterId && !r.search && r.activeElapsedMs >= this.data.nextEncounter) {
             const tier = [...c.difficulty].reverse().find(t => r.survivedDays >= t.fromDay)!;
-            r.notice = { encounterId: crypto.randomUUID(), monsterId: this.config.monsters[0].id, optional: this.random() < tier.optionalEncounterProbability, attention: 0, position: movePoint(r.position, 0, -3,this.map) };
+            r.notice = { encounterId: this.newId(), monsterId: this.config.monsters[0].id, optional: this.random() < tier.optionalEncounterProbability, attention: 0, position: movePoint(r.position, 0, -3,this.map) };
             this.data.hiddenFor = 0;
         }
     }

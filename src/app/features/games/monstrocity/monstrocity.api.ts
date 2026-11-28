@@ -3,6 +3,7 @@ import { Bootstrap, CreateRun, Snapshot, Sync } from './monstrocity.types';
 export type Command = 'pause' | 'unpause' | 'consume' | 'search' | 'talk' | 'throw' | 'sword' | 'disconnect';
 export interface MonstrocityApi {
     readonly local: boolean;
+    readonly clientDriven?: boolean;
     leave?(runId: string, body: Record<string, unknown>, key: string): void;
     bootstrap(): Promise<Bootstrap>;
     create(body: CreateRun, key: string): Promise<Snapshot>;

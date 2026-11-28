@@ -91,7 +91,7 @@ export class SortComponent {
         }
     }
     catch { } }); }
-    readonly flows = signal<Array<{id:number;from:number;to:number;path:string;color:string;dx:number;dy:number;tilt:number}>>([]);
+    readonly flows = signal<Array<{id:number;from:number;to:number;path:string;color:string;dx:number;dy:number;tilt:number;startY:number}>>([]);
     private flowId=0;
     private flowTimers=new Set<ReturnType<typeof setTimeout>>();
     private advanceTimer?:ReturnType<typeof setTimeout>;
@@ -110,9 +110,10 @@ export class SortComponent {
         const next=pour(this.board(),from,index);
         if(!next){if(this.board()[index].length)this.selected.set(index);return;}
         const target=event?.currentTarget as HTMLElement|undefined, rack=target?.parentElement;
-        let dx=0,dy=-50,path='',tilt=70;
+        let dx=0,dy=-50,path='',tilt=70,startLift=0;
         if(target&&rack){
             const source=rack.querySelectorAll<HTMLElement>('.tube-button')[from];
+            startLift=source.querySelector<HTMLElement>('.tube')!.getBoundingClientRect().top-source.getBoundingClientRect().top;
             const x=target.offsetLeft+target.offsetWidth/2,y=target.offsetTop;
             const direction=x<rack.clientWidth/2?-1:1;
             tilt=direction*70;
@@ -124,7 +125,7 @@ export class SortComponent {
             const surface=y+8+(height-16)*(1-next[index].length/4)+6;
             path=`M ${startX} ${startY} C ${startX+3} ${startY+18}, ${x} ${surface-20}, ${x} ${surface}`;
         }
-        const flow={id:++this.flowId,from,to:index,path,dx,dy,tilt,color:this.palette[this.board()[from].at(-1)!]};
+        const flow={id:++this.flowId,from,to:index,path,dx,dy,tilt,startY:startLift,color:this.palette[this.board()[from].at(-1)!]};
         this.flows.update(flows=>[...flows,flow]);this.pouring.set(from);this.selected.set(-1);
         this.later(()=>{
             this.updateClock();if(this.mode()==='timed'&&!this.running())return;
@@ -134,7 +135,7 @@ export class SortComponent {
             this.moves.update(n=>n+1);
             if(won(this.board()))this.recordWin();
             this.save();
-        },520);
+        },600);
         this.later(()=>{
             this.flows.update(flows=>flows.filter(f=>f.id!==flow.id));this.pouring.set(this.flows()[0]?.from??-1);
             const completed=next[index].length===4&&next[index].every(c=>c===next[index][0]);
@@ -143,7 +144,7 @@ export class SortComponent {
                 this.victory.set(true);this.advanceTimer=setTimeout(()=>this.next(),650);
             }
             clearTimeout(this.rewardTimer);this.rewardTimer=setTimeout(()=>this.clearReward(),1800);
-        },1200);
+        },1500);
     }
     undo() { if (!this.canUndo)
         return; const old = this.history.pop(); if (old) {
